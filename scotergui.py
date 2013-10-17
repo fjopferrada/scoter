@@ -149,25 +149,28 @@ def drill(parent, pathspec):
     for elt in path:
         print elt, current
         current = wx.xrc.XRCCTRL(current, elt)
+    print current
     return current
 
 def main():
     app = wx.App()
     MainFrame(None)
     res = wx.xrc.XmlResource('forms.xrc')
-    test_frame = res.LoadFrame(None, "MyFrame1")
-    panel = drill(test_frame, "m_notebook1 m_panel1 m_panel4")
+    test_frame = res.LoadFrame(None, "MainFrame")
+    panel = drill(test_frame, "Notebook DataPanel0 DataPanel01")
 
     figure = Figure()
+    figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
     axes = []
-    axes.append(figure.add_subplot(211))
-    axes.append(figure.add_subplot(212))
+    axes.append(figure.add_subplot(111))
+    # axes.append(figure.add_subplot(212))
   
     # button = wx.Button(panel, id = RecordTypeDialog.ID_RPI_BUTTON, label = "Added button.")   
     figure_canvas = FigureCanvas(panel, -1, figure)
     sizer = panel.GetSizer()
     my_element = figure_canvas
-    sizer.Add(my_element, 1, wx.GROW)
+    #sizer.Add(my_element, 1, wx.GROW)
+    sizer.Add(my_element, 1, wx.EXPAND | wx.ALL)
     #test_frame.Fit() # seems to super-shrink it!
     test_frame.Show()
     app.MainLoop()
