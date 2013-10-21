@@ -194,7 +194,7 @@
 			</object>
 			<object class="notebookpage">
 				<label>Preprocessing</label>
-				<selected>1</selected>
+				<selected>0</selected>
 				<bitmap />
 				<object class="wxPanel" name="PreprocessingPanel">
 					<style>wxTAB_TRAVERSAL</style>
@@ -203,11 +203,11 @@
 						<cols>2</cols>
 						<vgap>0</vgap>
 						<hgap>0</hgap>
-						<growablecols></growablecols>
+						<growablecols>1</growablecols>
 						<growablerows></growablerows>
 						<object class="sizeritem">
 							<option>0</option>
-							<flag>wxALL</flag>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL</flag>
 							<border>5</border>
 							<object class="wxStaticText" name="m_staticText3">
 								<label>Detrending</label>
@@ -218,14 +218,18 @@
 							<option>0</option>
 							<flag>wxALL</flag>
 							<border>5</border>
-							<object class="wxComboBox" name="m_comboBox1">
-								<value>Combo!</value>
-								<content />
+							<object class="wxChoice" name="m_choice1">
+								<selection>0</selection>
+								<content>
+									<item>None</item>
+									<item>Subtract mean</item>
+									<item>Linear detrend</item>
+								</content>
 							</object>
 						</object>
 						<object class="sizeritem">
 							<option>0</option>
-							<flag>wxALL</flag>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL</flag>
 							<border>5</border>
 							<object class="wxStaticText" name="m_staticText6">
 								<label>Normalization</label>
@@ -236,14 +240,14 @@
 							<option>0</option>
 							<flag>wxALL</flag>
 							<border>5</border>
-							<object class="wxRadioButton" name="m_radioBtn1">
+							<object class="wxCheckBox" name="m_checkBox1">
 								<label>Normalize</label>
-								<value>0</value>
+								<checked>1</checked>
 							</object>
 						</object>
 						<object class="sizeritem">
 							<option>0</option>
-							<flag>wxALL</flag>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL</flag>
 							<border>5</border>
 							<object class="wxStaticText" name="m_staticText7">
 								<label>Deepest depth</label>
@@ -252,13 +256,134 @@
 						</object>
 						<object class="sizeritem">
 							<option>0</option>
-							<flag>wxALL|wxEXPAND</flag>
+							<flag>wxALL</flag>
 							<border>5</border>
-							<object class="wxSlider" name="m_slider1">
-								<style>wxSL_HORIZONTAL</style>
-								<value>50</value>
+							<object class="wxSpinCtrl" name="m_spinCtrl1">
+								<style>wxSP_ARROW_KEYS</style>
+								<value>0</value>
 								<min>0</min>
-								<max>100</max>
+								<max>10</max>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL</flag>
+							<border>5</border>
+							<object class="wxStaticText" name="m_staticText71">
+								<label>Shallowest depth</label>
+								<wrap>-1</wrap>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALL</flag>
+							<border>5</border>
+							<object class="wxSpinCtrl" name="m_spinCtrl12">
+								<style>wxSP_ARROW_KEYS</style>
+								<value>0</value>
+								<min>0</min>
+								<max>10</max>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL</flag>
+							<border>5</border>
+							<object class="wxStaticText" name="m_staticText711">
+								<label>Oldest time</label>
+								<wrap>-1</wrap>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALL</flag>
+							<border>5</border>
+							<object class="wxSpinCtrl" name="m_spinCtrl13">
+								<style>wxSP_ARROW_KEYS</style>
+								<value>0</value>
+								<min>0</min>
+								<max>10</max>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL</flag>
+							<border>5</border>
+							<object class="wxStaticText" name="m_staticText712">
+								<label>Youngest time</label>
+								<wrap>-1</wrap>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALL</flag>
+							<border>5</border>
+							<object class="wxSpinCtrl" name="m_spinCtrl11">
+								<style>wxSP_ARROW_KEYS</style>
+								<value>0</value>
+								<min>0</min>
+								<max>10</max>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL</flag>
+							<border>5</border>
+							<object class="wxStaticText" name="m_staticText7121">
+								<label>Interpolation</label>
+								<wrap>-1</wrap>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND | wxALL</flag>
+							<border>5</border>
+							<object class="wxPanel" name="m_panel13">
+								<style>wxTAB_TRAVERSAL</style>
+								<object class="wxBoxSizer">
+									<orient>wxHORIZONTAL</orient>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+										<border>5</border>
+										<object class="wxRadioButton" name="m_radioBtn1">
+											<label>None</label>
+											<value>0</value>
+										</object>
+									</object>
+									<object class="spacer">
+										<option>0</option>
+										<flag></flag>
+										<border>5</border>
+										<size>16,0</size>
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+										<border>5</border>
+										<object class="wxRadioButton" name="m_radioBtn2">
+											<label>Interpolate to</label>
+											<value>0</value>
+										</object>
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxALL</flag>
+										<border>5</border>
+										<object class="wxTextCtrl" name="m_textCtrl1">
+											<value></value>
+										</object>
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+										<border>5</border>
+										<object class="wxStaticText" name="m_staticText19">
+											<label>points</label>
+											<wrap>-1</wrap>
+										</object>
+									</object>
+								</object>
 							</object>
 						</object>
 					</object>
@@ -266,10 +391,50 @@
 			</object>
 			<object class="notebookpage">
 				<label>Tuning</label>
-				<selected>0</selected>
+				<selected>1</selected>
 				<bitmap />
 				<object class="wxPanel" name="TuningPanel">
 					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALL</flag>
+							<border>5</border>
+							<object class="wxButton" name="m_button10">
+								<label>Tune</label>
+								<default>0</default>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+			<object class="notebookpage">
+				<label>Results</label>
+				<selected>0</selected>
+				<bitmap />
+				<object class="wxPanel" name="ResultsPanel">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND | wxALL</flag>
+							<border>5</border>
+							<object class="wxPanel" name="m_panel15">
+								<style>wxTAB_TRAVERSAL</style>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALIGN_RIGHT|wxALL</flag>
+							<border>5</border>
+							<object class="wxButton" name="m_button9">
+								<label>Save results</label>
+								<default>0</default>
+							</object>
+						</object>
+					</object>
 				</object>
 			</object>
 		</object>

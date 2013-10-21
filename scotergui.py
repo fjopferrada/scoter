@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import wx
 import wx.xrc
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 from scoter import Scoter
 import os.path
+import forms
 
 def find_xrc_ctrl(parent, pathspec):
     current = parent
@@ -23,6 +23,7 @@ class ScoterApp(wx.App):
         
         res = wx.xrc.XmlResource('forms.xrc')
         self.main_frame = res.LoadFrame(None, "MainFrame")
+        #self.main_frame = forms.MainFrame(None)
         self.axes = []
         self.figure_canvas = []
         for panel in (0,1):
@@ -42,13 +43,16 @@ class ScoterApp(wx.App):
     
     def add_figure(self, panel, subpanel):
         locator = "Notebook DataPanel%d DataPanel%d%d" % (panel, panel, subpanel)
-        panel = find_xrc_ctrl(self.main_frame, locator)
+        panel_obj = find_xrc_ctrl(self.main_frame, locator)
         figure = Figure()
         figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
-        self.axes.append(figure.add_subplot(111))
-        figure_canvas = FigureCanvas(panel, -1, figure)
+        axes = figure.add_axes([0.05, 0.2, 0.93, 0.7])
+        axes.set_xlabel("Depth" if subpanel==0 else "Time")
+        axes.set_ylabel("$\delta^{18}\mathrm{O}$" if panel==0 else "RPI")
+        self.axes.append(axes)
+        figure_canvas = FigureCanvas(panel_obj, -1, figure)
         self.figure_canvas.append(figure_canvas)
-        sizer = panel.GetSizer()
+        sizer = panel_obj.GetSizer()
         sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)         
 
     def plot_series(self):
@@ -57,8 +61,6 @@ class ScoterApp(wx.App):
                 index = 2 * rtype + dataset
                 axes = self.axes[index]
                 axes.clear()
-                axes.set_xlabel("time")
-                axes.set_ylabel("$\delta^{18}\mathrm{O}$")
                 series = self.scoter.series[dataset][rtype]
                 if series is not None:
                     xs = series.data[0]
@@ -72,7 +74,7 @@ class ScoterApp(wx.App):
         record_type = 0 if "d18o" in button_name else 1
         assert(0 <= index <= 1)
         assert(0 <= record_type <= 1)
-        dialog = wx.FileDialog(self.main_frame, "Choose a file", "~", "", "*.*", wx.OPEN)
+        dialog = wx.FileDialog(self.main_frame, "Choose a file", "", "", "*.*", wx.OPEN)
         if dialog.ShowModal() == wx.ID_OK:
             leafname = dialog.GetFilename()
             dirname = dialog.GetDirectory()

@@ -1,4 +1,6 @@
-__all__ = ['scoter',
-           'scotergui',
-           'series',
-           'plot']
+__all__ = ["scoter",
+           "scotergui",
+           "series",
+           "plot",
+           "block",
+           "simann"]
