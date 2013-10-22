@@ -51,6 +51,11 @@ class Scoter:
         assert(0 <= record_type <= 1)
         self.series[data_set][record_type] = Series.read(filename)
     
+    def clear_data(self, data_set, record_type):
+        assert(0 <= data_set <= 1)
+        assert(0 <= record_type <= 1)
+        self.series[data_set][record_type] = None        
+    
     def read_test_data(self):
         leafname = "1306 isotopes.txt"
         self.read_data(0, 0, self.rel_path(leafname))

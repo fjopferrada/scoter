@@ -27,6 +27,10 @@ class ScoterApp(wx.App):
         self.main_frame.Bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_target)
         self.main_frame.Bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_rpi_record)
         self.main_frame.Bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_rpi_target)
+        self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_record)
+        self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_target)
+        self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_record)
+        self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_target)        
         
         notebook = self.main_frame.Notebook
         notebook.SetSelection(0)
@@ -60,7 +64,25 @@ class ScoterApp(wx.App):
                     ys = series.data[1]
                     axes.plot(xs, ys)
                 self.figure_canvas[index].draw()
-        
+    
+    def clear_record(self, event):
+        eo = event.GetEventObject()
+        fr = self.main_frame
+        if eo == fr.button_clear_d18o_record:
+            index, record_type = 0, 0
+        elif eo == fr.button_clear_rpi_record:
+            index, record_type = 0, 1
+        elif eo == fr.button_clear_d18o_target:
+            index, record_type = 1, 0
+        elif eo == fr.button_clear_rpi_target:
+            index, record_type = 1, 1
+        else:
+            index, record_type = -1, -1
+        assert(0 <= index <= 1)
+        assert(0 <= record_type <= 1)
+        self.scoter.clear_data(index, record_type)
+        self.plot_series()
+    
     def read_record(self, event):
         eo = event.GetEventObject()
         fr = self.main_frame
