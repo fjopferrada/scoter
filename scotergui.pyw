@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import wx.xrc
+import wx
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 from scoter import Scoter
@@ -13,6 +13,8 @@ class ScoterApp(wx.App):
     def OnInit(self):
         
         self.scoter = Scoter()
+        self.SetVendorName("talvi.net") # may as well adopt the Java convention
+        self.SetAppName("Scoter")
         
         #res = wx.xrc.XmlResource('forms.xrc')
         #self.main_frame = res.LoadFrame(None, "MainFrame")
@@ -36,6 +38,11 @@ class ScoterApp(wx.App):
         notebook.SetSelection(0)
         self.main_frame.Center()
         self.main_frame.Show()
+        
+        # Ugly hack to force Windows to draw graphs at correct size.
+        width, height = self.main_frame.GetSize()
+        self.main_frame.SetSize((width+1,height))
+        self.main_frame.SetSize((width-1,height))
         
         return True
     
