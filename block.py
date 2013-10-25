@@ -97,9 +97,9 @@ class Bseries:
         total = 0
 
         for i in range(len(data0)):
-           xs0, ys0 = data0[i][0], data0[i][1]
-           xs1, ys1 = data1[i][0], data1[i][1]
-           total += (difference(xs0, ys0, xs1, ys1) +
+            xs0, ys0 = data0[i][0], data0[i][1]
+            xs1, ys1 = data1[i][0], data1[i][1]
+            total += (difference(xs0, ys0, xs1, ys1) +
                      difference(xs1, ys1, xs0, ys0)) # ** 2
            
         return total
@@ -306,7 +306,7 @@ class Bwarp:
         start, slice_len = self._choose_slice()
         #for s in 0, 1:
         for s in (randint(0, 1),):
-           self._change_rates_one(s, start, slice_len)
+            self._change_rates_one(s, start, slice_len)
         s = 0
         t = 1 - s
         runs_s = self.runs[s]
@@ -346,26 +346,26 @@ class Bwarp:
         if r < 0.2: copy.slice_reverse()
         #elif r < 0.2: copy.slice_swap()
         else:
-           copy.change_rates_both()
+            copy.change_rates_both()
         return copy
 
     def rate_change_score(self):
-       """Return a rate change score for this warp.
-
-       The more the rate changes, the higher the score."""
+        """Return a rate change score for this warp.
+ 
+        The more the rate changes, the higher the score."""
        
-       total = 0
-       prev = None
-       for i in xrange(len(self.runs[0])):
-          a, b = self.runs[0][i], self.runs[1][i]
-          # a *= self.max_rate
-          rate = 5 * math.log(self.max_rate * (float(a) / float(b)))
-          # print rate
-          if prev != None:
-             diff = abs(rate - prev) ** 2
-             total += diff
-          prev = rate
-       return total
+        total = 0
+        prev = None
+        for i in xrange(len(self.runs[0])):
+            a, b = self.runs[0][i], self.runs[1][i]
+            # a *= self.max_rate
+            rate = 5 * math.log(self.max_rate * (float(a) / float(b)))
+            # print rate
+            if prev != None:
+                diff = abs(rate - prev) ** 2
+                total += diff
+            prev = rate
+        return total
 
     def score(self):
         """Calculate the goodness-of-match score for this warp."""
@@ -381,7 +381,7 @@ class Bwarp:
             total += comp((pos0, new0), (pos1, new1))
             pos0, pos1 = new0, new1
         if self.rc_penalty != 0:
-           total += self.rate_change_score() * self.rc_penalty
+            total += self.rate_change_score() * self.rc_penalty
         self._score = total
         return total
 

@@ -65,9 +65,16 @@ class Scoter:
         #if args.multiscale > -1:
         #    return solve_sa_multiscale(series0, series1, nblocks, known_line, args)
     
-        series0 = self.series[0]
-        series1 = self.series[1]
-        nblocks = self.nblocks
+        nblocks = args.nblocks
+        
+        # Each series is a tuple of parallel records of different parameters
+        
+        for i in (0,1):
+            for j in (0,1):
+                self.series[i][j] = self.series[i][j].resample(500)
+        
+        series0 = (self.series[0][0], self.series[0][1])
+        series1 = (self.series[1][0], self.series[1][1])
     
         starting_warp = Bwarp(Bseries(series0, nblocks),
                               Bseries(series1, nblocks),
@@ -87,28 +94,25 @@ class Scoter:
         # # Parameters for 1306
         # schedule = AdaptiveSchedule(1.0e5, 1.0e-0, 50, 500, rate = 0.99)
         if args.precalc:
-            bw_ann = starting_warp
+            bwarp_annealed = starting_warp
         else:
             annealer = Annealer(starting_warp)
             annealer.run(schedule, logging = False, restarts = 0,
                     callback = plotter.replot if plotter else None)
             annealer.output_scores('/home/pont/scores.txt')
-            bw_ann = annealer.soln_best
+            bwarp_annealed = annealer.soln_best
         
         # Apply the annealed antiwarp to the warped data
         if plotter: plotter.finish()
-        bw_ann.name = 'Sim. Ann.'
-        bw_ann.printself()
-        dewarped = bw_ann.apply(1)
-        
-        with open('/home/pont/cache.txt', 'w') as fh:
-            bw_ann.comp.dump(fh)
+        bwarp_annealed.name = 'Sim. Ann.'
+        bwarp_annealed.printself()
+        dewarped = bwarp_annealed.apply(1)
     
-        return dewarped, bw_ann, starting_warp.comp
+        self.dewarped = dewarped
+        self.bwarp_annealed = bwarp_annealed
 
     def correlate(self, method):
         args = None
         warp_line = None
-        dewarped, sa_warp, ccache = \
-            self.solve_sa(warp_line, args)
+        self.solve_sa(warp_line, args)
         

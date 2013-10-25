@@ -16,14 +16,23 @@ class ScoterApp(wx.App):
         self.SetVendorName("talvi.net") # may as well adopt the Java convention
         self.SetAppName("Scoter")
         
-        #res = wx.xrc.XmlResource('forms.xrc')
-        #self.main_frame = res.LoadFrame(None, "MainFrame")
         self.main_frame = forms.MainFrame(None)
+        icon = wx.Icon("placeholder.png", wx.BITMAP_TYPE_PNG, 16, 16)
+        self.main_frame.SetIcon(icon)
+        
         self.axes = []
         self.figure_canvas = []
         for panel in (0,1):
             for subpanel in (0,1):
                 self.add_figure(panel, subpanel)
+
+        panel_obj = self.main_frame.DataPanel_Results
+        figure = Figure()
+        figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
+        self.result_axes = figure.add_axes([0.05, 0.2, 0.93, 0.7])
+        figure_canvas = FigureCanvas(panel_obj, -1, figure)
+        sizer = panel_obj.GetSizer()
+        sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
 
         self.main_frame.Bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_record)
         self.main_frame.Bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_target)
@@ -33,6 +42,7 @@ class ScoterApp(wx.App):
         self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_target)
         self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_record)
         self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_target)        
+        self.main_frame.Bind(wx.EVT_BUTTON, self.tune, self.main_frame.button_tune)
         
         notebook = self.main_frame.Notebook
         notebook.SetSelection(0)
@@ -57,7 +67,7 @@ class ScoterApp(wx.App):
         figure_canvas = FigureCanvas(panel_obj, -1, figure)
         self.figure_canvas.append(figure_canvas)
         sizer = panel_obj.GetSizer()
-        sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)         
+        sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
 
     def plot_series(self):
         for dataset in (0,1):
@@ -113,6 +123,19 @@ class ScoterApp(wx.App):
             dialog.Destroy()
             self.scoter.read_data(index, record_type, filename)
             self.plot_series()
+    
+    def tune(self, event):
+        class params(object):
+            live_display = False
+            precalc = False
+            make_pdf = False
+            nblocks = 64
+            max_rate = 4
+        self.scoter.solve_sa(None, params)
+        xs = self.scoter.dewarped.data[0]
+        ys = self.scoter.dewarped.data[1]
+        self.result_axes.clear()
+        self.result_axes.plot(xs, ys)
 
 def main():
     app = ScoterApp()

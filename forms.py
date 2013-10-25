@@ -232,19 +232,25 @@ class MainFrame ( wx.Frame ):
 		self.TuningPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_button10 = wx.Button( self.TuningPanel, wx.ID_ANY, u"Tune", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer14.Add( self.m_button10, 0, wx.ALL, 5 )
+		self.button_tune = wx.Button( self.TuningPanel, wx.ID_ANY, u"Tune", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer14.Add( self.button_tune, 0, wx.ALL, 5 )
 		
 		
 		self.TuningPanel.SetSizer( bSizer14 )
 		self.TuningPanel.Layout()
 		bSizer14.Fit( self.TuningPanel )
-		self.Notebook.AddPage( self.TuningPanel, u"Tuning", True )
+		self.Notebook.AddPage( self.TuningPanel, u"Tuning", False )
 		self.ResultsPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_panel15 = wx.Panel( self.ResultsPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer13.Add( self.m_panel15, 1, wx.EXPAND |wx.ALL, 5 )
+		self.DataPanel_Results = wx.Panel( self.ResultsPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer15 = wx.BoxSizer( wx.VERTICAL )
+		
+		
+		self.DataPanel_Results.SetSizer( bSizer15 )
+		self.DataPanel_Results.Layout()
+		bSizer15.Fit( self.DataPanel_Results )
+		bSizer13.Add( self.DataPanel_Results, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		self.m_button9 = wx.Button( self.ResultsPanel, wx.ID_ANY, u"Save results", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer13.Add( self.m_button9, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
@@ -253,7 +259,7 @@ class MainFrame ( wx.Frame ):
 		self.ResultsPanel.SetSizer( bSizer13 )
 		self.ResultsPanel.Layout()
 		bSizer13.Fit( self.ResultsPanel )
-		self.Notebook.AddPage( self.ResultsPanel, u"Results", False )
+		self.Notebook.AddPage( self.ResultsPanel, u"Results", True )
 		
 		bSizer1.Add( self.Notebook, 1, wx.EXPAND |wx.ALL, 5 )
 		
