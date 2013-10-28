@@ -202,8 +202,13 @@ class MainFrame ( wx.Frame ):
 		self.m_panel13 = wx.Panel( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer12 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_radioBtn1 = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"None", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer12.Add( self.m_radioBtn1, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.rbut_preproc_none = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"None", wx.DefaultPosition, wx.DefaultSize, wx.RB_GROUP )
+		bSizer12.Add( self.rbut_preproc_none, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.m_radioBtn3 = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Interpolate to minimum", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_radioBtn3.SetToolTipString( u"Interpolate to the minimum number of points in any of the data-sets" )
+		
+		bSizer12.Add( self.m_radioBtn3, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
 		
 		bSizer12.AddSpacer( ( 16, 0), 0, 0, 5 )
@@ -228,7 +233,7 @@ class MainFrame ( wx.Frame ):
 		self.PreprocessingPanel.SetSizer( fgSizer1 )
 		self.PreprocessingPanel.Layout()
 		fgSizer1.Fit( self.PreprocessingPanel )
-		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", False )
+		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", True )
 		self.TuningPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -259,7 +264,7 @@ class MainFrame ( wx.Frame ):
 		self.ResultsPanel.SetSizer( bSizer13 )
 		self.ResultsPanel.Layout()
 		bSizer13.Fit( self.ResultsPanel )
-		self.Notebook.AddPage( self.ResultsPanel, u"Results", True )
+		self.Notebook.AddPage( self.ResultsPanel, u"Results", False )
 		
 		bSizer1.Add( self.Notebook, 1, wx.EXPAND |wx.ALL, 5 )
 		
@@ -267,11 +272,20 @@ class MainFrame ( wx.Frame ):
 		self.SetSizer( bSizer1 )
 		self.Layout()
 		self.m_statusBar1 = self.CreateStatusBar( 1, wx.ST_SIZEGRIP, wx.ID_ANY )
-		self.m_menubar1 = wx.MenuBar( 0 )
-		self.MenuFile = wx.Menu()
-		self.m_menubar1.Append( self.MenuFile, u"File" ) 
+		self.menubar = wx.MenuBar( 0 )
+		self.menu_file = wx.Menu()
+		self.menuitem_quit = wx.MenuItem( self.menu_file, wx.ID_EXIT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_file.AppendItem( self.menuitem_quit )
 		
-		self.SetMenuBar( self.m_menubar1 )
+		self.menubar.Append( self.menu_file, u"File" ) 
+		
+		self.menu_help = wx.Menu()
+		self.menuitem_about = wx.MenuItem( self.menu_help, wx.ID_ABOUT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_help.AppendItem( self.menuitem_about )
+		
+		self.menubar.Append( self.menu_help, u"Help" ) 
+		
+		self.SetMenuBar( self.menubar )
 		
 	
 	def __del__( self ):
