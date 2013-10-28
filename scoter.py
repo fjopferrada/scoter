@@ -59,6 +59,9 @@ class Scoter:
     def read_test_data(self):
         leafname = "1306 isotopes.txt"
         self.read_data(0, 0, self.rel_path(leafname))
+        self.read_data(0, 1, self.rel_path(leafname))
+        self.read_data(1, 0, self.rel_path(leafname))
+        self.read_data(1, 1, self.rel_path(leafname))
 
     def solve_sa(self, known_line, args):
     
@@ -67,17 +70,28 @@ class Scoter:
     
         nblocks = args.nblocks
         
+        # make sure we actually have enough data to work with
+        
+        assert((self.series[0][0] != None and self.series[1][0] != None) or
+               (self.series[0][1] != None and self.series[1][1] != None))
+        
         # Each series is a tuple of parallel records of different parameters
+
+        interp_points = 500
+        interpolated = [[], []]
+        for record_type in (0,1):
+            # Do we have this record type in both our data-sets?
+            if self.series[0][record_type] != None and self.series[1][record_type] != None:
+                # If so, interpolate and store for matching
+                interpolated[0].append(self.series[0][record_type].interpolate(interp_points))
+                interpolated[1].append(self.series[1][record_type].interpolate(interp_points))
         
         for i in (0,1):
             for j in (0,1):
-                self.series[i][j] = self.series[i][j].resample(500)
-        
-        series0 = (self.series[0][0], self.series[0][1])
-        series1 = (self.series[1][0], self.series[1][1])
-    
-        starting_warp = Bwarp(Bseries(series0, nblocks),
-                              Bseries(series1, nblocks),
+                self.series[i][j] = self.series[i][j].interpolate(500)
+
+        starting_warp = Bwarp(Bseries(interpolated[0], nblocks),
+                              Bseries(interpolated[1], nblocks),
                               rc_penalty = 2.5)
             
         starting_warp.max_rate = args.max_rate
@@ -90,7 +104,7 @@ class Scoter:
         
         # Create and run the simulated annealer.
         # Parameters for artificial test:
-        schedule = AdaptiveSchedule(1.0e4, 200, 50, 500, rate = 0.93)
+        schedule = AdaptiveSchedule(1.0e3, 1, 5, 200, rate = 0.99)
         # # Parameters for 1306
         # schedule = AdaptiveSchedule(1.0e5, 1.0e-0, 50, 500, rate = 0.99)
         if args.precalc:

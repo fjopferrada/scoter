@@ -327,8 +327,8 @@ class Series:
             d[-endzone:]))
         return self.copy(data = new_data, suffix = '-sm'+str(window))
 
-    def resample(self, npoints = None):
-        """Resample this series over evenly spaced points.
+    def interpolate(self, npoints = None):
+        """Interpolate this series to give regularly spaced x values.
 
         This is done by linear interpolation. If npoints is not
         supplied, the current number of points will be used."""

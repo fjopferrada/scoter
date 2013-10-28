@@ -13,12 +13,17 @@ class ScoterApp(wx.App):
     def OnInit(self):
         
         self.scoter = Scoter()
+        self.scoter.read_test_data()
         self.SetVendorName("talvi.net") # may as well adopt the Java convention
         self.SetAppName("Scoter")
-        
+
         self.main_frame = forms.MainFrame(None)
-        icon = wx.Icon("placeholder.png", wx.BITMAP_TYPE_PNG, 16, 16)
-        self.main_frame.SetIcon(icon)
+
+        icon_bundle = wx.IconBundle()
+        icon_bundle.AddIcon(wx.Icon("appicon16.png", wx.BITMAP_TYPE_PNG))
+        icon_bundle.AddIcon(wx.Icon("appicon32.png", wx.BITMAP_TYPE_PNG))
+        icon_bundle.AddIcon(wx.Icon("appicon64.png", wx.BITMAP_TYPE_PNG))
+        self.main_frame.SetIcons(icon_bundle) 
         
         self.axes = []
         self.figure_canvas = []
@@ -34,15 +39,18 @@ class ScoterApp(wx.App):
         sizer = panel_obj.GetSizer()
         sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
 
-        self.main_frame.Bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_record)
-        self.main_frame.Bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_target)
-        self.main_frame.Bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_rpi_record)
-        self.main_frame.Bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_rpi_target)
-        self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_record)
-        self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_target)
-        self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_record)
-        self.main_frame.Bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_target)        
-        self.main_frame.Bind(wx.EVT_BUTTON, self.tune, self.main_frame.button_tune)
+        bind = self.main_frame.Bind
+        bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_record)
+        bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_target)
+        bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_rpi_record)
+        bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_rpi_target)
+        bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_record)
+        bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_target)
+        bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_record)
+        bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_target)        
+        bind(wx.EVT_BUTTON, self.tune, self.main_frame.button_tune)
+        bind(wx.EVT_MENU, self.quit, self.main_frame.menuitem_quit)
+        bind(wx.EVT_MENU, self.about, self.main_frame.menuitem_about)
         
         notebook = self.main_frame.Notebook
         notebook.SetSelection(0)
@@ -54,6 +62,8 @@ class ScoterApp(wx.App):
         self.main_frame.SetSize((width+1,height))
         self.main_frame.SetSize((width-1,height))
         
+        self.about_frame = AboutScoter()
+        self.plot_series()
         return True
     
     def add_figure(self, page, panel):
@@ -68,6 +78,15 @@ class ScoterApp(wx.App):
         self.figure_canvas.append(figure_canvas)
         sizer = panel_obj.GetSizer()
         sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
+
+    def plot_results(self):
+        axes = self.result_axes
+        axes.clear()
+        for record_type in (0,):
+            target = self.scoter.series[1][record_type] # only interested in the target
+            axes.plot(target.data[0], target.data[1])
+            tuned = self.scoter.dewarped
+            axes.plot(tuned.data[0], tuned.data[1])
 
     def plot_series(self):
         for dataset in (0,1):
@@ -132,10 +151,27 @@ class ScoterApp(wx.App):
             nblocks = 64
             max_rate = 4
         self.scoter.solve_sa(None, params)
-        xs = self.scoter.dewarped.data[0]
-        ys = self.scoter.dewarped.data[1]
-        self.result_axes.clear()
-        self.result_axes.plot(xs, ys)
+        self.plot_results()
+        
+    def quit(self, event):
+        self.Destroy()
+    
+    def about(self, event):
+        wx.AboutBox(self.about_frame)
+
+class AboutScoter(wx.AboutDialogInfo):
+    
+    def __init__(self):
+        super(AboutScoter, self).__init__()
+        self.SetName("Scoter")
+        self.SetIcon(wx.Icon("appicon64.png", wx.BITMAP_TYPE_PNG))
+        self.SetVersion("0.00")
+        self.SetWebSite("https://bitbucket.org/pont/scoter")
+        self.SetDescription("A program for time-calibration of geological records.")
+        self.SetCopyright("(C) Pontus Lurcock 2013")
+        # Don't use SetLicence since it disables native about boxes on Windows & Mac --
+        # see docs for details.
+        self.SetDevelopers(("Pontus Lurcock",))
 
 def main():
     app = ScoterApp()
