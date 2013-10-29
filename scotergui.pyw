@@ -155,9 +155,33 @@ class ScoterApp(wx.App):
         
     def quit(self, event):
         self.Destroy()
+        wx.Exit()
     
     def about(self, event):
         wx.AboutBox(self.about_frame)
+    
+    def read_params_from_gui(self):
+        class Params(object):
+            pass
+        p = Params()
+        
+        mf = self.main_frame
+        detrend_opts = ("none", "submean", "linear")
+        p.detrend = detrend_opts[mf.preproc_detrend.GetSelection()]
+        p.normalize = mf.preproc_normalize.GetValue()
+        if mf.preproc_interp_min.GetValue():
+            p.interp_type = "min"
+        elif mf.preproc_interp_max.GetValue():
+            p.interp_type = "max"
+        elif mf.preproc_interp_explicit.GetValue():
+            p.interp_type = "explicit"
+            p.interp_npoints = mf.preproc_interp_npoints.GetValue()
+        else:
+            p.interp_type = "none"
+        
+        interp_opts = ("none", "min", "max", "explicit")
+        
+        p.interp_type = interp_opts[mf.prepro]
 
 class AboutScoter(wx.AboutDialogInfo):
     

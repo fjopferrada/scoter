@@ -154,46 +154,46 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText3.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText3, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
-		m_choice1Choices = [ u"None", u"Subtract mean", u"Linear detrend" ]
-		self.m_choice1 = wx.Choice( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice1Choices, 0 )
-		self.m_choice1.SetSelection( 0 )
-		fgSizer1.Add( self.m_choice1, 0, wx.ALL, 5 )
+		preproc_detrendChoices = [ u"None", u"Subtract mean", u"Linear detrend" ]
+		self.preproc_detrend = wx.Choice( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, preproc_detrendChoices, 0 )
+		self.preproc_detrend.SetSelection( 0 )
+		fgSizer1.Add( self.preproc_detrend, 0, wx.ALL, 5 )
 		
 		self.m_staticText6 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Normalization", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText6, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
-		self.m_checkBox1 = wx.CheckBox( self.PreprocessingPanel, wx.ID_ANY, u"Normalize", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_checkBox1.SetValue(True) 
-		fgSizer1.Add( self.m_checkBox1, 0, wx.ALL, 5 )
+		self.preproc_normalize = wx.CheckBox( self.PreprocessingPanel, wx.ID_ANY, u"Normalize", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.preproc_normalize.SetValue(True) 
+		fgSizer1.Add( self.preproc_normalize, 0, wx.ALL, 5 )
 		
 		self.m_staticText7 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Deepest depth", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText7.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText7, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
-		self.m_spinCtrl1 = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer1.Add( self.m_spinCtrl1, 0, wx.ALL, 5 )
+		self.preproc_deepest = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer1.Add( self.preproc_deepest, 0, wx.ALL, 5 )
 		
 		self.m_staticText71 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Shallowest depth", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText71.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText71, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
-		self.m_spinCtrl12 = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer1.Add( self.m_spinCtrl12, 0, wx.ALL, 5 )
+		self.preproc_shallowest = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer1.Add( self.preproc_shallowest, 0, wx.ALL, 5 )
 		
 		self.m_staticText711 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Oldest time", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText711.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText711, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
-		self.m_spinCtrl13 = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer1.Add( self.m_spinCtrl13, 0, wx.ALL, 5 )
+		self.preproc_oldest = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer1.Add( self.preproc_oldest, 0, wx.ALL, 5 )
 		
 		self.m_staticText712 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Youngest time", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText712.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText712, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
-		self.m_spinCtrl11 = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer1.Add( self.m_spinCtrl11, 0, wx.ALL, 5 )
+		self.preproc_youngest = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer1.Add( self.preproc_youngest, 0, wx.ALL, 5 )
 		
 		self.m_staticText7121 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Interpolation", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText7121.Wrap( -1 )
@@ -202,22 +202,32 @@ class MainFrame ( wx.Frame ):
 		self.m_panel13 = wx.Panel( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer12 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.rbut_preproc_none = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"None", wx.DefaultPosition, wx.DefaultSize, wx.RB_GROUP )
-		bSizer12.Add( self.rbut_preproc_none, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.preproc_interp_none = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"None", wx.DefaultPosition, wx.DefaultSize, wx.RB_GROUP )
+		bSizer12.Add( self.preproc_interp_none, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
-		self.m_radioBtn3 = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Interpolate to minimum", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_radioBtn3.SetToolTipString( u"Interpolate to the minimum number of points in any of the data-sets" )
+		self.preproc_interp_min = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Minimum", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.preproc_interp_min.SetToolTipString( u"Interpolate to the minimum number of points in any of the data-sets" )
 		
-		bSizer12.Add( self.m_radioBtn3, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		bSizer12.Add( self.preproc_interp_min, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.preproc_interp_max = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Maximum", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer12.Add( self.preproc_interp_max, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.preproc_interp_min1 = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Minimum", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.preproc_interp_min1.SetToolTipString( u"Interpolate to the minimum number of points in any of the data-sets" )
+		
+		bSizer12.Add( self.preproc_interp_min1, 0, wx.ALL, 5 )
 		
 		
 		bSizer12.AddSpacer( ( 16, 0), 0, 0, 5 )
 		
-		self.m_radioBtn2 = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Interpolate to", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer12.Add( self.m_radioBtn2, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.preproc_interp_explicit = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Custom:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.preproc_interp_explicit.SetToolTipString( u"Interpolate to the specified number of points" )
 		
-		self.m_textCtrl1 = wx.TextCtrl( self.m_panel13, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer12.Add( self.m_textCtrl1, 0, wx.ALL, 5 )
+		bSizer12.Add( self.preproc_interp_explicit, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.preproc_interp_npoints = wx.SpinCtrl( self.m_panel13, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0, 0, 1000000, 0 )
+		bSizer12.Add( self.preproc_interp_npoints, 0, wx.ALL, 5 )
 		
 		self.m_staticText19 = wx.StaticText( self.m_panel13, wx.ID_ANY, u"points", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText19.Wrap( -1 )
@@ -233,9 +243,14 @@ class MainFrame ( wx.Frame ):
 		self.PreprocessingPanel.SetSizer( fgSizer1 )
 		self.PreprocessingPanel.Layout()
 		fgSizer1.Fit( self.PreprocessingPanel )
-		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", True )
+		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", False )
 		self.TuningPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
+		
+		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self.TuningPanel, wx.ID_ANY, u"Simulated annealing" ), wx.VERTICAL )
+		
+		
+		bSizer14.Add( sbSizer1, 1, wx.EXPAND, 5 )
 		
 		self.button_tune = wx.Button( self.TuningPanel, wx.ID_ANY, u"Tune", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer14.Add( self.button_tune, 0, wx.ALL, 5 )
@@ -244,7 +259,7 @@ class MainFrame ( wx.Frame ):
 		self.TuningPanel.SetSizer( bSizer14 )
 		self.TuningPanel.Layout()
 		bSizer14.Fit( self.TuningPanel )
-		self.Notebook.AddPage( self.TuningPanel, u"Tuning", False )
+		self.Notebook.AddPage( self.TuningPanel, u"Tuning", True )
 		self.ResultsPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 		
