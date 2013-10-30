@@ -213,11 +213,6 @@ class MainFrame ( wx.Frame ):
 		self.preproc_interp_max = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Maximum", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer12.Add( self.preproc_interp_max, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
-		self.preproc_interp_min1 = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Minimum", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.preproc_interp_min1.SetToolTipString( u"Interpolate to the minimum number of points in any of the data-sets" )
-		
-		bSizer12.Add( self.preproc_interp_min1, 0, wx.ALL, 5 )
-		
 		
 		bSizer12.AddSpacer( ( 16, 0), 0, 0, 5 )
 		
@@ -243,7 +238,7 @@ class MainFrame ( wx.Frame ):
 		self.PreprocessingPanel.SetSizer( fgSizer1 )
 		self.PreprocessingPanel.Layout()
 		fgSizer1.Fit( self.PreprocessingPanel )
-		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", False )
+		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", True )
 		self.TuningPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -259,7 +254,7 @@ class MainFrame ( wx.Frame ):
 		self.TuningPanel.SetSizer( bSizer14 )
 		self.TuningPanel.Layout()
 		bSizer14.Fit( self.TuningPanel )
-		self.Notebook.AddPage( self.TuningPanel, u"Tuning", True )
+		self.Notebook.AddPage( self.TuningPanel, u"Tuning", False )
 		self.ResultsPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 		

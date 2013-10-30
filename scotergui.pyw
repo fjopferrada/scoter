@@ -144,12 +144,12 @@ class ScoterApp(wx.App):
             self.plot_series()
     
     def tune(self, event):
-        class params(object):
-            live_display = False
-            precalc = False
-            make_pdf = False
-            nblocks = 64
-            max_rate = 4
+        params = self.read_params_from_gui()
+        params.live_display = False
+        params.precalc = False
+        params.make_pdf = False
+        params.nblocks = 64
+        params.max_rate = 4
         self.scoter.solve_sa(None, params)
         self.plot_results()
         
@@ -178,10 +178,8 @@ class ScoterApp(wx.App):
             p.interp_npoints = mf.preproc_interp_npoints.GetValue()
         else:
             p.interp_type = "none"
-        
-        interp_opts = ("none", "min", "max", "explicit")
-        
-        p.interp_type = interp_opts[mf.prepro]
+
+        return p
 
 class AboutScoter(wx.AboutDialogInfo):
     

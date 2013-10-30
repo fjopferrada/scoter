@@ -77,21 +77,43 @@ class Scoter:
         
         # Each series is a tuple of parallel records of different parameters
 
-        interp_points = 500
-        interpolated = [[], []]
+        series_picked = [[], []]
         for record_type in (0,1):
             # Do we have this record type in both our data-sets?
             if self.series[0][record_type] != None and self.series[1][record_type] != None:
                 # If so, interpolate and store for matching
-                interpolated[0].append(self.series[0][record_type].interpolate(interp_points))
-                interpolated[1].append(self.series[1][record_type].interpolate(interp_points))
-        
-        for i in (0,1):
-            for j in (0,1):
-                self.series[i][j] = self.series[i][j].interpolate(500)
+                series_picked[0].append(self.series[0][record_type])
+                series_picked[1].append(self.series[1][record_type])
 
-        starting_warp = Bwarp(Bseries(interpolated[0], nblocks),
-                              Bseries(interpolated[1], nblocks),
+        # series_picked will now be something like
+        # [[record_d18O, record_RPI] , [target_d18O, target_RPI]]
+        # or for a non-tandem match something like
+        # [[record_d18O] , [target_d18O]]
+
+        series_picked_flat = series_picked[0] + series_picked[1]
+        series_npointss = [s.npoints() for s in series_picked_flat]
+        interp_npoints = None
+        if args.interp_type == "min":
+            interp_npoints = min(series_npointss)
+        elif args.interp_type == "max":
+            interp_npoints = min(series_npointss)
+        elif args.interp_type == "explicit":
+            assert(hasattr(args, "interp_npoints"))
+            interp_npoints = args.interp_npoints
+        
+        print "interpolating to", interp_npoints
+        
+        def interpolate(series):
+            if interp_npoints == None:
+                return series
+            else:
+                return series.interpolate(interp_npoints)
+        
+        series_interp = [map(interpolate, series_picked[0]),
+                         map(interpolate, series_picked[1])]
+        
+        starting_warp = Bwarp(Bseries(series_interp[0], nblocks),
+                              Bseries(series_interp[1], nblocks),
                               rc_penalty = 2.5)
             
         starting_warp.max_rate = args.max_rate
