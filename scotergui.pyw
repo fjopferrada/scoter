@@ -152,6 +152,7 @@ class ScoterApp(wx.App):
         params.max_rate = 4
         self.scoter.solve_sa(None, params)
         self.plot_results()
+        self.main_frame.Notebook.SetSelection(4)
         
     def quit(self, event):
         self.Destroy()
