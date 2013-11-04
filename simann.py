@@ -87,7 +87,7 @@ class Annealer:
                     print 'Step %9d Temp %12d' % (step, schedule.temp)
                     soln_current.printself()
                 if callback:
-                    callback(soln_current, soln_new, schedule.step)
+                    callback(soln_current, soln_new, schedule)
                 schedule.advance(accepted)
                 self.scores.append(soln_current.score())
         self.soln_best = soln_current

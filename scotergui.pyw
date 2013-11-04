@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 from scoter import Scoter
 import os.path
 import forms
+import threading
 
 class ScoterApp(wx.App):
     
@@ -158,7 +159,18 @@ class ScoterApp(wx.App):
         params.make_pdf = False
         params.nblocks = 64
         params.max_rate = 4
-        self.scoter.solve_sa(None, params)
+        
+        thread = threading.Thread(target = self.scoter.solve_sa,
+                                  args = (None, params, self))
+        thread.start()
+        # self.scoter.solve_sa(None, params, self)
+        # self.plot_results()
+        self.main_frame.Notebook.SetSelection(4)
+    
+    def simann_callback_update(self, percentage):
+        self.main_frame.simann_progress_gauge.SetValue(percentage)
+        
+    def simann_callback_finished(self):
         self.plot_results()
         self.main_frame.Notebook.SetSelection(5)
         

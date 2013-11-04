@@ -275,9 +275,9 @@ class MainFrame ( wx.Frame ):
 		bSizer17.Fit( self.m_panel18 )
 		bSizer16.Add( self.m_panel18, 0, wx.EXPAND |wx.ALL, 5 )
 		
-		self.m_gauge1 = wx.Gauge( self.m_panel171, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
-		self.m_gauge1.SetValue( 0 ) 
-		bSizer16.Add( self.m_gauge1, 0, wx.ALL|wx.EXPAND, 5 )
+		self.simann_progress_gauge = wx.Gauge( self.m_panel171, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
+		self.simann_progress_gauge.SetValue( 0 ) 
+		bSizer16.Add( self.simann_progress_gauge, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.m_panel20 = wx.Panel( self.m_panel171, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_panel20.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNSHADOW ) )

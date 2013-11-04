@@ -6,6 +6,7 @@ from series import Series
 from simann import Annealer, AdaptiveSchedule
 from block import Bwarp, Bseries
 from plot import WarpPlotter
+import math
 
 def _find_executable_noext(leafname):
     def is_exe(supplied_path):
@@ -62,7 +63,7 @@ class Scoter:
         self.read_data(1, 0, self.rel_path("data-lr04.txt"))
         self.read_data(1, 1, self.rel_path("data-piso.txt"))
 
-    def solve_sa(self, known_line, args):
+    def solve_sa(self, known_line, args, callback_obj):
     
         #if args.multiscale > -1:
         #    return solve_sa_multiscale(series0, series1, nblocks, known_line, args)
@@ -123,9 +124,19 @@ class Scoter:
             plotter = WarpPlotter(nblocks, known_line, 100,
                                   pdf_file = 'dsaframes-1.pdf' if args.make_pdf else None)
         
+        temp_init = 1.0e3
+        temp_final = 1.
+        ltemp_max = math.log(temp_init)
+        
+        def callback(soln_current, soln_new, schedule):
+            if callback_obj != None:
+                callback_obj.simann_callback_update((ltemp_max - math.log(schedule.temp)) / ltemp_max * 100)
+            if plotter != None:
+                plotter.replot(soln_current, soln_new, schedule.step)
+        
         # Create and run the simulated annealer.
         # Parameters for artificial test:
-        schedule = AdaptiveSchedule(1.0e3, 1, 5, 200, rate = 0.99)
+        schedule = AdaptiveSchedule(temp_init, temp_final, 5, 200, rate = 0.99)
         # # Parameters for 1306
         # schedule = AdaptiveSchedule(1.0e5, 1.0e-0, 50, 500, rate = 0.99)
         if args.precalc:
@@ -133,7 +144,7 @@ class Scoter:
         else:
             annealer = Annealer(starting_warp)
             annealer.run(schedule, logging = False, restarts = 0,
-                    callback = plotter.replot if plotter else None)
+                    callback = callback)
             annealer.output_scores('/home/pont/scores.txt')
             bwarp_annealed = annealer.soln_best
         
@@ -145,9 +156,10 @@ class Scoter:
     
         self.dewarped = dewarped
         self.bwarp_annealed = bwarp_annealed
+        callback_obj.simann_callback_finished()
 
-    def correlate(self, method):
+    def correlate(self, method, callback_obj = None):
         args = None
         warp_line = None
-        self.solve_sa(warp_line, args)
+        self.solve_sa(warp_line, args, callback_obj)
         
