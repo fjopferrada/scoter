@@ -258,7 +258,49 @@ class MainFrame ( wx.Frame ):
 		self.TuningPanel.SetSizer( bSizer14 )
 		self.TuningPanel.Layout()
 		bSizer14.Fit( self.TuningPanel )
-		self.Notebook.AddPage( self.TuningPanel, u"Tuning", True )
+		self.Notebook.AddPage( self.TuningPanel, u"Tuning", False )
+		self.m_panel171 = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer16 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_panel18 = wx.Panel( self.m_panel171, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer17 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_staticText9 = wx.StaticText( self.m_panel18, wx.ID_ANY, u"Textual progress information goes here.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText9.Wrap( -1 )
+		bSizer17.Add( self.m_staticText9, 0, wx.ALL, 5 )
+		
+		
+		self.m_panel18.SetSizer( bSizer17 )
+		self.m_panel18.Layout()
+		bSizer17.Fit( self.m_panel18 )
+		bSizer16.Add( self.m_panel18, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		self.m_gauge1 = wx.Gauge( self.m_panel171, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
+		self.m_gauge1.SetValue( 0 ) 
+		bSizer16.Add( self.m_gauge1, 0, wx.ALL|wx.EXPAND, 5 )
+		
+		self.m_panel20 = wx.Panel( self.m_panel171, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel20.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNSHADOW ) )
+		
+		bSizer16.Add( self.m_panel20, 1, wx.EXPAND |wx.ALL, 5 )
+		
+		self.m_panel21 = wx.Panel( self.m_panel171, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_button12 = wx.Button( self.m_panel21, wx.ID_ANY, u"Abort", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer18.Add( self.m_button12, 0, wx.ALL, 5 )
+		
+		
+		self.m_panel21.SetSizer( bSizer18 )
+		self.m_panel21.Layout()
+		bSizer18.Fit( self.m_panel21 )
+		bSizer16.Add( self.m_panel21, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		self.m_panel171.SetSizer( bSizer16 )
+		self.m_panel171.Layout()
+		bSizer16.Fit( self.m_panel171 )
+		self.Notebook.AddPage( self.m_panel171, u"Progress", True )
 		self.ResultsPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 		

@@ -57,11 +57,10 @@ class Scoter:
         self.series[data_set][record_type] = None        
     
     def read_test_data(self):
-        leafname = "1306 isotopes.txt"
-        self.read_data(0, 0, self.rel_path(leafname))
-        self.read_data(0, 1, self.rel_path(leafname))
-        self.read_data(1, 0, self.rel_path(leafname))
-        self.read_data(1, 1, self.rel_path(leafname))
+        self.read_data(0, 0, self.rel_path("data-lr04.txt")) #self.rel_path("data-iso1306.txt"))
+        self.read_data(0, 1, self.rel_path("data-piso.txt")) #self.rel_path("data-rpi1306.txt"))
+        self.read_data(1, 0, self.rel_path("data-lr04.txt"))
+        self.read_data(1, 1, self.rel_path("data-piso.txt"))
 
     def solve_sa(self, known_line, args):
     

@@ -34,7 +34,9 @@ class ScoterApp(wx.App):
         panel_obj = self.main_frame.DataPanel_Results
         figure = Figure()
         figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
-        self.result_axes = figure.add_axes([0.05, 0.2, 0.93, 0.7])
+        self.result_axes = []
+        self.result_axes.append(figure.add_subplot(211))
+        self.result_axes.append(figure.add_subplot(212))
         figure_canvas = FigureCanvas(panel_obj, -1, figure)
         sizer = panel_obj.GetSizer()
         sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
@@ -80,25 +82,31 @@ class ScoterApp(wx.App):
         sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
 
     def plot_results(self):
-        axes = self.result_axes
-        axes.clear()
-        for record_type in (0,):
+
+        for record_type in (0, 1):
+            axes = self.result_axes[record_type]
+            axes.clear()
             target = self.scoter.series[1][record_type] # only interested in the target
-            axes.plot(target.data[0], target.data[1])
-            tuned = self.scoter.dewarped
-            axes.plot(tuned.data[0], tuned.data[1])
+            if target != None:
+                axes.plot(target.data[0], target.data[1])
+                tuned = self.scoter.dewarped
+                axes.plot(tuned.data[0], tuned.data[1])
+                if record_type == 0: axes.invert_yaxis()
 
     def plot_series(self):
         for dataset in (0,1):
-            for rtype in (0,1):
-                index = 2 * rtype + dataset
+            for record_type in (0,1):
+                index = 2 * record_type + dataset
                 axes = self.axes[index]
                 axes.clear()
-                series = self.scoter.series[dataset][rtype]
+                series = self.scoter.series[dataset][record_type]
                 if series is not None:
                     xs = series.data[0]
                     ys = series.data[1]
                     axes.plot(xs, ys)
+                    if record_type == 0:
+                        axes.invert_yaxis()
+                        # d18O records are conventionally plotted decreasing-up
                 self.figure_canvas[index].draw()
     
     def clear_record(self, event):
@@ -152,7 +160,7 @@ class ScoterApp(wx.App):
         params.max_rate = 4
         self.scoter.solve_sa(None, params)
         self.plot_results()
-        self.main_frame.Notebook.SetSelection(4)
+        self.main_frame.Notebook.SetSelection(5)
         
     def quit(self, event):
         self.Destroy()
