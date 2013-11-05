@@ -38,7 +38,6 @@ class Scoter:
     def __init__(self):
         self.parent_dir = os.path.dirname(os.path.realpath(__file__))
         self.match_path = find_executable("match")
-        self_nblocks = 64
         self._init_data_structures()
     
     def rel_path(self, filename):
@@ -84,6 +83,7 @@ class Scoter:
                 # If so, interpolate and store for matching
                 series_picked[0].append(self.series[0][record_type])
                 series_picked[1].append(self.series[1][record_type])
+        n_record_types = len(series_picked[0])
 
         # series_picked will now be something like
         # [[record_d18O, record_RPI] , [target_d18O, target_RPI]]
@@ -153,9 +153,11 @@ class Scoter:
         if plotter: plotter.finish()
         bwarp_annealed.name = 'Sim. Ann.'
         bwarp_annealed.printself()
-        dewarped = bwarp_annealed.apply(1)
+        self.dewarped = []
+        self.dewarped.append(bwarp_annealed.apply(1, 0))
+        if (n_record_types == 2):
+            self.dewarped.append(bwarp_annealed.apply(1, 1))
     
-        self.dewarped = dewarped
         self.bwarp_annealed = bwarp_annealed
         callback_obj.simann_callback_finished()
 

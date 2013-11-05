@@ -87,9 +87,9 @@ class ScoterApp(wx.App):
             axes = self.result_axes[record_type]
             axes.clear()
             target = self.scoter.series[1][record_type] # only interested in the target
-            if target != None:
+            if target != None and self.scoter.series[0][record_type] != None:
                 axes.plot(target.data[0], target.data[1])
-                tuned = self.scoter.dewarped
+                tuned = self.scoter.dewarped[record_type]
                 axes.plot(tuned.data[0], tuned.data[1])
                 if record_type == 0: axes.invert_yaxis()
         self.results_canvas.draw()
@@ -165,6 +165,7 @@ class ScoterApp(wx.App):
         thread.start()
         # self.scoter.solve_sa(None, params, self)
         # self.plot_results()
+        self.main_frame.text_progress.SetLabel("Simulated annealing in progress…")
         self.main_frame.Notebook.SetSelection(4)
     
     def simann_callback_update(self, percentage):
@@ -173,6 +174,8 @@ class ScoterApp(wx.App):
     def simann_callback_finished(self):
         self.plot_results()
         self.main_frame.Notebook.SetSelection(5)
+        self.main_frame.simann_progress_gauge.SetValue(0)
+        self.main_frame.text_progress.SetLabel("Correlation complete.")
         
     def quit(self, event):
         self.Destroy()

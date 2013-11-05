@@ -265,9 +265,9 @@ class MainFrame ( wx.Frame ):
 		self.m_panel18 = wx.Panel( self.m_panel171, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer17 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_staticText9 = wx.StaticText( self.m_panel18, wx.ID_ANY, u"Textual progress information goes here.", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText9.Wrap( -1 )
-		bSizer17.Add( self.m_staticText9, 0, wx.ALL, 5 )
+		self.text_progress = wx.StaticText( self.m_panel18, wx.ID_ANY, u"No correlation in progress.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_progress.Wrap( -1 )
+		bSizer17.Add( self.text_progress, 0, wx.ALL, 5 )
 		
 		
 		self.m_panel18.SetSizer( bSizer17 )
