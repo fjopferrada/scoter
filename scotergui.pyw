@@ -38,9 +38,9 @@ class ScoterApp(wx.App):
         self.result_axes = []
         self.result_axes.append(figure.add_subplot(211))
         self.result_axes.append(figure.add_subplot(212))
-        figure_canvas = FigureCanvas(panel_obj, -1, figure)
+        self.results_canvas = FigureCanvas(panel_obj, -1, figure)
         sizer = panel_obj.GetSizer()
-        sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
+        sizer.Add(self.results_canvas, 1, wx.EXPAND | wx.ALL)
 
         bind = self.main_frame.Bind
         bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_record)
@@ -83,7 +83,6 @@ class ScoterApp(wx.App):
         sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
 
     def plot_results(self):
-
         for record_type in (0, 1):
             axes = self.result_axes[record_type]
             axes.clear()
@@ -93,6 +92,7 @@ class ScoterApp(wx.App):
                 tuned = self.scoter.dewarped
                 axes.plot(tuned.data[0], tuned.data[1])
                 if record_type == 0: axes.invert_yaxis()
+        self.results_canvas.draw()
 
     def plot_series(self):
         for dataset in (0,1):

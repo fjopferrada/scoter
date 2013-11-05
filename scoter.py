@@ -130,6 +130,7 @@ class Scoter:
         
         def callback(soln_current, soln_new, schedule):
             if callback_obj != None:
+                # TODO: make progress measure better for non-negligible finishing temperatures
                 callback_obj.simann_callback_update((ltemp_max - math.log(schedule.temp)) / ltemp_max * 100)
             if plotter != None:
                 plotter.replot(soln_current, soln_new, schedule.step)
