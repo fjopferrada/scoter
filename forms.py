@@ -238,11 +238,11 @@ class MainFrame ( wx.Frame ):
 		self.PreprocessingPanel.SetSizer( fgSizer1 )
 		self.PreprocessingPanel.Layout()
 		fgSizer1.Fit( self.PreprocessingPanel )
-		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", False )
-		self.TuningPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", True )
+		self.panel_correlate = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_panel17 = wx.Panel( self.TuningPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel17 = wx.Panel( self.panel_correlate, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel17, wx.ID_ANY, u"Simulated Annealing" ), wx.VERTICAL )
 		
 		
@@ -251,14 +251,14 @@ class MainFrame ( wx.Frame ):
 		sbSizer2.Fit( self.m_panel17 )
 		bSizer14.Add( self.m_panel17, 1, wx.EXPAND |wx.ALL, 5 )
 		
-		self.button_tune = wx.Button( self.TuningPanel, wx.ID_ANY, u"Tune", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer14.Add( self.button_tune, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
+		self.button_correlate = wx.Button( self.panel_correlate, wx.ID_ANY, u"Start correlation", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer14.Add( self.button_correlate, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
 		
-		self.TuningPanel.SetSizer( bSizer14 )
-		self.TuningPanel.Layout()
-		bSizer14.Fit( self.TuningPanel )
-		self.Notebook.AddPage( self.TuningPanel, u"Tuning", False )
+		self.panel_correlate.SetSizer( bSizer14 )
+		self.panel_correlate.Layout()
+		bSizer14.Fit( self.panel_correlate )
+		self.Notebook.AddPage( self.panel_correlate, u"Correlation", False )
 		self.m_panel171 = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -303,7 +303,7 @@ class MainFrame ( wx.Frame ):
 		self.m_panel171.SetSizer( bSizer16 )
 		self.m_panel171.Layout()
 		bSizer16.Fit( self.m_panel171 )
-		self.Notebook.AddPage( self.m_panel171, u"Progress", True )
+		self.Notebook.AddPage( self.m_panel171, u"Progress", False )
 		self.ResultsPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 		

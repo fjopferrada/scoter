@@ -52,7 +52,7 @@ class ScoterApp(wx.App):
         bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_target)
         bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_record)
         bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_target)        
-        bind(wx.EVT_BUTTON, self.tune, self.main_frame.button_tune)
+        bind(wx.EVT_BUTTON, self.correlate, self.main_frame.button_correlate)
         bind(wx.EVT_MENU, self.quit, self.main_frame.menuitem_quit)
         bind(wx.EVT_MENU, self.about, self.main_frame.menuitem_about)
         bind(wx.EVT_BUTTON, self.abort, self.main_frame.button_abort)
@@ -154,7 +154,7 @@ class ScoterApp(wx.App):
             self.scoter.read_data(index, record_type, filename)
             self.plot_series()
     
-    def tune(self, event):
+    def correlate(self, event):
         params = self.read_params_from_gui()
         params.live_display = False
         params.precalc = False
