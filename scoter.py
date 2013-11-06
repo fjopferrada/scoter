@@ -77,7 +77,7 @@ class Scoter:
         # Each series is a tuple of parallel records of different parameters
 
         series_picked = [[], []]
-        for record_type in (0,1):
+        for record_type in (0, 1):
             # Do we have this record type in both our data-sets?
             if self.series[0][record_type] != None and self.series[1][record_type] != None:
                 # If so, interpolate and store for matching
@@ -112,10 +112,23 @@ class Scoter:
         series_interp = [map(interpolate, series_picked[0]),
                          map(interpolate, series_picked[1])]
         
-        starting_warp = Bwarp(Bseries(series_interp[0], nblocks),
-                              Bseries(series_interp[1], nblocks),
+        print "normalize: ", args.normalize
+        
+        def normalize(series):
+            if args.normalize:
+                return series.scale_std_to(1.0)
+            else:
+                return series
+        
+        series_normalized = [map(normalize, series_interp[0]),
+                             map(normalize, series_interp[1])]
+        
+        series_final = series_normalized
+        
+        starting_warp = Bwarp(Bseries(series_final[0], nblocks),
+                              Bseries(series_final[1], nblocks),
                               rc_penalty = 2.5)
-            
+        
         starting_warp.max_rate = args.max_rate
         
         # Set up warp plotter if needed
