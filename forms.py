@@ -287,8 +287,11 @@ class MainFrame ( wx.Frame ):
 		self.m_panel21 = wx.Panel( self.m_panel171, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_button12 = wx.Button( self.m_panel21, wx.ID_ANY, u"Abort", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer18.Add( self.m_button12, 0, wx.ALL, 5 )
+		
+		bSizer18.AddSpacer( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.button_abort = wx.Button( self.m_panel21, wx.ID_ANY, u"Abort", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer18.Add( self.button_abort, 0, wx.ALL, 5 )
 		
 		
 		self.m_panel21.SetSizer( bSizer18 )

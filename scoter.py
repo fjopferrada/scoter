@@ -132,6 +132,7 @@ class Scoter:
             if callback_obj != None:
                 # TODO: make progress measure better for non-negligible finishing temperatures
                 callback_obj.simann_callback_update((ltemp_max - math.log(schedule.temp)) / ltemp_max * 100)
+                return callback_obj.simann_check_abort()
             if plotter != None:
                 plotter.replot(soln_current, soln_new, schedule.step)
         
@@ -140,12 +141,16 @@ class Scoter:
         schedule = AdaptiveSchedule(temp_init, temp_final, 5, 200, rate = 0.99)
         # # Parameters for 1306
         # schedule = AdaptiveSchedule(1.0e5, 1.0e-0, 50, 500, rate = 0.99)
+        finished_ok = True
         if args.precalc:
             bwarp_annealed = starting_warp
         else:
             annealer = Annealer(starting_warp)
-            annealer.run(schedule, logging = False, restarts = 0,
+            finished_ok = annealer.run(schedule, logging = False, restarts = 0,
                     callback = callback)
+            if not finished_ok:
+                callback_obj.simann_callback_finished("aborted")
+                return "aborted"
             annealer.output_scores('/home/pont/scores.txt')
             bwarp_annealed = annealer.soln_best
         
@@ -159,7 +164,8 @@ class Scoter:
             self.dewarped.append(bwarp_annealed.apply(1, 1))
     
         self.bwarp_annealed = bwarp_annealed
-        callback_obj.simann_callback_finished()
+        callback_obj.simann_callback_finished("completed")
+        return "completed"
 
     def correlate(self, method, callback_obj = None):
         args = None

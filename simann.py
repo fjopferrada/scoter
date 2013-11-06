@@ -87,10 +87,12 @@ class Annealer:
                     print 'Step %9d Temp %12d' % (step, schedule.temp)
                     soln_current.printself()
                 if callback:
-                    callback(soln_current, soln_new, schedule)
+                    abort = callback(soln_current, soln_new, schedule)
+                    if abort: return False # terminated prematurely
                 schedule.advance(accepted)
                 self.scores.append(soln_current.score())
         self.soln_best = soln_current
+        return True # terminated normally
 
     def output_scores(self, filename):
         with open(filename, 'w') as fh:

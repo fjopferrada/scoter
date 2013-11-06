@@ -8,6 +8,7 @@ from scoter import Scoter
 import os.path
 import forms
 import threading
+import time
 
 class ScoterApp(wx.App):
     
@@ -54,6 +55,7 @@ class ScoterApp(wx.App):
         bind(wx.EVT_BUTTON, self.tune, self.main_frame.button_tune)
         bind(wx.EVT_MENU, self.quit, self.main_frame.menuitem_quit)
         bind(wx.EVT_MENU, self.about, self.main_frame.menuitem_about)
+        bind(wx.EVT_BUTTON, self.abort, self.main_frame.button_abort)
         
         notebook = self.main_frame.Notebook
         notebook.SetSelection(0)
@@ -159,23 +161,41 @@ class ScoterApp(wx.App):
         params.make_pdf = False
         params.nblocks = 64
         params.max_rate = 4
-        
+        self.simann_abort_flag = False
         thread = threading.Thread(target = self.scoter.solve_sa,
                                   args = (None, params, self))
         thread.start()
         # self.scoter.solve_sa(None, params, self)
         # self.plot_results()
+        self.progress_percentage = 0
         self.main_frame.text_progress.SetLabel("Simulated annealing in progress…")
         self.main_frame.Notebook.SetSelection(4)
     
+    def abort(self, event):
+        self.simann_abort_flag = True
+    
     def simann_callback_update(self, percentage):
-        self.main_frame.simann_progress_gauge.SetValue(percentage)
+        percentage_int = int(percentage)
+        # We avoid unnecessary GUI updates by rounding to the nearest whole percentage,
+        # caching the value, and only updating the bar when it changes.
+        if percentage_int == self.progress_percentage: return
+        self.progress_percentage = percentage_int
+        wx.CallAfter(self.main_frame.simann_progress_gauge.SetValue, percentage_int)
         
-    def simann_callback_finished(self):
-        self.plot_results()
-        self.main_frame.Notebook.SetSelection(5)
-        self.main_frame.simann_progress_gauge.SetValue(0)
-        self.main_frame.text_progress.SetLabel("Correlation complete.")
+    def simann_callback_finished(self, status):
+        if status == "completed":
+            wx.CallAfter(self.main_frame.text_progress.SetLabel, "Correlation complete.")
+            wx.CallAfter(self.plot_results)
+            wx.CallAfter(self.main_frame.Notebook.SetSelection, 5)
+            wx.CallAfter(self.main_frame.simann_progress_gauge.SetValue, 0)
+        elif status == "aborted":
+            wx.CallAfter(self.main_frame.text_progress.SetLabel, "Correlation aborted.")
+        else:
+            wx.CallAfter(self.main_frame.text_progress.SetLabel,
+                         "Correlation finished with unrecognized status: "+status)
+    
+    def simann_check_abort(self):
+        return self.simann_abort_flag
         
     def quit(self, event):
         self.Destroy()
