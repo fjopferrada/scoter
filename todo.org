@@ -1,0 +1,4 @@
+* Tasks
+** TODO 001 Look at namedtuple for configuration parameters
+** DONE 002 Fix the multiply-inverting y-axes
+   CLOSED: [2013-11-08 Fri 21:55]
