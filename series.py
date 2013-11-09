@@ -308,7 +308,7 @@ class Series:
         new_data[1] = new_data[1] + offset
         return self.copy(data = new_data, suffix = '-of')
 
-    def zero_mean(self):
+    def subtract_mean(self):
         """Shift the mean value of this series to zero.
 
         Return a new series formed by offsetting the values of this

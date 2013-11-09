@@ -8,7 +8,6 @@ from scoter import Scoter
 import os.path
 import forms
 import threading
-import time
 
 class ScoterApp(wx.App):
     
@@ -38,6 +37,7 @@ class ScoterApp(wx.App):
         figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
         self.result_axes = []
         self.result_axes.append(figure.add_subplot(211))
+        self.result_axes[-1].invert_yaxis()
         self.result_axes.append(figure.add_subplot(212))
         self.results_canvas = FigureCanvas(panel_obj, -1, figure)
         sizer = panel_obj.GetSizer()
@@ -78,6 +78,7 @@ class ScoterApp(wx.App):
         axes = figure.add_axes([0.05, 0.2, 0.93, 0.7])
         axes.set_xlabel("Depth" if panel==0 else "Time")
         axes.set_ylabel("$\delta^{18}\mathrm{O}$" if page==0 else "RPI")
+        if page==0: axes.invert_yaxis()
         self.axes.append(axes)
         figure_canvas = FigureCanvas(panel_obj, -1, figure)
         self.figure_canvas.append(figure_canvas)
@@ -88,12 +89,15 @@ class ScoterApp(wx.App):
         for record_type in (0, 1):
             axes = self.result_axes[record_type]
             axes.clear()
+            #axes.set_ylim([0, 1]) # ensures axes are right way up before we invert them!
             target = self.scoter.series[1][record_type] # only interested in the target
+            target = self.scoter.bwarp_annealed.series[1].series[record_type]
             if target != None and self.scoter.series[0][record_type] != None:
                 axes.plot(target.data[0], target.data[1])
                 tuned = self.scoter.dewarped[record_type]
                 axes.plot(tuned.data[0], tuned.data[1])
-                if record_type == 0: axes.invert_yaxis()
+                axes.autoscale()
+                #if record_type == 0: axes.invert_yaxis()
         self.results_canvas.draw()
 
     def plot_series(self):
@@ -107,8 +111,8 @@ class ScoterApp(wx.App):
                     xs = series.data[0]
                     ys = series.data[1]
                     axes.plot(xs, ys)
-                    if record_type == 0:
-                        axes.invert_yaxis()
+                    #if record_type == 0:
+                        #axes.invert_yaxis()
                         # d18O records are conventionally plotted decreasing-up
                 self.figure_canvas[index].draw()
     
@@ -233,7 +237,7 @@ class AboutScoter(wx.AboutDialogInfo):
         self.SetIcon(wx.Icon("appicon64.png", wx.BITMAP_TYPE_PNG))
         self.SetVersion("0.00")
         self.SetWebSite("https://bitbucket.org/pont/scoter")
-        self.SetDescription("A program for time-calibration of geological records.")
+        self.SetDescription("A program for the correlation of geological records.")
         self.SetCopyright("(C) Pontus Lurcock 2013")
         # Don't use SetLicence since it disables native about boxes on Windows & Mac --
         # see docs for details.

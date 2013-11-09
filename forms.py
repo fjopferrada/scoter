@@ -259,10 +259,10 @@ class MainFrame ( wx.Frame ):
 		self.panel_correlate.Layout()
 		bSizer14.Fit( self.panel_correlate )
 		self.Notebook.AddPage( self.panel_correlate, u"Correlation", False )
-		self.m_panel171 = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_progress = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_panel18 = wx.Panel( self.m_panel171, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel18 = wx.Panel( self.panel_progress, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer17 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.text_progress = wx.StaticText( self.m_panel18, wx.ID_ANY, u"No correlation in progress.", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -275,16 +275,16 @@ class MainFrame ( wx.Frame ):
 		bSizer17.Fit( self.m_panel18 )
 		bSizer16.Add( self.m_panel18, 0, wx.EXPAND |wx.ALL, 5 )
 		
-		self.simann_progress_gauge = wx.Gauge( self.m_panel171, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
+		self.simann_progress_gauge = wx.Gauge( self.panel_progress, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
 		self.simann_progress_gauge.SetValue( 0 ) 
 		bSizer16.Add( self.simann_progress_gauge, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		self.m_panel20 = wx.Panel( self.m_panel171, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel20 = wx.Panel( self.panel_progress, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_panel20.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNSHADOW ) )
 		
 		bSizer16.Add( self.m_panel20, 1, wx.EXPAND |wx.ALL, 5 )
 		
-		self.m_panel21 = wx.Panel( self.m_panel171, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel21 = wx.Panel( self.panel_progress, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		
@@ -300,10 +300,10 @@ class MainFrame ( wx.Frame ):
 		bSizer16.Add( self.m_panel21, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		
-		self.m_panel171.SetSizer( bSizer16 )
-		self.m_panel171.Layout()
-		bSizer16.Fit( self.m_panel171 )
-		self.Notebook.AddPage( self.m_panel171, u"Progress", False )
+		self.panel_progress.SetSizer( bSizer16 )
+		self.panel_progress.Layout()
+		bSizer16.Fit( self.panel_progress )
+		self.Notebook.AddPage( self.panel_progress, u"Progress", False )
 		self.ResultsPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 		

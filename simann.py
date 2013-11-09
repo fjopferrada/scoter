@@ -74,6 +74,7 @@ class Annealer:
         for restart_n in xrange(restarts + 1):
             schedule.reset()
             soln_current = soln_restart
+            step = 0
             while not schedule.finished():
                 soln_new = soln_current.make_variant()
                 if soln_new.score() < soln_restart.score():
@@ -91,6 +92,7 @@ class Annealer:
                     if abort: return False # terminated prematurely
                 schedule.advance(accepted)
                 self.scores.append(soln_current.score())
+                step += 1
         self.soln_best = soln_current
         return True # terminated normally
 

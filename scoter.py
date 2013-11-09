@@ -101,32 +101,21 @@ class Scoter:
             assert(hasattr(args, "interp_npoints"))
             interp_npoints = args.interp_npoints
         
-        print "interpolating to", interp_npoints
+        def preprocess(series):
+            result = series
+            if args.detrend == "submean":
+                result = result.subtract_mean()
+            elif args.detrend == "linear":
+                result = result.detrend()
+            if interp_npoints != None: result = result.interpolate(interp_npoints)
+            if args.normalize: result = result.scale_std_to(1.0)
+            return result
+
+        series_preprocessed = [map(preprocess, series_picked[0]),
+                               map(preprocess, series_picked[1])]
         
-        def interpolate(series):
-            if interp_npoints == None:
-                return series
-            else:
-                return series.interpolate(interp_npoints)
-        
-        series_interp = [map(interpolate, series_picked[0]),
-                         map(interpolate, series_picked[1])]
-        
-        print "normalize: ", args.normalize
-        
-        def normalize(series):
-            if args.normalize:
-                return series.scale_std_to(1.0)
-            else:
-                return series
-        
-        series_normalized = [map(normalize, series_interp[0]),
-                             map(normalize, series_interp[1])]
-        
-        series_final = series_normalized
-        
-        starting_warp = Bwarp(Bseries(series_final[0], nblocks),
-                              Bseries(series_final[1], nblocks),
+        starting_warp = Bwarp(Bseries(series_preprocessed[0], nblocks),
+                              Bseries(series_preprocessed[1], nblocks),
                               rc_penalty = 2.5)
         
         starting_warp.max_rate = args.max_rate
@@ -151,7 +140,7 @@ class Scoter:
         
         # Create and run the simulated annealer.
         # Parameters for artificial test:
-        schedule = AdaptiveSchedule(temp_init, temp_final, 5, 200, rate = 0.99)
+        schedule = AdaptiveSchedule(temp_init, temp_final, 5, 200, rate = 0.95)
         # # Parameters for 1306
         # schedule = AdaptiveSchedule(1.0e5, 1.0e-0, 50, 500, rate = 0.99)
         finished_ok = True
@@ -164,7 +153,6 @@ class Scoter:
             if not finished_ok:
                 callback_obj.simann_callback_finished("aborted")
                 return "aborted"
-            annealer.output_scores('/home/pont/scores.txt')
             bwarp_annealed = annealer.soln_best
         
         # Apply the annealed antiwarp to the warped data
