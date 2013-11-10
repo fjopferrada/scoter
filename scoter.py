@@ -101,6 +101,12 @@ class Scoter:
             assert(hasattr(args, "interp_npoints"))
             interp_npoints = args.interp_npoints
         
+        bottom_record = min([s.end() for s in series_picked[0]])
+        bottom_target = min([s.end() for s in series_picked[1]])
+        
+        series_truncated = [map(lambda s: s.truncate(bottom_record), series_picked[0]),
+                            map(lambda s: s.truncate(bottom_target), series_picked[1])]
+        
         def preprocess(series):
             result = series
             if args.detrend == "submean":
@@ -111,8 +117,8 @@ class Scoter:
             if args.normalize: result = result.scale_std_to(1.0)
             return result
 
-        series_preprocessed = [map(preprocess, series_picked[0]),
-                               map(preprocess, series_picked[1])]
+        series_preprocessed = [map(preprocess, series_truncated[0]),
+                               map(preprocess, series_truncated[1])]
         
         starting_warp = Bwarp(Bseries(series_preprocessed[0], nblocks),
                               Bseries(series_preprocessed[1], nblocks),

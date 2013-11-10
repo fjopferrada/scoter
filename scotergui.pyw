@@ -42,6 +42,8 @@ class ScoterApp(wx.App):
         self.results_canvas = FigureCanvas(panel_obj, -1, figure)
         sizer = panel_obj.GetSizer()
         sizer.Add(self.results_canvas, 1, wx.EXPAND | wx.ALL)
+        
+        
 
         bind = self.main_frame.Bind
         bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_record)
