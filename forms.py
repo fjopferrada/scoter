@@ -279,10 +279,16 @@ class MainFrame ( wx.Frame ):
 		self.simann_progress_gauge.SetValue( 0 ) 
 		bSizer16.Add( self.simann_progress_gauge, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		self.m_panel20 = wx.Panel( self.panel_progress, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.m_panel20.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNSHADOW ) )
+		self.panel_progressplot = wx.Panel( self.panel_progress, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_progressplot.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNSHADOW ) )
 		
-		bSizer16.Add( self.m_panel20, 1, wx.EXPAND |wx.ALL, 5 )
+		bSizer19 = wx.BoxSizer( wx.VERTICAL )
+		
+		
+		self.panel_progressplot.SetSizer( bSizer19 )
+		self.panel_progressplot.Layout()
+		bSizer19.Fit( self.panel_progressplot )
+		bSizer16.Add( self.panel_progressplot, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		self.m_panel21 = wx.Panel( self.panel_progress, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
@@ -307,14 +313,14 @@ class MainFrame ( wx.Frame ):
 		self.ResultsPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.DataPanel_Results = wx.Panel( self.ResultsPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_resultsplot = wx.Panel( self.ResultsPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer15 = wx.BoxSizer( wx.VERTICAL )
 		
 		
-		self.DataPanel_Results.SetSizer( bSizer15 )
-		self.DataPanel_Results.Layout()
-		bSizer15.Fit( self.DataPanel_Results )
-		bSizer13.Add( self.DataPanel_Results, 1, wx.EXPAND |wx.ALL, 5 )
+		self.panel_resultsplot.SetSizer( bSizer15 )
+		self.panel_resultsplot.Layout()
+		bSizer15.Fit( self.panel_resultsplot )
+		bSizer13.Add( self.panel_resultsplot, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		self.m_button9 = wx.Button( self.ResultsPanel, wx.ID_ANY, u"Save results", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer13.Add( self.m_button9, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )

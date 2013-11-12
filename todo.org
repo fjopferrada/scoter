@@ -2,3 +2,6 @@
 ** TODO 001 Look at namedtuple for configuration parameters
 ** DONE 002 Fix the multiply-inverting y-axes
    CLOSED: [2013-11-08 Fri 21:55]
+** TODO 003 Better handling for non-equal-length series
+   Currently bombs out with an error. Should catch the error
+   and present it to the user via the GUI.

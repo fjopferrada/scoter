@@ -32,17 +32,20 @@ class ScoterApp(wx.App):
             for subpanel in (0,1):
                 self.add_figure(panel, subpanel)
 
-        panel_obj = self.main_frame.DataPanel_Results
-        figure = Figure()
-        figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
+        results_figure = Figure()
+        results_figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
         self.result_axes = []
-        self.result_axes.append(figure.add_subplot(211))
+        self.result_axes.append(results_figure.add_subplot(211))
         self.result_axes[-1].invert_yaxis()
-        self.result_axes.append(figure.add_subplot(212))
-        self.results_canvas = FigureCanvas(panel_obj, -1, figure)
-        sizer = panel_obj.GetSizer()
-        sizer.Add(self.results_canvas, 1, wx.EXPAND | wx.ALL)
+        self.result_axes.append(results_figure.add_subplot(212))
+        self.results_canvas = FigureCanvas(self.main_frame.panel_resultsplot, -1, results_figure)
+        self.main_frame.panel_resultsplot.GetSizer().Add(self.results_canvas, 1, wx.EXPAND | wx.ALL)
         
+        progress_figure = Figure()
+        progress_figure.set_size_inches(1, 1)
+        self.progress_axes = progress_figure.add_axes([0.05, 0.2, 0.93, 0.7])
+        self.progress_canvas = FigureCanvas(self.main_frame.panel_progressplot, -1, progress_figure)
+        self.main_frame.panel_progressplot.GetSizer().Add(self.progress_canvas, 1, wx.EXPAND | wx.ALL)
         
 
         bind = self.main_frame.Bind
@@ -167,28 +170,60 @@ class ScoterApp(wx.App):
         params.make_pdf = False
         params.nblocks = 64
         params.max_rate = 4
+
+        # self.scoter.solve_sa(None, params, self)
+        # self.plot_results()
+        self.progress_axes.clear()
+        self.progress_percentage = 0
+        self.progress_lines = []
+        for _ in 0, 1:
+            xs = range(params.nblocks)
+            ys = range(params.nblocks)
+            self.progress_lines.append(self.progress_axes.plot(xs, ys)[0])
+
         self.simann_abort_flag = False
         thread = threading.Thread(target = self.scoter.solve_sa,
                                   args = (None, params, self))
         thread.start()
-        # self.scoter.solve_sa(None, params, self)
-        # self.plot_results()
-        self.progress_percentage = 0
+
+        self.soln_current = None
+        self.soln_new = None
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self._redraw_plot, self.timer)
+        self.timer.Start(100, oneShot = wx.TIMER_ONE_SHOT)
+
         self.main_frame.text_progress.SetLabel("Simulated annealing in progress…")
         self.main_frame.Notebook.SetSelection(4)
     
     def abort(self, event):
         self.simann_abort_flag = True
     
-    def simann_callback_update(self, percentage):
+    def _redraw_plot(self, event):
+        scale = 1.
+        if self.soln_current == None: return
+        soln_current, soln_new = self.soln_current, self.soln_new
+        for i, soln in ((0, soln_current), (1, soln_new)):
+            xs, ys = soln.get_coords()
+            self.progress_lines[i].set_xdata([x * scale for x in xs])
+            self.progress_lines[i].set_ydata([y * scale for y in ys])
+        #wx.CallAfter(self.progress_canvas.draw)
+        self.progress_canvas.draw()
+        #wx.WakeUpIdle()
+        self.timer.Start(10, oneShot = wx.TIMER_ONE_SHOT)
+            
+    def simann_callback_update(self, soln_current, soln_new, percentage):
         percentage_int = int(percentage)
-        # We avoid unnecessary GUI updates by rounding to the nearest whole percentage,
+        # We avoid excessive GUI updates by rounding to the nearest whole percentage,
         # caching the value, and only updating the bar when it changes.
         if percentage_int == self.progress_percentage: return
         self.progress_percentage = percentage_int
         wx.CallAfter(self.main_frame.simann_progress_gauge.SetValue, percentage_int)
+        self.soln_current = soln_current
+        self.soln_new = soln_new
+        #wx.EVT_IDLE(self._redraw_plot, soln_current, soln_new)
         
     def simann_callback_finished(self, status):
+        self.timer.Stop()
         if status == "completed":
             wx.CallAfter(self.main_frame.text_progress.SetLabel, "Correlation complete.")
             wx.CallAfter(self.plot_results)
