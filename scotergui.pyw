@@ -47,7 +47,6 @@ class ScoterApp(wx.App):
         self.progress_canvas = FigureCanvas(self.main_frame.panel_progressplot, -1, progress_figure)
         self.main_frame.panel_progressplot.GetSizer().Add(self.progress_canvas, 1, wx.EXPAND | wx.ALL)
         
-
         bind = self.main_frame.Bind
         bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_record)
         bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_target)
@@ -74,6 +73,7 @@ class ScoterApp(wx.App):
         
         self.about_frame = AboutScoter()
         self.plot_series()
+        self.update_gui_with_params(None)
         return True
     
     def add_figure(self, page, panel):
@@ -244,6 +244,25 @@ class ScoterApp(wx.App):
     
     def about(self, event):
         wx.AboutBox(self.about_frame)
+    
+    def update_gui_with_params(self, params):
+        class Params(object):
+            def __init__(self):
+                self.detrend = "linear"
+                self.normalize = True
+                self.interp_type = "min"
+        params = Params()
+        mf = self.main_frame
+        detrend_map = {"none":0, "submean":1, "linear":2}
+        mf.preproc_detrend.SetSelection(detrend_map.get(params.detrend, "none"))
+        mf.preproc_normalize.SetValue(params.normalize)
+        
+        mf.preproc_interp_none.SetValue(params.interp_type == "none")
+        mf.preproc_interp_min.SetValue(params.interp_type == "min")
+        mf.preproc_interp_max.SetValue(params.interp_type == "max")
+        mf.preproc_interp_explicit.SetValue(params.interp_type == "explicit")
+        if hasattr(params, "interp_npoints") and params.interp_npoints != None:
+            mf.preproc_interp_npoints.SetValue(params.interp_npoints)
     
     def read_params_from_gui(self):
         class Params(object):

@@ -5,3 +5,20 @@
 ** TODO 003 Better handling for non-equal-length series
    Currently bombs out with an error. Should catch the error
    and present it to the user via the GUI.
+** TODO 004 Tidy up live SA plot code a bit
+** TODO 005 Idea for improving the SA scheduler
+   In the adaptive scheduler, a temperature step can be terminated either (2)
+   by clocking a certain number of accepted changes or (as a fallback when
+   improvements are impossible) (2) by going through a certain number of
+   iterations. The termination condition is actually valuable information! If
+   (2) occurs, there's an implication that we're in a local minimum --
+   perhaps this means we can increase the cooling rate. Vice versa may also
+   apply, but need to think about it carefully: what if it's just a
+   metastable state where we're continually hopping between the same few
+   solutions?
+
+   Need more of these ‘self-steering’ adaptations so users don't need
+   to manually tweak a bunch of incomprehensible simulated annealing
+   parameters for each new dataset.
+** TODO 006 Store user preferences using wx.Config API
+
