@@ -4,7 +4,7 @@
 import wx
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
-from scoter import Scoter
+from scoter import Scoter, ScoterConfig
 import os.path
 import forms
 import threading
@@ -41,6 +41,8 @@ class ScoterApp(wx.App):
         self.results_canvas = FigureCanvas(self.main_frame.panel_resultsplot, -1, results_figure)
         self.main_frame.panel_resultsplot.GetSizer().Add(self.results_canvas, 1, wx.EXPAND | wx.ALL)
         
+        self.read_params_from_wxconfig()
+        
         progress_figure = Figure()
         progress_figure.set_size_inches(1, 1)
         self.progress_axes = progress_figure.add_axes([0.05, 0.2, 0.93, 0.7])
@@ -73,7 +75,7 @@ class ScoterApp(wx.App):
         
         self.about_frame = AboutScoter()
         self.plot_series()
-        self.update_gui_with_params(None)
+        self.update_gui_with_params()
         return True
     
     def add_figure(self, page, panel):
@@ -164,26 +166,21 @@ class ScoterApp(wx.App):
             self.plot_series()
     
     def correlate(self, event):
-        params = self.read_params_from_gui()
-        params.live_display = False
-        params.precalc = False
-        params.make_pdf = False
-        params.nblocks = 64
-        params.max_rate = 4
 
+        self.read_params_from_gui()
         # self.scoter.solve_sa(None, params, self)
         # self.plot_results()
         self.progress_axes.clear()
         self.progress_percentage = 0
         self.progress_lines = []
         for _ in 0, 1:
-            xs = range(params.nblocks)
-            ys = range(params.nblocks)
+            xs = range(self.params.nblocks)
+            ys = range(self.params.nblocks)
             self.progress_lines.append(self.progress_axes.plot(xs, ys)[0])
 
         self.simann_abort_flag = False
         thread = threading.Thread(target = self.scoter.solve_sa,
-                                  args = (None, params, self))
+                                  args = (None, self.params, self))
         thread.start()
 
         self.soln_current = None
@@ -239,19 +236,15 @@ class ScoterApp(wx.App):
         return self.simann_abort_flag
         
     def quit(self, event):
+        self.write_params_to_wxconfig()
         self.Destroy()
         wx.Exit()
     
     def about(self, event):
         wx.AboutBox(self.about_frame)
     
-    def update_gui_with_params(self, params):
-        class Params(object):
-            def __init__(self):
-                self.detrend = "linear"
-                self.normalize = True
-                self.interp_type = "min"
-        params = Params()
+    def update_gui_with_params(self):
+        params = self.params
         mf = self.main_frame
         detrend_map = {"none":0, "submean":1, "linear":2}
         mf.preproc_detrend.SetSelection(detrend_map.get(params.detrend, "none"))
@@ -265,25 +258,39 @@ class ScoterApp(wx.App):
             mf.preproc_interp_npoints.SetValue(params.interp_npoints)
     
     def read_params_from_gui(self):
-        class Params(object):
-            pass
-        p = Params()
-        
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
-        p.detrend = detrend_opts[mf.preproc_detrend.GetSelection()]
-        p.normalize = mf.preproc_normalize.GetValue()
+        interp_type = "none"
+        interp_npoints = None
         if mf.preproc_interp_min.GetValue():
-            p.interp_type = "min"
+            interp_type = "min"
         elif mf.preproc_interp_max.GetValue():
-            p.interp_type = "max"
+            interp_type = "max"
         elif mf.preproc_interp_explicit.GetValue():
-            p.interp_type = "explicit"
-            p.interp_npoints = mf.preproc_interp_npoints.GetValue()
-        else:
-            p.interp_type = "none"
+            interp_type = "explicit"
+            interp_npoints = mf.preproc_interp_npoints.GetValue()
+        self.params = ScoterConfig(detrend = detrend_opts[mf.preproc_detrend.GetSelection()],
+                                   normalize = mf.preproc_normalize.GetValue(),
+                                   interp_type = interp_type,
+                                   interp_npoints = interp_npoints)
 
-        return p
+    def read_params_from_wxconfig(self):
+        wxc = wx.Config("scoter")
+        self.params = ScoterConfig(
+            detrend = wxc.Read("detrend", "none"),
+            normalize = wxc.ReadBool("normalize", False),
+            interp_type = wxc.Read("interp_type", "min"),
+            interp_npoints = wxc.ReadInt("interp_npoints", -1)
+            )
+    
+    def write_params_to_wxconfig(self):
+        wxc = wx.Config("scoter")
+        self.read_params_from_gui()
+        p = self.params
+        wxc.Write("detrend", p.detrend)
+        wxc.WriteBool("normalize", p.normalize)
+        wxc.Write("interp_type", p.interp_type)
+        wxc.WriteInt("interp_npoints", -1 if p.interp_npoints == None else p.interp_npoints)
 
 class AboutScoter(wx.AboutDialogInfo):
     

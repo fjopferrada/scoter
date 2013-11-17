@@ -1,5 +1,6 @@
 * Tasks
-** TODO 001 Look at namedtuple for configuration parameters
+** DONE 001 Look at namedtuple for configuration parameters
+   CLOSED: [2013-11-17 Sun 10:25]
 ** DONE 002 Fix the multiply-inverting y-axes
    CLOSED: [2013-11-08 Fri 21:55]
 ** TODO 003 Better handling for non-equal-length series
@@ -20,5 +21,20 @@
    Need more of these ‘self-steering’ adaptations so users don't need
    to manually tweak a bunch of incomprehensible simulated annealing
    parameters for each new dataset.
-** TODO 006 Store user preferences using wx.Config API
+** DONE 006 Store user preferences using wx.Config API
+   CLOSED: [2013-11-17 Sun 10:24]
+** TODO 007 Add an interface to the Match program
+** TODO 008 Add configuration options to correlation pane
+** TODO 009 Add SA parameters to Scoter arguments
+   Random seed, start/end temperatures, annealing rate, thresholds, rate
+   change penalty, ... hopefully at least some of these will become
+   irrelevant or automatically configurable in time, but for now they should
+   at least not be baked into the code.
+
+** TODO 010 ScoterGui.quit() not called on window closing
+   The application quits when the window closes, but quit() is
+   only called if the application is terminated via the Quit menu
+   item. So any required housekeeping in quit() is not guaranteed
+   to be called. At the moment, said housekeeping consists of saving
+   the current parameters via the wx.Config API.
 

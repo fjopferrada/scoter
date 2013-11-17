@@ -7,6 +7,7 @@ from simann import Annealer, AdaptiveSchedule
 from block import Bwarp, Bseries
 from plot import WarpPlotter
 import math
+from collections import namedtuple
 
 def _find_executable_noext(leafname):
     def is_exe(supplied_path):
@@ -32,6 +33,29 @@ def find_executable(leafname):
     if (path == None):
         path = _find_executable_noext(os.path.splitext(leafname)[0])
     return path
+
+arg_names = \
+    "nblocks, interp_type, interp_npoints, detrend, "+\
+    "normalize, max_rate, make_pdf, live_display, precalc"
+
+ScoterConfigBase = namedtuple("ScoterConfigBase", arg_names)
+
+class ScoterConfig(ScoterConfigBase):
+    
+    def __new__(cls, nblocks = 64,
+                  interp_type = "min",
+                  interp_npoints = None,
+                  detrend = "linear",
+                  normalize = True,
+                  max_rate = 4,
+                  make_pdf = False,
+                  live_display = False,
+                  precalc = False
+                ):
+        if interp_npoints == -1: interp_npoints = None
+        return super(ScoterConfig, cls).__new__\
+            (cls, nblocks, interp_type, interp_npoints, detrend,
+                normalize, max_rate, make_pdf, live_display, precalc)
 
 class Scoter:
     
