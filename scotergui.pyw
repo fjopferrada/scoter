@@ -63,6 +63,8 @@ class ScoterApp(wx.App):
         bind(wx.EVT_MENU, self.about, self.main_frame.menuitem_about)
         bind(wx.EVT_BUTTON, self.abort, self.main_frame.button_abort)
         
+        self.main_frame.Bind(wx.EVT_CLOSE, self.quit)
+        
         notebook = self.main_frame.Notebook
         notebook.SetSelection(0)
         self.main_frame.Center()

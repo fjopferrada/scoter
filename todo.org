@@ -31,7 +31,8 @@
    irrelevant or automatically configurable in time, but for now they should
    at least not be baked into the code.
 
-** TODO 010 ScoterGui.quit() not called on window closing
+** DONE 010 ScoterGui.quit() not called on window closing
+   CLOSED: [2013-11-17 Sun 10:36]
    The application quits when the window closes, but quit() is
    only called if the application is terminated via the Quit menu
    item. So any required housekeeping in quit() is not guaranteed
