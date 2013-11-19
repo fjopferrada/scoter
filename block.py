@@ -6,8 +6,11 @@
 import cython
 import numpy as np
 from series import Series
-import random, fractions, pylab, matplotlib, math
-from random import randint
+import random
+import fractions
+import pylab
+import matplotlib
+import math
 
 def is_compiled():
     return cython.compiled
@@ -155,10 +158,12 @@ class Bwarp:
                  comparator = None, runs = None,
                  name = 'Unknown',
                  max_rate = 4,
-                 rc_penalty = 0):
+                 rc_penalty = 0,
+                 rnd = random.Random()):
         self.series = (series0, series1)
         self.name = name
         self.rc_penalty = rc_penalty
+        self.rnd = rnd
         if comparator:
             self.comp = comparator
         else:
@@ -190,8 +195,8 @@ class Bwarp:
     def _choose_slice(self):
         rs = self.runs
         max_len = len(rs[0]) / 8
-        slice_len = randint(1, max_len)
-        start = randint(0, len(rs[0]) - slice_len)
+        slice_len = self.rnd.randint(1, max_len)
+        start = self.rnd.randint(0, len(rs[0]) - slice_len)
         return start, slice_len
 
     def _add_blocks_slice(self, runs, start, slice_len):
@@ -199,11 +204,11 @@ class Bwarp:
         for i in xrange(slice_len):
             target = start + i
             if runs[target] < self.max_rate:
-                nblocks = randint(1, self.max_rate - runs[target])
+                nblocks = self.rnd.randint(1, self.max_rate - runs[target])
                 added += nblocks
                 runs[target] += nblocks
             else:
-                nblocks = randint(1, self.max_rate)
+                nblocks = self.rnd.randint(1, self.max_rate)
                 added += nblocks
                 total = runs[target] + nblocks
                 half_ish = total // 2
@@ -213,7 +218,7 @@ class Bwarp:
         return added, start
 
     def _remove_blocks_slice(self, runs, slice_len, start = None):
-        if start==None: start = randint(0, len(runs) - slice_len)
+        if start==None: start = self.rnd.randint(0, len(runs) - slice_len)
         for i in xrange(slice_len):
             target = start + i
             if runs[target] > self.min_rate:
@@ -228,7 +233,7 @@ class Bwarp:
         # Find all runs large enough to split,
         big_runs = [i for i in range(0, len(runs)) if runs[i] > self.min_rate]
         # pick one at random,
-        target = random.choice(big_runs)
+        target = self.rnd.choice(big_runs)
         # remove half its blocks,
         half_ish = runs[target] // 2
         runs[target] = runs[target] - half_ish
@@ -248,7 +253,7 @@ class Bwarp:
             #print('Not enough small runs.')
             return False
         # pick two at random,
-        target1, target2 = random.sample(small_runs, 2)
+        target1, target2 = self.rnd.sample(small_runs, 2)
         # transfer all blocks from run 1 to run 2,
         runs[target2] += runs[target1]
         # and remove run 1.
@@ -287,9 +292,8 @@ class Bwarp:
                     run += 1
         self.runs = (new0[:run], new1[:run])
 
-    @classmethod
-    def _rnd_near(cls, target, semirange, maximum):
-        result = target + randint(-semirange, semirange)
+    def _rnd_near(self, target, semirange, maximum):
+        result = target + self.rnd.randint(-semirange, semirange)
         if result < 0: result = 0
         if result > maximum: result = maximum
         return result
@@ -298,14 +302,14 @@ class Bwarp:
         runs_s = self.runs[s]
         num_added, add_point = self._add_blocks_slice(runs_s, start, slice_len)
         window = 10 # len(runs_s) // 6
-        remove_point = Bwarp._rnd_near(add_point, window,
+        remove_point = self._rnd_near(add_point, window,
                                        len(runs_s) - num_added)
         self._remove_blocks_slice(runs_s, num_added, remove_point)
 
     def change_rates_both(self):
         start, slice_len = self._choose_slice()
         #for s in 0, 1:
-        for s in (randint(0, 1),):
+        for s in (self.rnd.randint(0, 1),):
             self._change_rates_one(s, start, slice_len)
         s = 0
         t = 1 - s
@@ -315,15 +319,15 @@ class Bwarp:
             if not success:
                 self._add_run(s)
         while len(runs_s) > len(self.runs[t]): self._add_run(t)
-        if random.random() < 0.001: self.clean_runs()
+        if self.rnd.random() < 0.001: self.clean_runs()
         #self.printself()
 
     def slice_swap(self):
         rs = self.runs
         max_len = self.nblocks // 6
-        slice_len = randint(1, max_len)
-        a = randint(0, len(rs[0]) - slice_len)
-        b = Bwarp._rnd_near(a, max_len, len(rs[0]) - slice_len)
+        slice_len = self.rnd.randint(1, max_len)
+        a = self.rnd.randint(0, len(rs[0]) - slice_len)
+        b = self._rnd_near(a, max_len, len(rs[0]) - slice_len)
         for i in xrange(slice_len):
             for j in 0, 1:
                 rs[j][a+i], rs[j][b+i] = rs[j][b+i], rs[j][a+i]
@@ -331,8 +335,8 @@ class Bwarp:
     def slice_reverse(self):
         rs = self.runs
         max_len = self.nblocks // self.max_rate
-        slice_len = randint(1, max_len)
-        a = randint(0, len(rs[0]) - slice_len)
+        slice_len = self.rnd.randint(1, max_len)
+        a = self.rnd.randint(0, len(rs[0]) - slice_len)
         for j in 0, 1:
             b = rs[j][a:a+slice_len]
             b.reverse()
@@ -342,7 +346,7 @@ class Bwarp:
         copy = Bwarp(self.series[0], self.series[1],
                      self.comp, (self.runs[0][:], self.runs[1][:]),
                      self.name, self.max_rate, self.rc_penalty)
-        r = random.random()
+        r = self.rnd.random()
         if r < 0.2: copy.slice_reverse()
         #elif r < 0.2: copy.slice_swap()
         else:

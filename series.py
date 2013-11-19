@@ -64,7 +64,7 @@ class Series:
         k = min(int(floor(log(n)/log(2))), 6)
         pink = np.zeros((n,), float)
         m = 1
-        for i in range(k):
+        for _ in range(k):
             p = int(ceil(float(n) / m))
             pink += np.repeat(rvs(size=p), m,axis=0)[:n]
             m <<= 1
@@ -393,8 +393,6 @@ class Series:
 
     def is_even(self, tolerance = 0.000001):
         """Check whether x-values are evenly spaced."""
-        start = self.start()
-        mean_offset = self.length() / self.npoints()
         i = 0
         abs_tolerance = self.length() * tolerance
         for x in np.linspace(0, self.length(), self.npoints()):
@@ -464,19 +462,19 @@ class Series:
         return self.data[:,start:end]
 
     def data_slice_xnorm(self, start, end):
-        """Return a slice of the data with a normalized x-range.
+        """Return a dataslice of the data with a normalized x-range.
 
-        Return the slice of the data between start and end, which are indices
-        into the data array. The returned slice will include the datum at
+        Return the dataslice of the data between start and end, which are indices
+        into the data array. The returned dataslice will include the datum at
         start, but exclude the datum (if any) at end. The x-values of
-        the returned slice will be linearly transformed so as to run
+        the returned dataslice will be linearly transformed so as to run
         from 0 to 1."""
 
         if end - start <= 1:
             raise ValueError("(end - start) must be >1.")
-        slice = self.data_slice(start, end).copy()
-        xmin = slice[0][0]
-        xmax = slice[0][-1]
+        dataslice = self.data_slice(start, end).copy()
+        xmin = dataslice[0][0]
+        xmax = dataslice[0][-1]
         xlen = xmax - xmin
-        slice[0] = (slice[0] - xmin) / xlen
-        return slice
+        dataslice[0] = (dataslice[0] - xmin) / xlen
+        return dataslice

@@ -25,11 +25,9 @@ class WarpLine:
         self.invert = invert
 
     def plot(self, axes, xoffset = 0, yoffset = 0):
-        bw = self.bwarp        
         xs, ys = self.bwarp.get_rates(scale = self.scale,
                                       invert = self.invert)
-        axes.plot(xs, ys,
-                  label = self.bwarp.name, **self.args)
+        axes.plot(xs, ys, label = self.bwarp.name, **self.args)
 
     def add_args(self, new_args):
         self.args.update(new_args)

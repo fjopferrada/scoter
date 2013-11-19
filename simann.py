@@ -61,9 +61,10 @@ class SimpleSchedule:
 
 class Annealer:
 
-    def __init__(self, start):
+    def __init__(self, start, rnd = random.Random()):
         self.start = start # initial solution
         self.scores = []
+        self.rnd = rnd
 
     def run(self, schedule,
             logging = False, restarts = 0, callback = None):
@@ -79,7 +80,7 @@ class Annealer:
                 diff = soln_new.score() - soln_current.score()
                 accepted = (diff < 0 or
                             math.exp( -diff / schedule.temp ) >
-                            random.random())
+                            self.rnd.random())
                 if accepted: soln_current = soln_new
                 if logging:
                     print 'Restart %3d Step %9d Temp %12d' % (restart_n, step, schedule.temp)
