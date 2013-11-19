@@ -238,18 +238,69 @@ class MainFrame ( wx.Frame ):
 		self.PreprocessingPanel.SetSizer( fgSizer1 )
 		self.PreprocessingPanel.Layout()
 		fgSizer1.Fit( self.PreprocessingPanel )
-		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", True )
+		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", False )
 		self.panel_correlate = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.m_panel17 = wx.Panel( self.panel_correlate, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel17, wx.ID_ANY, u"Simulated Annealing" ), wx.VERTICAL )
 		
+		fgSizer2 = wx.FlexGridSizer( 0, 4, 0, 10 )
+		fgSizer2.SetFlexibleDirection( wx.BOTH )
+		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText12 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Initial temperature", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText12.Wrap( -1 )
+		fgSizer2.Add( self.m_staticText12, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
+		
+		self.corr_sa_temp_init = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.corr_sa_temp_init, 0, wx.ALL, 5 )
+		
+		self.m_staticText13 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Final temperature", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText13.Wrap( -1 )
+		fgSizer2.Add( self.m_staticText13, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		self.corr_sa_temp_final = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.corr_sa_temp_final, 0, wx.ALL, 5 )
+		
+		self.m_staticText14 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Cooling rate", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText14.Wrap( -1 )
+		fgSizer2.Add( self.m_staticText14, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		self.corr_sa_rate = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.corr_sa_rate, 0, wx.ALL, 5 )
+		
+		self.m_staticText15 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Changes threshold", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText15.Wrap( -1 )
+		fgSizer2.Add( self.m_staticText15, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		self.corr_sa_max_changes = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.corr_sa_max_changes, 0, wx.ALL, 5 )
+		
+		self.m_staticText16 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Steps threshold", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText16.Wrap( -1 )
+		fgSizer2.Add( self.m_staticText16, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		self.corr_sa_max_steps = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.corr_sa_max_steps, 0, wx.ALL, 5 )
+		
+		
+		sbSizer2.Add( fgSizer2, 1, wx.ALL|wx.EXPAND, 5 )
+		
 		
 		self.m_panel17.SetSizer( sbSizer2 )
 		self.m_panel17.Layout()
 		sbSizer2.Fit( self.m_panel17 )
 		bSizer14.Add( self.m_panel17, 1, wx.EXPAND |wx.ALL, 5 )
+		
+		self.m_panel22 = wx.Panel( self.panel_correlate, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		sbSizer21 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel22, wx.ID_ANY, u"Match" ), wx.VERTICAL )
+		
+		
+		self.m_panel22.SetSizer( sbSizer21 )
+		self.m_panel22.Layout()
+		sbSizer21.Fit( self.m_panel22 )
+		bSizer14.Add( self.m_panel22, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		self.button_correlate = wx.Button( self.panel_correlate, wx.ID_ANY, u"Start correlation", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer14.Add( self.button_correlate, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
@@ -258,7 +309,7 @@ class MainFrame ( wx.Frame ):
 		self.panel_correlate.SetSizer( bSizer14 )
 		self.panel_correlate.Layout()
 		bSizer14.Fit( self.panel_correlate )
-		self.Notebook.AddPage( self.panel_correlate, u"Correlation", False )
+		self.Notebook.AddPage( self.panel_correlate, u"Correlation", True )
 		self.panel_progress = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		

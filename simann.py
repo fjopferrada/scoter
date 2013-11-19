@@ -2,10 +2,8 @@
 
 # cython: profile=True
 
-from series import *
-from block import *
+import random
 import math
-import numpy as np
 
 class AdaptiveSchedule:
     """Lowers the temperature after a set number of accepted changes.
@@ -41,7 +39,6 @@ class AdaptiveSchedule:
 
     def finished(self):
         return self.temp <= self.end_temp
-
 
 class SimpleSchedule:
 
@@ -85,7 +82,7 @@ class Annealer:
                             random.random())
                 if accepted: soln_current = soln_new
                 if logging:
-                    print 'Step %9d Temp %12d' % (step, schedule.temp)
+                    print 'Restart %3d Step %9d Temp %12d' % (restart_n, step, schedule.temp)
                     soln_current.printself()
                 if callback:
                     abort = callback(soln_current, soln_new, schedule)

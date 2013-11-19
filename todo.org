@@ -39,3 +39,15 @@
    to be called. At the moment, said housekeeping consists of saving
    the current parameters via the wx.Config API.
 
+** TODO 011 Add settings import/export feature
+   The user should be able to save the entire state of the Scoter
+   ‘workspace’ (including data sources, preprocessing, and
+   correlation configuration) to a file and reload it to restore
+   the state.
+** TODO 012 Add ‘reset configuration’ button
+   An essential complement to a configuration that persists across
+   restarts of the program!
+** TODO 013 Make progress bar work correctly
+   Currently the progress bar only shows realistic progress if the
+   final temperature is 1.
+

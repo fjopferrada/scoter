@@ -36,7 +36,9 @@ def find_executable(leafname):
 
 arg_names = \
     "nblocks, interp_type, interp_npoints, detrend, "+\
-    "normalize, max_rate, make_pdf, live_display, precalc"
+    "normalize, max_rate, make_pdf, live_display, precalc, "+\
+    "temp_init, temp_final, cooling, max_changes, max_steps, "+\
+    "random_seed"
 
 ScoterConfigBase = namedtuple("ScoterConfigBase", arg_names)
 
@@ -50,12 +52,20 @@ class ScoterConfig(ScoterConfigBase):
                   max_rate = 4,
                   make_pdf = False,
                   live_display = False,
-                  precalc = False
+                  precalc = False,
+                  temp_init = 1.0e3,
+                  temp_final = 1.0,
+                  cooling = 0.95,
+                  max_changes = 5,
+                  max_steps = 200,
+                  random_seed = 42
                 ):
         if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
             (cls, nblocks, interp_type, interp_npoints, detrend,
-                normalize, max_rate, make_pdf, live_display, precalc)
+             normalize, max_rate, make_pdf, live_display, precalc,
+             temp_init, temp_final, cooling, max_changes, max_steps,
+             random_seed)
 
 class Scoter:
     
@@ -156,9 +166,7 @@ class Scoter:
             plotter = WarpPlotter(nblocks, known_line, 100,
                                   pdf_file = 'dsaframes-1.pdf' if args.make_pdf else None)
         
-        temp_init = 1.0e3
-        temp_final = 1.
-        ltemp_max = math.log(temp_init)
+        ltemp_max = math.log(args.temp_init)
         
         def callback(soln_current, soln_new, schedule):
             if callback_obj != None:
@@ -170,10 +178,10 @@ class Scoter:
                 plotter.replot(soln_current, soln_new, schedule.step)
         
         # Create and run the simulated annealer.
-        # Parameters for artificial test:
-        schedule = AdaptiveSchedule(temp_init, temp_final, 5, 200, rate = 0.95)
-        # # Parameters for 1306
-        # schedule = AdaptiveSchedule(1.0e5, 1.0e-0, 50, 500, rate = 0.99)
+
+        schedule = AdaptiveSchedule(args.temp_init, args.temp_final,
+                                    args.max_changes, args.max_steps, rate = args.cooling)
+
         finished_ok = True
         if args.precalc:
             bwarp_annealed = starting_warp

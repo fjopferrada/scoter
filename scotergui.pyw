@@ -246,18 +246,23 @@ class ScoterApp(wx.App):
         wx.AboutBox(self.about_frame)
     
     def update_gui_with_params(self):
-        params = self.params
+        p = self.params
         mf = self.main_frame
         detrend_map = {"none":0, "submean":1, "linear":2}
-        mf.preproc_detrend.SetSelection(detrend_map.get(params.detrend, "none"))
-        mf.preproc_normalize.SetValue(params.normalize)
+        mf.preproc_detrend.SetSelection(detrend_map.get(p.detrend, "none"))
+        mf.preproc_normalize.SetValue(p.normalize)
         
-        mf.preproc_interp_none.SetValue(params.interp_type == "none")
-        mf.preproc_interp_min.SetValue(params.interp_type == "min")
-        mf.preproc_interp_max.SetValue(params.interp_type == "max")
-        mf.preproc_interp_explicit.SetValue(params.interp_type == "explicit")
-        if hasattr(params, "interp_npoints") and params.interp_npoints != None:
-            mf.preproc_interp_npoints.SetValue(params.interp_npoints)
+        mf.preproc_interp_none.SetValue(p.interp_type == "none")
+        mf.preproc_interp_min.SetValue(p.interp_type == "min")
+        mf.preproc_interp_max.SetValue(p.interp_type == "max")
+        mf.preproc_interp_explicit.SetValue(p.interp_type == "explicit")
+        mf.corr_sa_max_changes.SetValue(str(p.max_changes))
+        mf.corr_sa_max_steps.SetValue(str(p.max_steps))
+        mf.corr_sa_rate.SetValue(str(p.cooling))
+        mf.corr_sa_temp_final.SetValue(str(p.temp_final))
+        mf.corr_sa_temp_init.SetValue(str(p.temp_init))
+        if hasattr(p, "interp_npoints") and p.interp_npoints != None:
+            mf.preproc_interp_npoints.SetValue(p.interp_npoints)
     
     def read_params_from_gui(self):
         mf = self.main_frame
@@ -274,7 +279,13 @@ class ScoterApp(wx.App):
         self.params = ScoterConfig(detrend = detrend_opts[mf.preproc_detrend.GetSelection()],
                                    normalize = mf.preproc_normalize.GetValue(),
                                    interp_type = interp_type,
-                                   interp_npoints = interp_npoints)
+                                   interp_npoints = interp_npoints,
+                                   max_changes = float(mf.corr_sa_max_changes.GetValue()),
+                                   max_steps = float(mf.corr_sa_max_steps.GetValue()),
+                                   temp_init = float(mf.corr_sa_temp_init.GetValue()),
+                                   temp_final = float(mf.corr_sa_temp_final.GetValue()),
+                                   cooling = float(mf.corr_sa_rate.GetValue())
+                                   )
 
     def read_params_from_wxconfig(self):
         wxc = wx.Config("scoter")
@@ -282,7 +293,13 @@ class ScoterApp(wx.App):
             detrend = wxc.Read("detrend", "none"),
             normalize = wxc.ReadBool("normalize", False),
             interp_type = wxc.Read("interp_type", "min"),
-            interp_npoints = wxc.ReadInt("interp_npoints", -1)
+            interp_npoints = wxc.ReadInt("interp_npoints", -1),
+            max_rate = wxc.ReadInt("max_rate", 4),
+            temp_init = wxc.ReadFloat("temp_init", 1.0e5),
+            temp_final = wxc.ReadFloat("temp_final", 1.0),
+            cooling = wxc.ReadFloat("cooling", 0.95),
+            max_changes = wxc.ReadInt("max_changes", 5),
+            max_steps = wxc.ReadInt("max_steps", 200)
             )
     
     def write_params_to_wxconfig(self):
@@ -293,6 +310,12 @@ class ScoterApp(wx.App):
         wxc.WriteBool("normalize", p.normalize)
         wxc.Write("interp_type", p.interp_type)
         wxc.WriteInt("interp_npoints", -1 if p.interp_npoints == None else p.interp_npoints)
+        wxc.WriteInt("max_rate", p.max_rate)
+        wxc.WriteFloat("temp_init", p.temp_init)
+        wxc.WriteFloat("temp_final", p.temp_final)
+        wxc.WriteFloat("cooling", p.cooling)
+        wxc.WriteInt("max_changes", p.max_changes)
+        wxc.WriteInt("max_steps", p.max_steps)
 
 class AboutScoter(wx.AboutDialogInfo):
     
