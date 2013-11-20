@@ -284,6 +284,13 @@ class MainFrame ( wx.Frame ):
 		self.corr_sa_max_steps = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer2.Add( self.corr_sa_max_steps, 0, wx.ALL, 5 )
 		
+		self.m_staticText151 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Random seed", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText151.Wrap( -1 )
+		fgSizer2.Add( self.m_staticText151, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		self.corr_sa_seed = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.corr_sa_seed, 0, wx.ALL, 5 )
+		
 		
 		sbSizer2.Add( fgSizer2, 1, wx.ALL|wx.EXPAND, 5 )
 		

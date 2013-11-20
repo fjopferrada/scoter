@@ -26,7 +26,7 @@
 ** TODO 007 Add an interface to the Match program
 ** TODO 008 Add configuration options to correlation pane
 ** TODO 009 Add SA parameters to Scoter arguments
-   Random seed, start/end temperatures, annealing rate, thresholds, rate
+   Random seed, start/end temperatures, cooling rate, thresholds, rate
    change penalty, ... hopefully at least some of these will become
    irrelevant or automatically configurable in time, but for now they should
    at least not be baked into the code.

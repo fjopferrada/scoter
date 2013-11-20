@@ -345,7 +345,8 @@ class Bwarp:
     def make_variant(self):
         copy = Bwarp(self.series[0], self.series[1],
                      self.comp, (self.runs[0][:], self.runs[1][:]),
-                     self.name, self.max_rate, self.rc_penalty)
+                     self.name, self.max_rate, self.rc_penalty,
+                     rnd = self.rnd)
         r = self.rnd.random()
         if r < 0.2: copy.slice_reverse()
         #elif r < 0.2: copy.slice_swap()

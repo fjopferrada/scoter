@@ -7,6 +7,7 @@ from simann import Annealer, AdaptiveSchedule
 from block import Bwarp, Bseries
 from plot import WarpPlotter
 import math
+import random
 from collections import namedtuple
 
 def _find_executable_noext(leafname):
@@ -102,6 +103,7 @@ class Scoter:
         #    return solve_sa_multiscale(series0, series1, nblocks, known_line, args)
     
         nblocks = args.nblocks
+        random_generator = random.Random(args.random_seed)
         
         # make sure we actually have enough data to work with
         
@@ -156,7 +158,7 @@ class Scoter:
         
         starting_warp = Bwarp(Bseries(series_preprocessed[0], nblocks),
                               Bseries(series_preprocessed[1], nblocks),
-                              rc_penalty = 2.5)
+                              rc_penalty = 2.5, rnd = random_generator)
         
         starting_warp.max_rate = args.max_rate
         
@@ -170,7 +172,6 @@ class Scoter:
         
         def callback(soln_current, soln_new, schedule):
             if callback_obj != None:
-                # TODO: make progress measure better for non-negligible finishing temperatures
                 callback_obj.simann_callback_update(soln_current, soln_new,
                                                     (ltemp_max - math.log(schedule.temp)) / ltemp_max * 100)
                 return callback_obj.simann_check_abort()
@@ -186,7 +187,7 @@ class Scoter:
         if args.precalc:
             bwarp_annealed = starting_warp
         else:
-            annealer = Annealer(starting_warp)
+            annealer = Annealer(starting_warp, random_generator)
             finished_ok = annealer.run(schedule, logging = False, restarts = 0,
                     callback = callback)
             if not finished_ok:

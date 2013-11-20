@@ -261,6 +261,7 @@ class ScoterApp(wx.App):
         mf.corr_sa_rate.SetValue(str(p.cooling))
         mf.corr_sa_temp_final.SetValue(str(p.temp_final))
         mf.corr_sa_temp_init.SetValue(str(p.temp_init))
+        mf.corr_sa_seed.SetValue(str(p.random_seed))
         if hasattr(p, "interp_npoints") and p.interp_npoints != None:
             mf.preproc_interp_npoints.SetValue(p.interp_npoints)
     
@@ -284,7 +285,8 @@ class ScoterApp(wx.App):
                                    max_steps = float(mf.corr_sa_max_steps.GetValue()),
                                    temp_init = float(mf.corr_sa_temp_init.GetValue()),
                                    temp_final = float(mf.corr_sa_temp_final.GetValue()),
-                                   cooling = float(mf.corr_sa_rate.GetValue())
+                                   cooling = float(mf.corr_sa_rate.GetValue()),
+                                   random_seed = int(mf.corr_sa_seed.GetValue())
                                    )
 
     def read_params_from_wxconfig(self):
@@ -299,7 +301,8 @@ class ScoterApp(wx.App):
             temp_final = wxc.ReadFloat("temp_final", 1.0),
             cooling = wxc.ReadFloat("cooling", 0.95),
             max_changes = wxc.ReadInt("max_changes", 5),
-            max_steps = wxc.ReadInt("max_steps", 200)
+            max_steps = wxc.ReadInt("max_steps", 200),
+            random_seed = wxc.ReadInt("random_seed", 42)
             )
     
     def write_params_to_wxconfig(self):
@@ -316,6 +319,7 @@ class ScoterApp(wx.App):
         wxc.WriteFloat("cooling", p.cooling)
         wxc.WriteInt("max_changes", p.max_changes)
         wxc.WriteInt("max_steps", p.max_steps)
+        wxc.WriteInt("random_seed", p.random_seed)
 
 class AboutScoter(wx.AboutDialogInfo):
     
