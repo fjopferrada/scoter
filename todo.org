@@ -24,13 +24,14 @@
 ** DONE 006 Store user preferences using wx.Config API
    CLOSED: [2013-11-17 Sun 10:24]
 ** TODO 007 Add an interface to the Match program
-** TODO 008 Add configuration options to correlation pane
-** TODO 009 Add SA parameters to Scoter arguments
+** DONE 008 Add SA configuration options to correlation pane
+   CLOSED: [2013-11-22 Fri 09:56]
+** DONE 009 Add SA parameters to Scoter arguments
+   CLOSED: [2013-11-22 Fri 09:56]
    Random seed, start/end temperatures, cooling rate, thresholds, rate
    change penalty, ... hopefully at least some of these will become
    irrelevant or automatically configurable in time, but for now they should
    at least not be baked into the code.
-
 ** DONE 010 ScoterGui.quit() not called on window closing
    CLOSED: [2013-11-17 Sun 10:36]
    The application quits when the window closes, but quit() is
@@ -50,4 +51,11 @@
 ** TODO 013 Make progress bar work correctly
    Currently the progress bar only shows realistic progress if the
    final temperature is 1.
+
+** TODO 014 Add a plot-based GUI to truncate series
+   The current design, with truncation text entry boxes in the
+   preprocessing tab, is a little clunky: it would be better to
+   have the truncation options in the data-series tabs with
+   the graphs, with a hook into matplotlib to allow the user to
+   select the truncation points graphically.
 

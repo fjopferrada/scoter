@@ -39,7 +39,7 @@ arg_names = \
     "nblocks, interp_type, interp_npoints, detrend, "+\
     "normalize, max_rate, make_pdf, live_display, precalc, "+\
     "temp_init, temp_final, cooling, max_changes, max_steps, "+\
-    "random_seed"
+    "rc_penalty, random_seed"
 
 ScoterConfigBase = namedtuple("ScoterConfigBase", arg_names)
 
@@ -59,6 +59,7 @@ class ScoterConfig(ScoterConfigBase):
                   cooling = 0.95,
                   max_changes = 5,
                   max_steps = 200,
+                  rc_penalty = 0.,
                   random_seed = 42
                 ):
         if interp_npoints == -1: interp_npoints = None
@@ -66,7 +67,7 @@ class ScoterConfig(ScoterConfigBase):
             (cls, nblocks, interp_type, interp_npoints, detrend,
              normalize, max_rate, make_pdf, live_display, precalc,
              temp_init, temp_final, cooling, max_changes, max_steps,
-             random_seed)
+             rc_penalty, random_seed)
 
 class Scoter:
     
@@ -158,7 +159,9 @@ class Scoter:
         
         starting_warp = Bwarp(Bseries(series_preprocessed[0], nblocks),
                               Bseries(series_preprocessed[1], nblocks),
-                              rc_penalty = 2.5, rnd = random_generator)
+                              max_rate = args.max_rate,
+                              rc_penalty = args.rc_penalty,
+                              rnd = random_generator)
         
         starting_warp.max_rate = args.max_rate
         

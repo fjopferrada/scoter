@@ -291,6 +291,20 @@ class MainFrame ( wx.Frame ):
 		self.corr_sa_seed = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer2.Add( self.corr_sa_seed, 0, wx.ALL, 5 )
 		
+		self.m_staticText161 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Rate change penalty", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText161.Wrap( -1 )
+		fgSizer2.Add( self.m_staticText161, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.BOTTOM|wx.LEFT|wx.TOP, 5 )
+		
+		self.corr_sa_rc_penalty = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.corr_sa_rc_penalty, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_LEFT|wx.BOTTOM|wx.RIGHT|wx.TOP, 5 )
+		
+		self.m_staticText17 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Maximum rate", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText17.Wrap( -1 )
+		fgSizer2.Add( self.m_staticText17, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
+		
+		self.corr_sa_max_rate = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.corr_sa_max_rate, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_LEFT|wx.RIGHT, 5 )
+		
 		
 		sbSizer2.Add( fgSizer2, 1, wx.ALL|wx.EXPAND, 5 )
 		

@@ -392,7 +392,7 @@ class Bwarp:
 
     @classmethod
     def _to_string(cls, seq):
-        table = ('.', ':', 'I', '#', 'M')
+        table = ('.', ':', 'I', '#', 'M', '6', '7', '8', '9', 'A', 'B', 'C')
         symbols = [table[x-1] for x in seq]
         return ''.join(symbols)
 

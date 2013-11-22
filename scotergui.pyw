@@ -251,7 +251,7 @@ class ScoterApp(wx.App):
         detrend_map = {"none":0, "submean":1, "linear":2}
         mf.preproc_detrend.SetSelection(detrend_map.get(p.detrend, "none"))
         mf.preproc_normalize.SetValue(p.normalize)
-        
+        mf.corr_sa_max_rate.SetValue(str(p.max_rate))
         mf.preproc_interp_none.SetValue(p.interp_type == "none")
         mf.preproc_interp_min.SetValue(p.interp_type == "min")
         mf.preproc_interp_max.SetValue(p.interp_type == "max")
@@ -261,6 +261,7 @@ class ScoterApp(wx.App):
         mf.corr_sa_rate.SetValue(str(p.cooling))
         mf.corr_sa_temp_final.SetValue(str(p.temp_final))
         mf.corr_sa_temp_init.SetValue(str(p.temp_init))
+        mf.corr_sa_rc_penalty.SetValue(str(p.rc_penalty))
         mf.corr_sa_seed.SetValue(str(p.random_seed))
         if hasattr(p, "interp_npoints") and p.interp_npoints != None:
             mf.preproc_interp_npoints.SetValue(p.interp_npoints)
@@ -279,6 +280,7 @@ class ScoterApp(wx.App):
             interp_npoints = mf.preproc_interp_npoints.GetValue()
         self.params = ScoterConfig(detrend = detrend_opts[mf.preproc_detrend.GetSelection()],
                                    normalize = mf.preproc_normalize.GetValue(),
+                                   max_rate = int(mf.corr_sa_max_rate.GetValue()),
                                    interp_type = interp_type,
                                    interp_npoints = interp_npoints,
                                    max_changes = float(mf.corr_sa_max_changes.GetValue()),
@@ -286,6 +288,7 @@ class ScoterApp(wx.App):
                                    temp_init = float(mf.corr_sa_temp_init.GetValue()),
                                    temp_final = float(mf.corr_sa_temp_final.GetValue()),
                                    cooling = float(mf.corr_sa_rate.GetValue()),
+                                   rc_penalty = float(mf.corr_sa_rc_penalty.GetValue()),
                                    random_seed = int(mf.corr_sa_seed.GetValue())
                                    )
 
@@ -294,14 +297,15 @@ class ScoterApp(wx.App):
         self.params = ScoterConfig(
             detrend = wxc.Read("detrend", "none"),
             normalize = wxc.ReadBool("normalize", False),
+            max_rate = wxc.ReadInt("max_rate", 4),
             interp_type = wxc.Read("interp_type", "min"),
             interp_npoints = wxc.ReadInt("interp_npoints", -1),
-            max_rate = wxc.ReadInt("max_rate", 4),
             temp_init = wxc.ReadFloat("temp_init", 1.0e5),
             temp_final = wxc.ReadFloat("temp_final", 1.0),
             cooling = wxc.ReadFloat("cooling", 0.95),
             max_changes = wxc.ReadInt("max_changes", 5),
             max_steps = wxc.ReadInt("max_steps", 200),
+            rc_penalty = wxc.ReadFloat("rc_penalty", 0),
             random_seed = wxc.ReadInt("random_seed", 42)
             )
     
@@ -311,6 +315,7 @@ class ScoterApp(wx.App):
         p = self.params
         wxc.Write("detrend", p.detrend)
         wxc.WriteBool("normalize", p.normalize)
+        wxc.WriteInt("max_rate", p.max_rate)
         wxc.Write("interp_type", p.interp_type)
         wxc.WriteInt("interp_npoints", -1 if p.interp_npoints == None else p.interp_npoints)
         wxc.WriteInt("max_rate", p.max_rate)
@@ -319,6 +324,8 @@ class ScoterApp(wx.App):
         wxc.WriteFloat("cooling", p.cooling)
         wxc.WriteInt("max_changes", p.max_changes)
         wxc.WriteInt("max_steps", p.max_steps)
+        
+        wxc.WriteFloat("rc_penalty", p.rc_penalty)
         wxc.WriteInt("random_seed", p.random_seed)
 
 class AboutScoter(wx.AboutDialogInfo):
