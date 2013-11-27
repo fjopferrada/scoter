@@ -7,7 +7,9 @@ from matplotlib.figure import Figure
 from scoter import Scoter, ScoterConfig
 import os.path
 import forms
+import shutil
 import threading
+import tempfile
 
 class ScoterApp(wx.App):
     
@@ -21,9 +23,9 @@ class ScoterApp(wx.App):
         self.main_frame = forms.MainFrame(None)
 
         icon_bundle = wx.IconBundle()
-        icon_bundle.AddIcon(wx.Icon("appicon16.png", wx.BITMAP_TYPE_PNG))
-        icon_bundle.AddIcon(wx.Icon("appicon32.png", wx.BITMAP_TYPE_PNG))
-        icon_bundle.AddIcon(wx.Icon("appicon64.png", wx.BITMAP_TYPE_PNG))
+        icon_bundle.AddIcon(wx.Icon(self.scoter.rel_path("appicon16.png"), wx.BITMAP_TYPE_PNG))
+        icon_bundle.AddIcon(wx.Icon(self.scoter.rel_path("appicon32.png"), wx.BITMAP_TYPE_PNG))
+        icon_bundle.AddIcon(wx.Icon(self.scoter.rel_path("appicon64.png"), wx.BITMAP_TYPE_PNG))
         self.main_frame.SetIcons(icon_bundle) 
         
         self.axes = []
@@ -75,7 +77,7 @@ class ScoterApp(wx.App):
         self.main_frame.SetSize((width+1,height))
         self.main_frame.SetSize((width-1,height))
         
-        self.about_frame = AboutScoter()
+        self.about_frame = AboutScoter(self)
         self.plot_series()
         self.update_gui_with_params()
         return True
@@ -167,9 +169,8 @@ class ScoterApp(wx.App):
             self.scoter.read_data(index, record_type, filename)
             self.plot_series()
     
-    def correlate(self, event):
-
-        self.read_params_from_gui()
+    def correlate_sa(self):
+        
         # self.scoter.solve_sa(None, params, self)
         # self.plot_results()
         self.progress_axes.clear()
@@ -193,6 +194,16 @@ class ScoterApp(wx.App):
 
         self.main_frame.text_progress.SetLabel("Simulated annealing in progress…")
         self.main_frame.Notebook.SetSelection(4)
+    
+    def correlate_match(self):
+        dir_path = tempfile.mkdtemp("", "scoter", None)
+        # TODO Configure and call match here
+        shutil.rmtree(dir_path, ignore_errors = True)
+    
+    def correlate(self, event):
+        self.read_params_from_gui()
+        self.correlate_sa()
+        self.correlate_match()
     
     def abort(self, event):
         self.simann_abort_flag = True
@@ -263,6 +274,7 @@ class ScoterApp(wx.App):
         mf.corr_sa_temp_init.SetValue(str(p.temp_init))
         mf.corr_sa_rc_penalty.SetValue(str(p.rc_penalty))
         mf.corr_sa_seed.SetValue(str(p.random_seed))
+        mf.corr_match_guessed_path.SetValue(str(self.scoter.match_path))
         if hasattr(p, "interp_npoints") and p.interp_npoints != None:
             mf.preproc_interp_npoints.SetValue(p.interp_npoints)
     
@@ -330,10 +342,10 @@ class ScoterApp(wx.App):
 
 class AboutScoter(wx.AboutDialogInfo):
     
-    def __init__(self):
+    def __init__(self, scotergui):
         super(AboutScoter, self).__init__()
         self.SetName("Scoter")
-        self.SetIcon(wx.Icon("appicon64.png", wx.BITMAP_TYPE_PNG))
+        self.SetIcon(wx.Icon(scotergui.scoter.rel_path("appicon64.png"), wx.BITMAP_TYPE_PNG))
         self.SetVersion("0.00")
         self.SetWebSite("https://bitbucket.org/pont/scoter")
         self.SetDescription("A program for the correlation of geological records.")
