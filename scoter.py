@@ -6,8 +6,11 @@ from series import Series
 from simann import Annealer, AdaptiveSchedule
 from block import Bwarp, Bseries
 from plot import WarpPlotter
+from match import MatchConf, MatchSeriesConf
 import math
 import random
+import shutil
+import tempfile
 from collections import namedtuple
 
 def _find_executable_noext(leafname):
@@ -97,14 +100,8 @@ class Scoter:
         self.read_data(0, 1, self.rel_path("data-piso.txt")) #self.rel_path("data-rpi1306.txt"))
         self.read_data(1, 0, self.rel_path("data-lr04.txt"))
         self.read_data(1, 1, self.rel_path("data-piso.txt"))
-
-    def solve_sa(self, known_line, args, callback_obj):
-    
-        #if args.multiscale > -1:
-        #    return solve_sa_multiscale(series0, series1, nblocks, known_line, args)
-    
-        nblocks = args.nblocks
-        random_generator = random.Random(args.random_seed)
+        
+    def preprocess(self, args):
         
         # make sure we actually have enough data to work with
         
@@ -120,7 +117,7 @@ class Scoter:
                 # If so, interpolate and store for matching
                 series_picked[0].append(self.series[0][record_type])
                 series_picked[1].append(self.series[1][record_type])
-        n_record_types = len(series_picked[0])
+
 
         # series_picked will now be something like
         # [[record_d18O, record_RPI] , [target_d18O, target_RPI]]
@@ -144,7 +141,7 @@ class Scoter:
         series_truncated = [map(lambda s: s.truncate(bottom_record), series_picked[0]),
                             map(lambda s: s.truncate(bottom_target), series_picked[1])]
         
-        def preprocess(series):
+        def preproc(series):
             result = series
             if args.detrend == "submean":
                 result = result.subtract_mean()
@@ -154,11 +151,19 @@ class Scoter:
             if args.normalize: result = result.scale_std_to(1.0)
             return result
 
-        series_preprocessed = [map(preprocess, series_truncated[0]),
-                               map(preprocess, series_truncated[1])]
+        self.series_preprocessed = [map(preproc, series_truncated[0]),
+                               map(preproc, series_truncated[1])]
+
+    def correlate_sa(self, known_line, args, callback_obj):
+        #if args.multiscale > -1:
+        #    return solve_sa_multiscale(series0, series1, nblocks, known_line, args)
         
-        starting_warp = Bwarp(Bseries(series_preprocessed[0], nblocks),
-                              Bseries(series_preprocessed[1], nblocks),
+        nblocks = args.nblocks
+        random_generator = random.Random(args.random_seed)
+        n_record_types = len(self.series_preprocessed[0])
+        
+        starting_warp = Bwarp(Bseries(self.series_preprocessed[0], nblocks),
+                              Bseries(self.series_preprocessed[1], nblocks),
                               max_rate = args.max_rate,
                               rc_penalty = args.rc_penalty,
                               rnd = random_generator)
@@ -202,17 +207,52 @@ class Scoter:
         if plotter: plotter.finish()
         bwarp_annealed.name = 'Sim. Ann.'
         bwarp_annealed.printself()
-        self.dewarped = []
-        self.dewarped.append(bwarp_annealed.apply(1, 0))
+        self.aligned_sa = []
+        self.aligned_sa.append(bwarp_annealed.apply(1, 0))
         if (n_record_types == 2):
-            self.dewarped.append(bwarp_annealed.apply(1, 1))
+            self.aligned_sa.append(bwarp_annealed.apply(1, 1))
     
-        self.bwarp_annealed = bwarp_annealed
+        self.warp_sa = bwarp_annealed
         callback_obj.simann_callback_finished("completed")
         return "completed"
-
-    def correlate(self, method, callback_obj = None):
-        args = None
-        warp_line = None
-        self.solve_sa(warp_line, args, callback_obj)
+    
+    def correlate_match(self, args):
         
+        dir_path = tempfile.mkdtemp("", "scoter", None)
+        
+        match_params = dict(
+        nomatch = 1e12,
+        speedpenalty = 0.0,
+        targetspeed = '1:1',
+        speedchange = 1.0,
+        tiepenalty = 100,
+        gappenalty = 1,
+        speeds = ('1:4,1:3,1:2,2:3,3:4,' + # 1:1
+                  '4:3,3:2,2:1,3:1,4:1')
+        )
+        # NB 1:1 temporarily removed for testing purposes
+
+        match_conf =  MatchConf(MatchSeriesConf(self.series_preprocessed[0], intervals = args.nblocks),
+                            MatchSeriesConf(self.series_preprocessed[1], intervals = args.nblocks),
+                            match_params)
+
+        match_result = match_conf.run_match("/usr/local/bin/match", dir_path, False)
+        
+        self.aligned_match = match_result.series1
+        
+        shutil.rmtree(dir_path, ignore_errors = True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

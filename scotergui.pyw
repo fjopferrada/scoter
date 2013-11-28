@@ -7,9 +7,8 @@ from matplotlib.figure import Figure
 from scoter import Scoter, ScoterConfig
 import os.path
 import forms
-import shutil
 import threading
-import tempfile
+import time
 
 class ScoterApp(wx.App):
     
@@ -34,14 +33,10 @@ class ScoterApp(wx.App):
             for subpanel in (0,1):
                 self.add_figure(panel, subpanel)
 
-        results_figure = Figure()
-        results_figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
-        self.result_axes = []
-        self.result_axes.append(results_figure.add_subplot(211))
-        self.result_axes[-1].invert_yaxis()
-        self.result_axes.append(results_figure.add_subplot(212))
-        self.results_canvas = FigureCanvas(self.main_frame.panel_resultsplot, -1, results_figure)
-        self.main_frame.panel_resultsplot.GetSizer().Add(self.results_canvas, 1, wx.EXPAND | wx.ALL)
+        self.axes_results_sa, self.canvas_results_sa = \
+            self.make_results_figures(self.main_frame.panel_resultsplot)
+        self.axes_results_match, self.canvas_results_match = \
+            self.make_results_figures(self.main_frame.panel_resultsplot_match)
         
         self.read_params_from_wxconfig()
         
@@ -82,6 +77,15 @@ class ScoterApp(wx.App):
         self.update_gui_with_params()
         return True
     
+    def make_results_figures(self, panel):
+        figure = Figure()
+        figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
+        axes = (figure.add_subplot(211), figure.add_subplot(212))
+        axes[0].invert_yaxis() # δ18O is conventionally plotted increasing downward.
+        canvas = FigureCanvas(panel, -1, figure)
+        panel.GetSizer().Add(canvas, 1, wx.EXPAND | wx.ALL)
+        return axes, canvas
+    
     def add_figure(self, page, panel):
         panel_obj = getattr(self.main_frame, "DataPanel%d%d" % (page, panel))
         figure = Figure()
@@ -98,18 +102,28 @@ class ScoterApp(wx.App):
 
     def plot_results(self):
         for record_type in (0, 1):
-            axes = self.result_axes[record_type]
+            axes = self.axes_results_sa[record_type]
             axes.clear()
-            #axes.set_ylim([0, 1]) # ensures axes are right way up before we invert them!
-            target = self.scoter.series[1][record_type] # only interested in the target
-            target = self.scoter.bwarp_annealed.series[1].series[record_type]
+            target = self.scoter.warp_sa.series[1].series[record_type]
             if target != None and self.scoter.series[0][record_type] != None:
                 axes.plot(target.data[0], target.data[1])
-                tuned = self.scoter.dewarped[record_type]
-                axes.plot(tuned.data[0], tuned.data[1])
+                aligned = self.scoter.aligned_sa[record_type]
+                axes.plot(aligned.data[0], aligned.data[1])
                 axes.autoscale()
-                #if record_type == 0: axes.invert_yaxis()
-        self.results_canvas.draw()
+        self.canvas_results_sa.draw()
+    
+    def plot_results_match(self):
+        for record_type in (0, 1):
+            axes = self.axes_results_match[record_type]
+            axes.clear()
+            # TODO use Match's instance of the target here
+            target = self.scoter.warp_sa.series[1].series[record_type]
+            if target != None and self.scoter.series[0][record_type] != None:
+                axes.plot(target.data[0], target.data[1])
+                aligned = self.scoter.aligned_match[record_type]
+                axes.plot(aligned.data[0], aligned.data[1])
+                axes.autoscale()
+        self.canvas_results_sa.draw()
 
     def plot_series(self):
         for dataset in (0,1):
@@ -122,9 +136,6 @@ class ScoterApp(wx.App):
                     xs = series.data[0]
                     ys = series.data[1]
                     axes.plot(xs, ys)
-                    #if record_type == 0:
-                        #axes.invert_yaxis()
-                        # d18O records are conventionally plotted decreasing-up
                 self.figure_canvas[index].draw()
     
     def clear_record(self, event):
@@ -171,8 +182,6 @@ class ScoterApp(wx.App):
     
     def correlate_sa(self):
         
-        # self.scoter.solve_sa(None, params, self)
-        # self.plot_results()
         self.progress_axes.clear()
         self.progress_percentage = 0
         self.progress_lines = []
@@ -182,7 +191,7 @@ class ScoterApp(wx.App):
             self.progress_lines.append(self.progress_axes.plot(xs, ys)[0])
 
         self.simann_abort_flag = False
-        thread = threading.Thread(target = self.scoter.solve_sa,
+        thread = threading.Thread(target = self.scoter.correlate_sa,
                                   args = (None, self.params, self))
         thread.start()
 
@@ -195,15 +204,13 @@ class ScoterApp(wx.App):
         self.main_frame.text_progress.SetLabel("Simulated annealing in progress…")
         self.main_frame.Notebook.SetSelection(4)
     
-    def correlate_match(self):
-        dir_path = tempfile.mkdtemp("", "scoter", None)
-        # TODO Configure and call match here
-        shutil.rmtree(dir_path, ignore_errors = True)
-    
     def correlate(self, event):
         self.read_params_from_gui()
+        self.scoter.preprocess(self.params)
         self.correlate_sa()
-        self.correlate_match()
+        self.scoter.correlate_match(self.params)
+        time.sleep(2)
+        self.plot_results_match()
     
     def abort(self, event):
         self.simann_abort_flag = True

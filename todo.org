@@ -24,6 +24,10 @@
 ** DONE 006 Store user preferences using wx.Config API
    CLOSED: [2013-11-17 Sun 10:24]
 ** TODO 007 Add an interface to the Match program
+*** DONE Proof-of-concept implementation
+    CLOSED: [2013-11-28 Thu 18:55]
+*** TODO Clean up the interface code
+*** TODO Configure Match from GUI settings panel
 ** DONE 008 Add SA configuration options to correlation pane
    CLOSED: [2013-11-22 Fri 09:56]
 ** DONE 009 Add SA parameters to Scoter arguments
@@ -58,4 +62,10 @@
    have the truncation options in the data-series tabs with
    the graphs, with a hook into matplotlib to allow the user to
    select the truncation points graphically.
+
+** TODO 015 First proto-draft of manual
+   No sense in fleshing it out fully until the program's complete, but I need
+   a skeleton in place into which I can drop snippets as they occur to me.
+   Growing the manual slowly from a "hello world" will also make it easier to
+   debug any asciidoc problems.
 
