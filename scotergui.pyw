@@ -116,8 +116,7 @@ class ScoterApp(wx.App):
         for record_type in (0, 1):
             axes = self.axes_results_match[record_type]
             axes.clear()
-            # TODO use Match's instance of the target here
-            target = self.scoter.warp_sa.series[1].series[record_type]
+            target = self.scoter.series_preprocessed[1][record_type]
             if target != None and self.scoter.series[0][record_type] != None:
                 axes.plot(target.data[0], target.data[1])
                 aligned = self.scoter.aligned_match[record_type]
@@ -204,13 +203,20 @@ class ScoterApp(wx.App):
         self.main_frame.text_progress.SetLabel("Simulated annealing in progress…")
         self.main_frame.Notebook.SetSelection(4)
     
+    def correlate_match(self, params):
+        self.scoter.correlate_match(self.params)
+        wx.CallAfter(self.match_finished_callback)
+    
+    def match_finished_callback(self):
+        self.plot_results_match()
+    
     def correlate(self, event):
         self.read_params_from_gui()
         self.scoter.preprocess(self.params)
         self.correlate_sa()
-        self.scoter.correlate_match(self.params)
-        time.sleep(2)
-        self.plot_results_match()
+        thread = threading.Thread(target = self.correlate_match,
+                                  args = (self.params,))
+        thread.start()
     
     def abort(self, event):
         self.simann_abort_flag = True
