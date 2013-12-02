@@ -298,7 +298,7 @@ class MainFrame ( wx.Frame ):
 		fgSizer2.Add( self.m_staticText15, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
 		self.corr_sa_max_changes = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer2.Add( self.corr_sa_max_changes, 0, wx.ALL, 5 )
+		fgSizer2.Add( self.corr_sa_max_changes, 0, wx.BOTTOM|wx.RIGHT|wx.TOP, 5 )
 		
 		self.m_staticText16 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Steps threshold", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
@@ -312,7 +312,7 @@ class MainFrame ( wx.Frame ):
 		fgSizer2.Add( self.m_staticText151, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
 		self.corr_sa_seed = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer2.Add( self.corr_sa_seed, 0, wx.ALL, 5 )
+		fgSizer2.Add( self.corr_sa_seed, 0, wx.BOTTOM|wx.RIGHT|wx.TOP, 5 )
 		
 		self.m_staticText161 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Rate change penalty", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText161.Wrap( -1 )
@@ -394,15 +394,15 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText25.Wrap( -1 )
 		gbSizer1.Add( self.m_staticText25, wx.GBPosition( 3, 4 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
-		self.m_textCtrl17 = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.m_textCtrl17, wx.GBPosition( 3, 5 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
+		self.corr_match_gap = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		gbSizer1.Add( self.corr_match_gap, wx.GBPosition( 3, 5 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
 		
 		self.m_staticText251 = wx.StaticText( self.panel_match, wx.ID_ANY, u"Permitted rates", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText251.Wrap( -1 )
 		gbSizer1.Add( self.m_staticText251, wx.GBPosition( 4, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
-		self.m_textCtrl18 = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.m_textCtrl18, wx.GBPosition( 4, 1 ), wx.GBSpan( 1, 5 ), wx.ALL|wx.EXPAND, 5 )
+		self.corr_match_rates = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		gbSizer1.Add( self.corr_match_rates, wx.GBPosition( 4, 1 ), wx.GBSpan( 1, 5 ), wx.ALL|wx.EXPAND, 5 )
 		
 		self.corr_match_speed = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		gbSizer1.Add( self.corr_match_speed, wx.GBPosition( 2, 3 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
@@ -429,7 +429,7 @@ class MainFrame ( wx.Frame ):
 		self.panel_correlate.SetSizer( bSizer14 )
 		self.panel_correlate.Layout()
 		bSizer14.Fit( self.panel_correlate )
-		self.Notebook.AddPage( self.panel_correlate, u"Correlation", False )
+		self.Notebook.AddPage( self.panel_correlate, u"Correlation", True )
 		self.panel_progress = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -500,7 +500,7 @@ class MainFrame ( wx.Frame ):
 		self.ResultsPanel.SetSizer( bSizer13 )
 		self.ResultsPanel.Layout()
 		bSizer13.Fit( self.ResultsPanel )
-		self.Notebook.AddPage( self.ResultsPanel, u"Results (SA)", True )
+		self.Notebook.AddPage( self.ResultsPanel, u"Results (SA)", False )
 		self.ResultsPanelMatch = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer131 = wx.BoxSizer( wx.VERTICAL )
 		

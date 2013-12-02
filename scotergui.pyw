@@ -229,9 +229,7 @@ class ScoterApp(wx.App):
             xs, ys = soln.get_coords()
             self.progress_lines[i].set_xdata([x * scale for x in xs])
             self.progress_lines[i].set_ydata([y * scale for y in ys])
-        #wx.CallAfter(self.progress_canvas.draw)
         self.progress_canvas.draw()
-        #wx.WakeUpIdle()
         self.timer.Start(10, oneShot = wx.TIMER_ONE_SHOT)
             
     def simann_callback_update(self, soln_current, soln_new, percentage):
@@ -243,7 +241,6 @@ class ScoterApp(wx.App):
         wx.CallAfter(self.main_frame.simann_progress_gauge.SetValue, percentage_int)
         self.soln_current = soln_current
         self.soln_new = soln_new
-        #wx.EVT_IDLE(self._redraw_plot, soln_current, soln_new)
         
     def simann_callback_finished(self, status):
         self.timer.Stop()
@@ -275,11 +272,12 @@ class ScoterApp(wx.App):
         detrend_map = {"none":0, "submean":1, "linear":2}
         mf.preproc_detrend.SetSelection(detrend_map.get(p.detrend, "none"))
         mf.preproc_normalize.SetValue(p.normalize)
-        mf.corr_sa_max_rate.SetValue(str(p.max_rate))
         mf.preproc_interp_none.SetValue(p.interp_type == "none")
         mf.preproc_interp_min.SetValue(p.interp_type == "min")
         mf.preproc_interp_max.SetValue(p.interp_type == "max")
         mf.preproc_interp_explicit.SetValue(p.interp_type == "explicit")
+        mf.corr_common_intervals.SetValue(str(p.nblocks))
+        mf.corr_sa_max_rate.SetValue(str(p.max_rate))
         mf.corr_sa_max_changes.SetValue(str(p.max_changes))
         mf.corr_sa_max_steps.SetValue(str(p.max_steps))
         mf.corr_sa_rate.SetValue(str(p.cooling))
@@ -287,6 +285,13 @@ class ScoterApp(wx.App):
         mf.corr_sa_temp_init.SetValue(str(p.temp_init))
         mf.corr_sa_rc_penalty.SetValue(str(p.rc_penalty))
         mf.corr_sa_seed.SetValue(str(p.random_seed))
+        mf.corr_match_nomatch.SetValue(str(p.match_nomatch))
+        mf.corr_match_speed.SetValue(str(p.match_speed_p))
+        mf.corr_match_tie.SetValue(str(p.match_tie_p))
+        mf.corr_match_target.SetValue(str(p.match_target_speed))
+        mf.corr_match_speedchange.SetValue(str(p.match_speedchange_p))
+        mf.corr_match_gap.SetValue(str(p.match_gap_p))
+        mf.corr_match_rates.SetValue(str(p.match_rates))
         mf.corr_match_guessed_path.SetValue(str(self.scoter.match_path))
         if hasattr(p, "interp_npoints") and p.interp_npoints != None:
             mf.preproc_interp_npoints.SetValue(p.interp_npoints)
@@ -308,13 +313,21 @@ class ScoterApp(wx.App):
                                    max_rate = int(mf.corr_sa_max_rate.GetValue()),
                                    interp_type = interp_type,
                                    interp_npoints = interp_npoints,
+                                   nblocks = int(mf.corr_common_intervals.GetValue()),
                                    max_changes = float(mf.corr_sa_max_changes.GetValue()),
                                    max_steps = float(mf.corr_sa_max_steps.GetValue()),
                                    temp_init = float(mf.corr_sa_temp_init.GetValue()),
                                    temp_final = float(mf.corr_sa_temp_final.GetValue()),
                                    cooling = float(mf.corr_sa_rate.GetValue()),
                                    rc_penalty = float(mf.corr_sa_rc_penalty.GetValue()),
-                                   random_seed = int(mf.corr_sa_seed.GetValue())
+                                   random_seed = int(mf.corr_sa_seed.GetValue()),
+                                   match_nomatch = float(mf.corr_match_nomatch.GetValue()),
+                                   match_speed_p = float(mf.corr_match_speed.GetValue()),
+                                   match_tie_p = float(mf.corr_match_tie.GetValue()),
+                                   match_target_speed = mf.corr_match_target.GetValue(),
+                                   match_speedchange_p = float(mf.corr_match_speedchange.GetValue()),
+                                   match_gap_p = float(mf.corr_match_gap.GetValue()),
+                                   match_rates = mf.corr_match_rates.GetValue()
                                    )
 
     def read_params_from_wxconfig(self):
@@ -325,6 +338,7 @@ class ScoterApp(wx.App):
             max_rate = wxc.ReadInt("max_rate", 4),
             interp_type = wxc.Read("interp_type", "min"),
             interp_npoints = wxc.ReadInt("interp_npoints", -1),
+            nblocks = wxc.ReadInt("nblocks", 256),
             temp_init = wxc.ReadFloat("temp_init", 1.0e5),
             temp_final = wxc.ReadFloat("temp_final", 1.0),
             cooling = wxc.ReadFloat("cooling", 0.95),
@@ -343,6 +357,7 @@ class ScoterApp(wx.App):
         wxc.WriteInt("max_rate", p.max_rate)
         wxc.Write("interp_type", p.interp_type)
         wxc.WriteInt("interp_npoints", -1 if p.interp_npoints == None else p.interp_npoints)
+        wxc.WriteInt("nblocks", p.nblocks)
         wxc.WriteInt("max_rate", p.max_rate)
         wxc.WriteFloat("temp_init", p.temp_init)
         wxc.WriteFloat("temp_final", p.temp_final)

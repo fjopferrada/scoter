@@ -42,7 +42,9 @@ arg_names = \
     "nblocks, interp_type, interp_npoints, detrend, "+\
     "normalize, max_rate, make_pdf, live_display, precalc, "+\
     "temp_init, temp_final, cooling, max_changes, max_steps, "+\
-    "rc_penalty, random_seed"
+    "rc_penalty, random_seed, match_nomatch, match_speed_p, "+\
+    "match_tie_p, match_target_speed, match_speedchange_p, "+\
+    "match_gap_p, match_rates"
 
 ScoterConfigBase = namedtuple("ScoterConfigBase", arg_names)
 
@@ -63,14 +65,23 @@ class ScoterConfig(ScoterConfigBase):
                   max_changes = 5,
                   max_steps = 200,
                   rc_penalty = 0.,
-                  random_seed = 42
+                  random_seed = 42,
+                  match_nomatch = 1e12,
+                  match_speed_p = 0.0,
+                  match_tie_p = 100,
+                  match_target_speed = "1:1",
+                  match_speedchange_p = 1.0,
+                  match_gap_p = 1,
+                  match_rates = "1:4,1:3,1:2,2:3,3:4,1:1,4:3,3:2,2:1,3:1,4:1"
                 ):
         if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
             (cls, nblocks, interp_type, interp_npoints, detrend,
              normalize, max_rate, make_pdf, live_display, precalc,
              temp_init, temp_final, cooling, max_changes, max_steps,
-             rc_penalty, random_seed)
+             rc_penalty, random_seed, match_nomatch, match_speed_p,
+             match_tie_p, match_target_speed, match_speedchange_p,
+             match_gap_p, match_rates)
 
 class Scoter:
     
@@ -156,14 +167,13 @@ class Scoter:
 
     def correlate_sa(self, known_line, args, callback_obj):
         #if args.multiscale > -1:
-        #    return solve_sa_multiscale(series0, series1, nblocks, known_line, args)
+        #    return solve_sa_multiscale(series0, series1, args.nblocks, known_line, args)
         
-        nblocks = args.nblocks
         random_generator = random.Random(args.random_seed)
         n_record_types = len(self.series_preprocessed[0])
         
-        starting_warp = Bwarp(Bseries(self.series_preprocessed[0], nblocks),
-                              Bseries(self.series_preprocessed[1], nblocks),
+        starting_warp = Bwarp(Bseries(self.series_preprocessed[0], args.nblocks),
+                              Bseries(self.series_preprocessed[1], args.nblocks),
                               max_rate = args.max_rate,
                               rc_penalty = args.rc_penalty,
                               rnd = random_generator)
@@ -173,7 +183,7 @@ class Scoter:
         # Set up warp plotter if needed
         plotter = None
         if args.live_display:
-            plotter = WarpPlotter(nblocks, known_line, 100,
+            plotter = WarpPlotter(args.nblocks, known_line, 100,
                                   pdf_file = 'dsaframes-1.pdf' if args.make_pdf else None)
         
         ltemp_max = math.log(args.temp_init)
@@ -221,14 +231,13 @@ class Scoter:
         dir_path = tempfile.mkdtemp("", "scoter", None)
         
         match_params = dict(
-        nomatch = 1e12,
-        speedpenalty = 0.0,
-        targetspeed = '1:1',
-        speedchange = 1.0,
-        tiepenalty = 100,
-        gappenalty = 1,
-        speeds = ('1:4,1:3,1:2,2:3,3:4,' + # 1:1
-                  '4:3,3:2,2:1,3:1,4:1')
+        nomatch = args.match_nomatch,
+        speedpenalty = args.match_speed_p,
+        targetspeed = args.match_target_speed,
+        speedchange = args.match_speedchange_p,
+        tiepenalty = args.match_tie_p,
+        gappenalty = args.match_gap_p,
+        speeds = args.match_rates
         )
         # NB 1:1 temporarily removed for testing purposes
 
