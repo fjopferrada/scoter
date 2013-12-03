@@ -8,13 +8,13 @@ from scoter import Scoter, ScoterConfig
 import os.path
 import forms
 import threading
-import time
 
 class ScoterApp(wx.App):
     
     def OnInit(self):
         
         self.scoter = Scoter()
+        self.default_scoter_config = ScoterConfig()
         self.scoter.read_test_data()
         self.SetVendorName("talvi.net") # may as well adopt the Java convention
         self.SetAppName("Scoter")
@@ -337,28 +337,29 @@ class ScoterApp(wx.App):
 
     def read_params_from_wxconfig(self):
         wxc = wx.Config("scoter")
+        d = self.default_scoter_config
         self.params = ScoterConfig(
-            detrend = wxc.Read("detrend", "none"),
-            normalize = wxc.ReadBool("normalize", False),
-            max_rate = wxc.ReadInt("max_rate", 4),
-            interp_type = wxc.Read("interp_type", "min"),
+            detrend = wxc.Read("detrend", d.detrend),
+            normalize = wxc.ReadBool("normalize", d.normalize),
+            max_rate = wxc.ReadInt("max_rate", d.max_rate),
+            interp_type = wxc.Read("interp_type", d.interp_type),
             interp_npoints = wxc.ReadInt("interp_npoints", -1),
-            nblocks = wxc.ReadInt("nblocks", 256),
-            temp_init = wxc.ReadFloat("temp_init", 1.0e5),
-            temp_final = wxc.ReadFloat("temp_final", 1.0),
-            cooling = wxc.ReadFloat("cooling", 0.95),
-            max_changes = wxc.ReadInt("max_changes", 5),
-            max_steps = wxc.ReadInt("max_steps", 200),
-            rc_penalty = wxc.ReadFloat("rc_penalty", 0),
-            random_seed = wxc.ReadInt("random_seed", 42),
-            match_nomatch = wxc.ReadFloat("match_nomatch", 0),
-            match_speed_p = wxc.ReadFloat("match_speed_p", 0),
-            match_tie_p = wxc.ReadFloat("match_tie_p", 0),
-            match_target_speed = wxc.Read("match_target_speed", ""),
-            match_speedchange_p = wxc.ReadFloat("match_speedchange_p", 0),
-            match_gap_p = wxc.ReadFloat("match_gap_p", 0),
-            match_rates = wxc.ReadFloat("match_rates", 0),
-            match_path = wxc.Read("match_path", "")
+            nblocks = wxc.ReadInt("nblocks", d.nblocks),
+            temp_init = wxc.ReadFloat("temp_init", d.temp_init),
+            temp_final = wxc.ReadFloat("temp_final", d.temp_final),
+            cooling = wxc.ReadFloat("cooling", d.cooling),
+            max_changes = wxc.ReadInt("max_changes", d.max_changes),
+            max_steps = wxc.ReadInt("max_steps", d.max_steps),
+            rc_penalty = wxc.ReadFloat("rc_penalty", d.rc_penalty),
+            random_seed = wxc.ReadInt("random_seed", d.random_seed),
+            match_nomatch = wxc.ReadFloat("match_nomatch", d.match_nomatch),
+            match_speed_p = wxc.ReadFloat("match_speed_p", d.match_speed_p),
+            match_tie_p = wxc.ReadFloat("match_tie_p", d.match_tie_p),
+            match_target_speed = wxc.Read("match_target_speed", d.match_target_speed),
+            match_speedchange_p = wxc.ReadFloat("match_speedchange_p", d.match_speedchange_p),
+            match_gap_p = wxc.ReadFloat("match_gap_p", d.match_gap_p),
+            match_rates = wxc.Read("match_rates", d.match_rates),
+            match_path = wxc.Read("match_path", d.match_path),
             )
     
     def write_params_to_wxconfig(self):
