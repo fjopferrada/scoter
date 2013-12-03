@@ -344,14 +344,14 @@ class MainFrame ( wx.Frame ):
 		gbSizer1.SetFlexibleDirection( wx.BOTH )
 		gbSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_radioBtn6 = wx.RadioButton( self.panel_match, wx.ID_ANY, u"Guess location of Match program", wx.DefaultPosition, wx.DefaultSize, wx.RB_GROUP )
-		gbSizer1.Add( self.m_radioBtn6, wx.GBPosition( 0, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.corr_match_guess_button = wx.RadioButton( self.panel_match, wx.ID_ANY, u"Guess location of Match program", wx.DefaultPosition, wx.DefaultSize, wx.RB_GROUP )
+		gbSizer1.Add( self.corr_match_guess_button, wx.GBPosition( 0, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
-		self.m_radioBtn7 = wx.RadioButton( self.panel_match, wx.ID_ANY, u"Specify location:", wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.m_radioBtn7, wx.GBPosition( 1, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
+		self.prog_match_specify_button = wx.RadioButton( self.panel_match, wx.ID_ANY, u"Specify location:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		gbSizer1.Add( self.prog_match_specify_button, wx.GBPosition( 1, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
 		
-		self.corr_match_user_path = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.corr_match_user_path, wx.GBPosition( 1, 1 ), wx.GBSpan( 1, 5 ), wx.ALL|wx.EXPAND, 5 )
+		self.corr_match_specified_path = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		gbSizer1.Add( self.corr_match_specified_path, wx.GBPosition( 1, 1 ), wx.GBSpan( 1, 5 ), wx.ALL|wx.EXPAND, 5 )
 		
 		self.corr_match_guessed_path = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		self.corr_match_guessed_path.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )

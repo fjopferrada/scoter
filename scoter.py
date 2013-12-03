@@ -44,7 +44,7 @@ arg_names = \
     "temp_init, temp_final, cooling, max_changes, max_steps, "+\
     "rc_penalty, random_seed, match_nomatch, match_speed_p, "+\
     "match_tie_p, match_target_speed, match_speedchange_p, "+\
-    "match_gap_p, match_rates"
+    "match_gap_p, match_rates, match_path"
 
 ScoterConfigBase = namedtuple("ScoterConfigBase", arg_names)
 
@@ -72,7 +72,8 @@ class ScoterConfig(ScoterConfigBase):
                   match_target_speed = "1:1",
                   match_speedchange_p = 1.0,
                   match_gap_p = 1,
-                  match_rates = "1:4,1:3,1:2,2:3,3:4,1:1,4:3,3:2,2:1,3:1,4:1"
+                  match_rates = "1:4,1:3,1:2,2:3,3:4,1:1,4:3,3:2,2:1,3:1,4:1",
+                  match_path = "" # empty string => look for match on current path
                 ):
         if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
@@ -81,7 +82,7 @@ class ScoterConfig(ScoterConfigBase):
              temp_init, temp_final, cooling, max_changes, max_steps,
              rc_penalty, random_seed, match_nomatch, match_speed_p,
              match_tie_p, match_target_speed, match_speedchange_p,
-             match_gap_p, match_rates)
+             match_gap_p, match_rates, match_path)
 
 class Scoter:
     

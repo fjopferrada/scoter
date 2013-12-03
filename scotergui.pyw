@@ -308,6 +308,10 @@ class ScoterApp(wx.App):
         elif mf.preproc_interp_explicit.GetValue():
             interp_type = "explicit"
             interp_npoints = mf.preproc_interp_npoints.GetValue()
+        if mf.corr_match_guess_button.GetValue():
+            match_path = ""
+        else:
+            match_path = mf.corr_match_specified_path.GetValue()
         self.params = ScoterConfig(detrend = detrend_opts[mf.preproc_detrend.GetSelection()],
                                    normalize = mf.preproc_normalize.GetValue(),
                                    max_rate = int(mf.corr_sa_max_rate.GetValue()),
@@ -327,7 +331,8 @@ class ScoterApp(wx.App):
                                    match_target_speed = mf.corr_match_target.GetValue(),
                                    match_speedchange_p = float(mf.corr_match_speedchange.GetValue()),
                                    match_gap_p = float(mf.corr_match_gap.GetValue()),
-                                   match_rates = mf.corr_match_rates.GetValue()
+                                   match_rates = mf.corr_match_rates.GetValue(),
+                                   match_path = match_path
                                    )
 
     def read_params_from_wxconfig(self):
@@ -345,7 +350,15 @@ class ScoterApp(wx.App):
             max_changes = wxc.ReadInt("max_changes", 5),
             max_steps = wxc.ReadInt("max_steps", 200),
             rc_penalty = wxc.ReadFloat("rc_penalty", 0),
-            random_seed = wxc.ReadInt("random_seed", 42)
+            random_seed = wxc.ReadInt("random_seed", 42),
+            match_nomatch = wxc.ReadFloat("match_nomatch", 0),
+            match_speed_p = wxc.ReadFloat("match_speed_p", 0),
+            match_tie_p = wxc.ReadFloat("match_tie_p", 0),
+            match_target_speed = wxc.Read("match_target_speed", ""),
+            match_speedchange_p = wxc.ReadFloat("match_speedchange_p", 0),
+            match_gap_p = wxc.ReadFloat("match_gap_p", 0),
+            match_rates = wxc.ReadFloat("match_rates", 0),
+            match_path = wxc.Read("match_path", "")
             )
     
     def write_params_to_wxconfig(self):
@@ -364,9 +377,16 @@ class ScoterApp(wx.App):
         wxc.WriteFloat("cooling", p.cooling)
         wxc.WriteInt("max_changes", p.max_changes)
         wxc.WriteInt("max_steps", p.max_steps)
-        
         wxc.WriteFloat("rc_penalty", p.rc_penalty)
         wxc.WriteInt("random_seed", p.random_seed)
+        wxc.WriteFloat("match_nomatch", p.match_nomatch),
+        wxc.WriteFloat("match_speed_p", p.match_speed_p),
+        wxc.WriteFloat("match_tie_p", p.match_tie_p),
+        wxc.Write("match_target_speed", p.match_target_speed),
+        wxc.WriteFloat("match_speedchange_p", p.match_speedchange_p),
+        wxc.WriteFloat("match_gap_p", p.match_gap_p),
+        wxc.Write("match_rates", p.match_rates),
+        wxc.Write("match_path", p.match_path)
 
 class AboutScoter(wx.AboutDialogInfo):
     

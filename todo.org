@@ -77,5 +77,10 @@
    To reproduce: start program, run correlation, switch to Match results tab,
    observe that plots are blank. Resize window and graphs appear. NB does
    not manifest itself when scotergui is run in debug mode.
-
-
+** TODO 018 Use Scoter defaults as wx.Config defaults
+   Currently, ScoterConfig has hardcoded defaults for any missing
+   arguments to its constructor. However, ScoterGui uses its own
+   hardcoded defaults when creating a ScoterConfig using
+   wx.Config! ScoterGui should instantiate a default ScoterConfig
+   without arguments, and use its field values in 
+   read_params_from_wxconfig.
