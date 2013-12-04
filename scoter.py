@@ -7,6 +7,7 @@ from simann import Annealer, AdaptiveSchedule
 from block import Bwarp, Bseries
 from plot import WarpPlotter
 from match import MatchConf, MatchSeriesConf
+import logging
 import math
 import random
 import shutil
@@ -88,7 +89,7 @@ class Scoter:
     
     def __init__(self):
         self.parent_dir = os.path.dirname(os.path.realpath(__file__))
-        self.match_path = find_executable("match")
+        self.default_match_path = find_executable("match")
         self._init_data_structures()
     
     def rel_path(self, filename):
@@ -129,7 +130,6 @@ class Scoter:
                 # If so, interpolate and store for matching
                 series_picked[0].append(self.series[0][record_type])
                 series_picked[1].append(self.series[1][record_type])
-
 
         # series_picked will now be something like
         # [[record_d18O, record_RPI] , [target_d18O, target_RPI]]
@@ -240,16 +240,14 @@ class Scoter:
         gappenalty = args.match_gap_p,
         speeds = args.match_rates
         )
-        # NB 1:1 temporarily removed for testing purposes
 
         match_conf =  MatchConf(MatchSeriesConf(self.series_preprocessed[0], intervals = args.nblocks),
                             MatchSeriesConf(self.series_preprocessed[1], intervals = args.nblocks),
                             match_params)
-
-        match_result = match_conf.run_match("/usr/local/bin/match", dir_path, False)
-        
+        match_path = self.default_match_path if args.match_path == "" else args.match_path
+        logging.debug("Match path: %s", match_path)
+        match_result = match_conf.run_match(match_path, dir_path, False)
         self.aligned_match = match_result.series1
-        
         shutil.rmtree(dir_path, ignore_errors = True)
 
 

@@ -8,6 +8,7 @@ from scoter import Scoter, ScoterConfig
 import os.path
 import forms
 import threading
+import logging
 
 class ScoterApp(wx.App):
     
@@ -292,7 +293,8 @@ class ScoterApp(wx.App):
         mf.corr_match_speedchange.SetValue(str(p.match_speedchange_p))
         mf.corr_match_gap.SetValue(str(p.match_gap_p))
         mf.corr_match_rates.SetValue(str(p.match_rates))
-        mf.corr_match_guessed_path.SetValue(str(self.scoter.match_path))
+        mf.corr_match_guessed_path.SetValue(str(self.scoter.default_match_path))
+        # mf.corr_match_specified_path.SetValue(p.match_path)
         if hasattr(p, "interp_npoints") and p.interp_npoints != None:
             mf.preproc_interp_npoints.SetValue(p.interp_npoints)
     
@@ -338,6 +340,11 @@ class ScoterApp(wx.App):
     def read_params_from_wxconfig(self):
         wxc = wx.Config("scoter")
         d = self.default_scoter_config
+        match_path = wxc.Read("match_specified_path")
+        use_path = wxc.ReadBool("match_use_specified_path")
+        self.main_frame.corr_match_specified_path.SetValue(match_path)
+        self.main_frame.corr_match_guess_button.SetValue(not use_path)
+        self.main_frame.corr_match_specify_button.SetValue(use_path)
         self.params = ScoterConfig(
             detrend = wxc.Read("detrend", d.detrend),
             normalize = wxc.ReadBool("normalize", d.normalize),
@@ -359,8 +366,8 @@ class ScoterApp(wx.App):
             match_speedchange_p = wxc.ReadFloat("match_speedchange_p", d.match_speedchange_p),
             match_gap_p = wxc.ReadFloat("match_gap_p", d.match_gap_p),
             match_rates = wxc.Read("match_rates", d.match_rates),
-            match_path = wxc.Read("match_path", d.match_path),
-            )
+            match_path = match_path if use_path else d.match_path)
+
     
     def write_params_to_wxconfig(self):
         wxc = wx.Config("scoter")
@@ -387,7 +394,8 @@ class ScoterApp(wx.App):
         wxc.WriteFloat("match_speedchange_p", p.match_speedchange_p),
         wxc.WriteFloat("match_gap_p", p.match_gap_p),
         wxc.Write("match_rates", p.match_rates),
-        wxc.Write("match_path", p.match_path)
+        wxc.Write("match_specified_path", self.main_frame.corr_match_specified_path.GetValue())
+        wxc.WriteBool("match_use_specified_path", self.main_frame.corr_match_specify_button.GetValue())
 
 class AboutScoter(wx.AboutDialogInfo):
     
@@ -404,6 +412,7 @@ class AboutScoter(wx.AboutDialogInfo):
         self.SetDevelopers(("Pontus Lurcock",))
 
 def main():
+    logging.basicConfig(level=logging.DEBUG)
     app = ScoterApp()
     app.MainLoop()
 

@@ -85,3 +85,17 @@
    wx.Config! ScoterGui should instantiate a default ScoterConfig
    without arguments, and use its field values in 
    read_params_from_wxconfig.
+** DONE 019 Better save/load of match path in GUI
+   CLOSED: [2013-12-04 Wed 10:24]
+** TODO 020 Rethink configuration architecture in scotergui
+   A bit of a mess at the moment: scotergui reads a wx.Config
+   into a ScoterConfig, but only ever uses that ScoterConfig
+   to initialize the GUI. When a correlation is run, the GUI
+   state is used to instantiate *another* ScoterConfig which is
+   passed to the Scoter instance. There's no need to round-trip
+   the initial configuration via a ScoterConfig: Scoter itself
+   will never need to deal with a wx.Config -- it *will* need
+   file-based configuration at some point but this should be
+   based on configparser. The round-trip introduces some hackiness
+   too, since the ScoterGui and Scoter configs don't map exactly
+   onto each other: the Match path is specified differently.
