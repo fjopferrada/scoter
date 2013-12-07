@@ -39,7 +39,7 @@ class ScoterApp(wx.App):
         self.axes_results_match, self.canvas_results_match = \
             self.make_results_figures(self.main_frame.panel_resultsplot_match)
         
-        self.read_params_from_wxconfig()
+        #self.read_params_from_wxconfig()
         
         progress_figure = Figure()
         progress_figure.set_size_inches(1, 1)
@@ -75,7 +75,7 @@ class ScoterApp(wx.App):
         
         self.about_frame = AboutScoter(self)
         self.plot_series()
-        self.update_gui_with_params()
+        self.update_gui_from_wxconfig()
         return True
     
     def make_results_figures(self, panel):
@@ -260,44 +260,86 @@ class ScoterApp(wx.App):
         return self.simann_abort_flag
         
     def quit(self, event):
-        self.write_params_to_wxconfig()
+        self.write_gui_to_wxconfig()
         self.Destroy()
         wx.Exit()
     
     def about(self, event):
         wx.AboutBox(self.about_frame)
     
-    def update_gui_with_params(self):
-        p = self.params
+    def update_gui_from_wxconfig(self):
         mf = self.main_frame
+        wxc = wx.Config("scoter")
+        d = self.default_scoter_config
         detrend_map = {"none":0, "submean":1, "linear":2}
-        mf.preproc_detrend.SetSelection(detrend_map.get(p.detrend, "none"))
-        mf.preproc_normalize.SetValue(p.normalize)
-        mf.preproc_interp_none.SetValue(p.interp_type == "none")
-        mf.preproc_interp_min.SetValue(p.interp_type == "min")
-        mf.preproc_interp_max.SetValue(p.interp_type == "max")
-        mf.preproc_interp_explicit.SetValue(p.interp_type == "explicit")
-        mf.corr_common_intervals.SetValue(str(p.nblocks))
-        mf.corr_sa_max_rate.SetValue(str(p.max_rate))
-        mf.corr_sa_max_changes.SetValue(str(p.max_changes))
-        mf.corr_sa_max_steps.SetValue(str(p.max_steps))
-        mf.corr_sa_rate.SetValue(str(p.cooling))
-        mf.corr_sa_temp_final.SetValue(str(p.temp_final))
-        mf.corr_sa_temp_init.SetValue(str(p.temp_init))
-        mf.corr_sa_rc_penalty.SetValue(str(p.rc_penalty))
-        mf.corr_sa_seed.SetValue(str(p.random_seed))
-        mf.corr_match_nomatch.SetValue(str(p.match_nomatch))
-        mf.corr_match_speed.SetValue(str(p.match_speed_p))
-        mf.corr_match_tie.SetValue(str(p.match_tie_p))
-        mf.corr_match_target.SetValue(str(p.match_target_speed))
-        mf.corr_match_speedchange.SetValue(str(p.match_speedchange_p))
-        mf.corr_match_gap.SetValue(str(p.match_gap_p))
-        mf.corr_match_rates.SetValue(str(p.match_rates))
+        mf.preproc_detrend.SetSelection(detrend_map.get(wxc.Read("detrend", d.detrend), "none"))
+        mf.preproc_normalize.SetValue(wxc.ReadBool("normalize", d.normalize))
+        interp_type = wxc.Read("interp_type", d.interp_type)
+        mf.preproc_interp_none.SetValue(interp_type == "none")
+        mf.preproc_interp_min.SetValue(interp_type == "min")
+        mf.preproc_interp_max.SetValue(interp_type == "max")
+        mf.preproc_interp_explicit.SetValue(interp_type == "explicit")
+        interp_npoints = wxc.ReadInt("interp_npoints", -1)
+        if interp_npoints != -1:
+            mf.preproc_interp_npoints.SetValue(interp_npoints)
+        mf.corr_common_intervals.SetValue(str(wxc.ReadInt("nblocks", d.nblocks)))
+        mf.corr_sa_max_rate.SetValue(str(wxc.ReadInt("max_rate", d.max_rate)))
+        mf.corr_sa_max_changes.SetValue(str(wxc.ReadInt("max_changes", d.max_changes)))
+        mf.corr_sa_max_steps.SetValue(str(wxc.ReadInt("max_steps", d.max_steps)))
+        mf.corr_sa_rate.SetValue(str(wxc.ReadFloat("cooling", d.cooling)))
+        mf.corr_sa_temp_final.SetValue(str(wxc.ReadFloat("temp_final", d.temp_final)))
+        mf.corr_sa_temp_init.SetValue(str(wxc.ReadFloat("temp_init", d.temp_init)))
+        mf.corr_sa_rc_penalty.SetValue(str(wxc.ReadFloat("rc_penalty", d.rc_penalty)))
+        mf.corr_sa_seed.SetValue(str(wxc.ReadInt("random_seed", d.random_seed)))
+        mf.corr_match_nomatch.SetValue(str(wxc.ReadFloat("match_nomatch", d.match_nomatch)))
+        mf.corr_match_speed.SetValue(str(wxc.ReadFloat("match_speed_p", d.match_speed_p)))
+        mf.corr_match_tie.SetValue(str(wxc.ReadFloat("match_tie_p", d.match_tie_p)))
+        mf.corr_match_target.SetValue(str(wxc.Read("match_target_speed", d.match_target_speed)))
+        mf.corr_match_speedchange.SetValue(str(wxc.ReadFloat("match_speedchange_p", d.match_speedchange_p)))
+        mf.corr_match_gap.SetValue(str(wxc.ReadFloat("match_gap_p", d.match_gap_p)))
+        mf.corr_match_rates.SetValue(str(wxc.Read("match_rates", d.match_rates)))
         mf.corr_match_guessed_path.SetValue(str(self.scoter.default_match_path))
-        # mf.corr_match_specified_path.SetValue(p.match_path)
-        if hasattr(p, "interp_npoints") and p.interp_npoints != None:
-            mf.preproc_interp_npoints.SetValue(p.interp_npoints)
-    
+        mf.corr_match_guess_button.SetValue(not wxc.ReadBool("match_use_specified_path", False))
+        mf.corr_match_specify_button.SetValue(wxc.ReadBool("match_use_specified_path", False))
+        mf.corr_match_specified_path.SetValue(wxc.Read("match_specified_path"))
+
+    def write_gui_to_wxconfig(self):
+        mf = self.main_frame
+        detrend_opts = ("none", "submean", "linear")
+        interp_type = "none"
+        if mf.preproc_interp_min.GetValue():
+            interp_type = "min"
+        elif mf.preproc_interp_max.GetValue():
+            interp_type = "max"
+        elif mf.preproc_interp_explicit.GetValue():
+            interp_type = "explicit"
+        mf = self.main_frame
+        wxc = wx.Config("scoter")
+        wxc.Write("detrend", detrend_opts[mf.preproc_detrend.GetSelection()])
+        wxc.WriteBool("normalize", mf.preproc_normalize.GetValue())
+        wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
+        wxc.Write("interp_type", interp_type)
+        wxc.WriteInt("interp_npoints", mf.preproc_interp_npoints.GetValue())
+        wxc.WriteInt("nblocks", int(mf.corr_common_intervals.GetValue()))
+        wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
+        wxc.WriteFloat("temp_init", float(mf.corr_sa_temp_init.GetValue()))
+        wxc.WriteFloat("temp_final", float(mf.corr_sa_temp_final.GetValue()))
+        wxc.WriteFloat("cooling", float(mf.corr_sa_rate.GetValue()))
+        wxc.WriteInt("max_changes", int(mf.corr_sa_max_changes.GetValue()))
+        wxc.WriteInt("max_steps", int(mf.corr_sa_max_steps.GetValue()))
+        wxc.WriteFloat("rc_penalty", float(mf.corr_sa_rc_penalty.GetValue()))
+        wxc.WriteInt("random_seed", int(mf.corr_sa_seed.GetValue()))
+        wxc.WriteFloat("match_nomatch", float(mf.corr_match_nomatch.GetValue()))
+        wxc.WriteFloat("match_speed_p", float(mf.corr_match_speed.GetValue()))
+        wxc.WriteFloat("match_tie_p", float(mf.corr_match_tie.GetValue()))
+        wxc.Write("match_target_speed", mf.corr_match_target.GetValue())
+        wxc.WriteFloat("match_speedchange_p", float(mf.corr_match_speedchange.GetValue()))
+        wxc.WriteFloat("match_gap_p", float(mf.corr_match_gap.GetValue()))
+        wxc.Write("match_rates", mf.corr_match_rates.GetValue())
+        wxc.Write("match_specified_path", mf.corr_match_specified_path.GetValue())
+        wxc.WriteBool("match_use_specified_path", mf.corr_match_specify_button.GetValue())
+        
+        
     def read_params_from_gui(self):
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
@@ -337,38 +379,6 @@ class ScoterApp(wx.App):
                                    match_path = match_path
                                    )
 
-    def read_params_from_wxconfig(self):
-        wxc = wx.Config("scoter")
-        d = self.default_scoter_config
-        match_path = wxc.Read("match_specified_path")
-        use_path = wxc.ReadBool("match_use_specified_path")
-        self.main_frame.corr_match_specified_path.SetValue(match_path)
-        self.main_frame.corr_match_guess_button.SetValue(not use_path)
-        self.main_frame.corr_match_specify_button.SetValue(use_path)
-        self.params = ScoterConfig(
-            detrend = wxc.Read("detrend", d.detrend),
-            normalize = wxc.ReadBool("normalize", d.normalize),
-            max_rate = wxc.ReadInt("max_rate", d.max_rate),
-            interp_type = wxc.Read("interp_type", d.interp_type),
-            interp_npoints = wxc.ReadInt("interp_npoints", -1),
-            nblocks = wxc.ReadInt("nblocks", d.nblocks),
-            temp_init = wxc.ReadFloat("temp_init", d.temp_init),
-            temp_final = wxc.ReadFloat("temp_final", d.temp_final),
-            cooling = wxc.ReadFloat("cooling", d.cooling),
-            max_changes = wxc.ReadInt("max_changes", d.max_changes),
-            max_steps = wxc.ReadInt("max_steps", d.max_steps),
-            rc_penalty = wxc.ReadFloat("rc_penalty", d.rc_penalty),
-            random_seed = wxc.ReadInt("random_seed", d.random_seed),
-            match_nomatch = wxc.ReadFloat("match_nomatch", d.match_nomatch),
-            match_speed_p = wxc.ReadFloat("match_speed_p", d.match_speed_p),
-            match_tie_p = wxc.ReadFloat("match_tie_p", d.match_tie_p),
-            match_target_speed = wxc.Read("match_target_speed", d.match_target_speed),
-            match_speedchange_p = wxc.ReadFloat("match_speedchange_p", d.match_speedchange_p),
-            match_gap_p = wxc.ReadFloat("match_gap_p", d.match_gap_p),
-            match_rates = wxc.Read("match_rates", d.match_rates),
-            match_path = match_path if use_path else d.match_path)
-
-    
     def write_params_to_wxconfig(self):
         wxc = wx.Config("scoter")
         self.read_params_from_gui()

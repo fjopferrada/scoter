@@ -87,7 +87,8 @@
    read_params_from_wxconfig.
 ** DONE 019 Better save/load of match path in GUI
    CLOSED: [2013-12-04 Wed 10:24]
-** TODO 020 Rethink configuration architecture in scotergui
+** DONE 020 Rethink configuration architecture in scotergui
+   CLOSED: [2013-12-07 Sat 17:45]
    A bit of a mess at the moment: scotergui reads a wx.Config
    into a ScoterConfig, but only ever uses that ScoterConfig
    to initialize the GUI. When a correlation is run, the GUI
