@@ -339,7 +339,6 @@ class ScoterApp(wx.App):
         wxc.Write("match_specified_path", mf.corr_match_specified_path.GetValue())
         wxc.WriteBool("match_use_specified_path", mf.corr_match_specify_button.GetValue())
         
-        
     def read_params_from_gui(self):
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
@@ -378,34 +377,6 @@ class ScoterApp(wx.App):
                                    match_rates = mf.corr_match_rates.GetValue(),
                                    match_path = match_path
                                    )
-
-    def write_params_to_wxconfig(self):
-        wxc = wx.Config("scoter")
-        self.read_params_from_gui()
-        p = self.params
-        wxc.Write("detrend", p.detrend)
-        wxc.WriteBool("normalize", p.normalize)
-        wxc.WriteInt("max_rate", p.max_rate)
-        wxc.Write("interp_type", p.interp_type)
-        wxc.WriteInt("interp_npoints", -1 if p.interp_npoints == None else p.interp_npoints)
-        wxc.WriteInt("nblocks", p.nblocks)
-        wxc.WriteInt("max_rate", p.max_rate)
-        wxc.WriteFloat("temp_init", p.temp_init)
-        wxc.WriteFloat("temp_final", p.temp_final)
-        wxc.WriteFloat("cooling", p.cooling)
-        wxc.WriteInt("max_changes", p.max_changes)
-        wxc.WriteInt("max_steps", p.max_steps)
-        wxc.WriteFloat("rc_penalty", p.rc_penalty)
-        wxc.WriteInt("random_seed", p.random_seed)
-        wxc.WriteFloat("match_nomatch", p.match_nomatch),
-        wxc.WriteFloat("match_speed_p", p.match_speed_p),
-        wxc.WriteFloat("match_tie_p", p.match_tie_p),
-        wxc.Write("match_target_speed", p.match_target_speed),
-        wxc.WriteFloat("match_speedchange_p", p.match_speedchange_p),
-        wxc.WriteFloat("match_gap_p", p.match_gap_p),
-        wxc.Write("match_rates", p.match_rates),
-        wxc.Write("match_specified_path", self.main_frame.corr_match_specified_path.GetValue())
-        wxc.WriteBool("match_use_specified_path", self.main_frame.corr_match_specify_button.GetValue())
 
 class AboutScoter(wx.AboutDialogInfo):
     
