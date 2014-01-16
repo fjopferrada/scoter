@@ -20,13 +20,13 @@ class ScoterApp(wx.App):
         self.SetVendorName("talvi.net") # may as well adopt the Java convention
         self.SetAppName("Scoter")
 
-        self.main_frame = forms.MainFrame(None)
+        mf = self.main_frame = forms.MainFrame(None)
 
         icon_bundle = wx.IconBundle()
         icon_bundle.AddIcon(wx.Icon(self.scoter.rel_path("appicon16.png"), wx.BITMAP_TYPE_PNG))
         icon_bundle.AddIcon(wx.Icon(self.scoter.rel_path("appicon32.png"), wx.BITMAP_TYPE_PNG))
         icon_bundle.AddIcon(wx.Icon(self.scoter.rel_path("appicon64.png"), wx.BITMAP_TYPE_PNG))
-        self.main_frame.SetIcons(icon_bundle) 
+        mf.SetIcons(icon_bundle) 
         
         self.axes = []
         self.figure_canvas = []
@@ -35,43 +35,43 @@ class ScoterApp(wx.App):
                 self.add_figure(panel, subpanel)
 
         self.axes_results_sa, self.canvas_results_sa = \
-            self.make_results_figures(self.main_frame.panel_resultsplot)
+            self.make_results_figures(mf.panel_resultsplot)
         self.axes_results_match, self.canvas_results_match = \
-            self.make_results_figures(self.main_frame.panel_resultsplot_match)
+            self.make_results_figures(mf.panel_resultsplot_match)
         
         #self.read_params_from_wxconfig()
         
         progress_figure = Figure()
         progress_figure.set_size_inches(1, 1)
         self.progress_axes = progress_figure.add_axes([0.05, 0.2, 0.93, 0.7])
-        self.progress_canvas = FigureCanvas(self.main_frame.panel_progressplot, -1, progress_figure)
-        self.main_frame.panel_progressplot.GetSizer().Add(self.progress_canvas, 1, wx.EXPAND | wx.ALL)
+        self.progress_canvas = FigureCanvas(mf.panel_progressplot, -1, progress_figure)
+        mf.panel_progressplot.GetSizer().Add(self.progress_canvas, 1, wx.EXPAND | wx.ALL)
         
-        bind = self.main_frame.Bind
-        bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_record)
-        bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_d18o_target)
-        bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_rpi_record)
-        bind(wx.EVT_BUTTON, self.read_record, self.main_frame.button_read_rpi_target)
-        bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_record)
-        bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_d18o_target)
-        bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_record)
-        bind(wx.EVT_BUTTON, self.clear_record, self.main_frame.button_clear_rpi_target)        
-        bind(wx.EVT_BUTTON, self.correlate, self.main_frame.button_correlate)
-        bind(wx.EVT_MENU, self.quit, self.main_frame.menuitem_quit)
-        bind(wx.EVT_MENU, self.about, self.main_frame.menuitem_about)
-        bind(wx.EVT_BUTTON, self.abort, self.main_frame.button_abort)
+        bind = mf.Bind
+        bind(wx.EVT_BUTTON, self.read_record, mf.button_read_d18o_record)
+        bind(wx.EVT_BUTTON, self.read_record, mf.button_read_d18o_target)
+        bind(wx.EVT_BUTTON, self.read_record, mf.button_read_rpi_record)
+        bind(wx.EVT_BUTTON, self.read_record, mf.button_read_rpi_target)
+        bind(wx.EVT_BUTTON, self.clear_record, mf.button_clear_d18o_record)
+        bind(wx.EVT_BUTTON, self.clear_record, mf.button_clear_d18o_target)
+        bind(wx.EVT_BUTTON, self.clear_record, mf.button_clear_rpi_record)
+        bind(wx.EVT_BUTTON, self.clear_record, mf.button_clear_rpi_target)        
+        bind(wx.EVT_BUTTON, self.correlate, mf.button_correlate)
+        bind(wx.EVT_MENU, self.quit, mf.menuitem_quit)
+        bind(wx.EVT_MENU, self.about, mf.menuitem_about)
+        bind(wx.EVT_MENU, self.save_config_to_file, mf.menuitem_save_config)
+        bind(wx.EVT_BUTTON, self.abort, mf.button_abort)
+        mf.Bind(wx.EVT_CLOSE, self.quit)
         
-        self.main_frame.Bind(wx.EVT_CLOSE, self.quit)
-        
-        notebook = self.main_frame.Notebook
+        notebook = mf.Notebook
         notebook.SetSelection(0)
-        self.main_frame.Center()
-        self.main_frame.Show()
+        mf.Center()
+        mf.Show()
         
         # Ugly hack to force Windows to draw graphs at correct size.
-        width, height = self.main_frame.GetSize()
-        self.main_frame.SetSize((width+1,height))
-        self.main_frame.SetSize((width-1,height))
+        width, height = mf.GetSize()
+        mf.SetSize((width+1,height))
+        mf.SetSize((width-1,height))
         
         self.about_frame = AboutScoter(self)
         self.plot_series()
@@ -267,6 +267,12 @@ class ScoterApp(wx.App):
     def about(self, event):
         wx.AboutBox(self.about_frame)
     
+    def save_config_to_file(self, event):
+        conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
+                             localFilename = "/home/pont/test.cfg",
+                             style = wx.CONFIG_USE_LOCAL_FILE)
+        self.write_gui_to_wxconfig(conf)
+    
     def update_gui_from_wxconfig(self):
         mf = self.main_frame
         wxc = wx.Config("scoter")
@@ -303,7 +309,7 @@ class ScoterApp(wx.App):
         mf.corr_match_specify_button.SetValue(wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specified_path.SetValue(wxc.Read("match_specified_path"))
 
-    def write_gui_to_wxconfig(self):
+    def write_gui_to_wxconfig(self, wxc = None):
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
         interp_type = "none"
@@ -314,7 +320,7 @@ class ScoterApp(wx.App):
         elif mf.preproc_interp_explicit.GetValue():
             interp_type = "explicit"
         mf = self.main_frame
-        wxc = wx.Config("scoter")
+        if wxc == None: wxc = wx.Config("scoter")
         wxc.Write("detrend", detrend_opts[mf.preproc_detrend.GetSelection()])
         wxc.WriteBool("normalize", mf.preproc_normalize.GetValue())
         wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
@@ -338,6 +344,7 @@ class ScoterApp(wx.App):
         wxc.Write("match_rates", mf.corr_match_rates.GetValue())
         wxc.Write("match_specified_path", mf.corr_match_specified_path.GetValue())
         wxc.WriteBool("match_use_specified_path", mf.corr_match_specify_button.GetValue())
+        wxc.Flush()
         
     def read_params_from_gui(self):
         mf = self.main_frame

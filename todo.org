@@ -100,3 +100,10 @@
    based on configparser. The round-trip introduces some hackiness
    too, since the ScoterGui and Scoter configs don't map exactly
    onto each other: the Match path is specified differently.
+** TODO 021 More interpolation methods
+** TODO 022 Assessment of goodness of correlation
+   Even if just a simple correlation coefficient between tuned
+   record and target.
+** TODO 023 Unequal weighting of two records in tandem
+   Perhaps even dynamic? As a function of data resolution?
+

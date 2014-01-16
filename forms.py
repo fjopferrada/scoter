@@ -429,7 +429,7 @@ class MainFrame ( wx.Frame ):
 		self.panel_correlate.SetSizer( bSizer14 )
 		self.panel_correlate.Layout()
 		bSizer14.Fit( self.panel_correlate )
-		self.Notebook.AddPage( self.panel_correlate, u"Correlation", True )
+		self.Notebook.AddPage( self.panel_correlate, u"Correlation", False )
 		self.panel_progress = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -480,7 +480,7 @@ class MainFrame ( wx.Frame ):
 		self.panel_progress.SetSizer( bSizer16 )
 		self.panel_progress.Layout()
 		bSizer16.Fit( self.panel_progress )
-		self.Notebook.AddPage( self.panel_progress, u"Progress", False )
+		self.Notebook.AddPage( self.panel_progress, u"Progress", True )
 		self.ResultsPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -530,6 +530,15 @@ class MainFrame ( wx.Frame ):
 		self.m_statusBar1 = self.CreateStatusBar( 1, wx.ST_SIZEGRIP, wx.ID_ANY )
 		self.menubar = wx.MenuBar( 0 )
 		self.menu_file = wx.Menu()
+		self.menuitem_save_config = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Save configuration to file…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_file.AppendItem( self.menuitem_save_config )
+		
+		self.menuitem_read_config = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Read configuration from file…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_file.AppendItem( self.menuitem_read_config )
+		
+		self.menuitem_reset_config = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Reset configuration…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_file.AppendItem( self.menuitem_reset_config )
+		
 		self.menuitem_quit = wx.MenuItem( self.menu_file, wx.ID_EXIT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_file.AppendItem( self.menuitem_quit )
 		
