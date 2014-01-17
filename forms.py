@@ -530,14 +530,17 @@ class MainFrame ( wx.Frame ):
 		self.m_statusBar1 = self.CreateStatusBar( 1, wx.ST_SIZEGRIP, wx.ID_ANY )
 		self.menubar = wx.MenuBar( 0 )
 		self.menu_file = wx.Menu()
-		self.menuitem_save_config = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Save configuration to file…", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_file.AppendItem( self.menuitem_save_config )
+		self.submenu_config = wx.Menu()
+		self.menuitem_save_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"Save configuration to file…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.submenu_config.AppendItem( self.menuitem_save_config )
 		
-		self.menuitem_read_config = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Read configuration from file…", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_file.AppendItem( self.menuitem_read_config )
+		self.menuitem_read_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"Read configuration from file…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.submenu_config.AppendItem( self.menuitem_read_config )
 		
-		self.menuitem_reset_config = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Reset configuration…", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_file.AppendItem( self.menuitem_reset_config )
+		self.menuitem_reset_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"Reset configuration…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.submenu_config.AppendItem( self.menuitem_reset_config )
+		
+		self.menu_file.AppendSubMenu( self.submenu_config, u"Configuration" )
 		
 		self.menuitem_quit = wx.MenuItem( self.menu_file, wx.ID_EXIT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_file.AppendItem( self.menuitem_quit )

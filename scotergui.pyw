@@ -60,6 +60,8 @@ class ScoterApp(wx.App):
         bind(wx.EVT_MENU, self.quit, mf.menuitem_quit)
         bind(wx.EVT_MENU, self.about, mf.menuitem_about)
         bind(wx.EVT_MENU, self.save_config_to_file, mf.menuitem_save_config)
+        bind(wx.EVT_MENU, self.read_config_from_file, mf.menuitem_read_config)
+        bind(wx.EVT_MENU, self.reset_config, mf.menuitem_reset_config)
         bind(wx.EVT_BUTTON, self.abort, mf.button_abort)
         mf.Bind(wx.EVT_CLOSE, self.quit)
         
@@ -176,9 +178,9 @@ class ScoterApp(wx.App):
             leafname = dialog.GetFilename()
             dirname = dialog.GetDirectory()
             filename = os.path.join(dirname, leafname)
-            dialog.Destroy()
             self.scoter.read_data(index, record_type, filename)
             self.plot_series()
+        dialog.Destroy()
     
     def correlate_sa(self):
         
@@ -268,14 +270,48 @@ class ScoterApp(wx.App):
         wx.AboutBox(self.about_frame)
     
     def save_config_to_file(self, event):
-        conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
-                             localFilename = "/home/pont/test.cfg",
-                             style = wx.CONFIG_USE_LOCAL_FILE)
-        self.write_gui_to_wxconfig(conf)
+        dialog = wx.FileDialog(self.main_frame, "Save configuration to file",
+                               "", "config.cfg", "Configuration files (*.cfg)|*.cfg|All files|*",
+                               wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        if dialog.ShowModal() == wx.ID_OK:
+            leafname = dialog.GetFilename()
+            dirname = dialog.GetDirectory()
+            filename = os.path.join(dirname, leafname)
+            conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
+                                 localFilename = filename,
+                                 style = wx.CONFIG_USE_LOCAL_FILE)
+            self.write_gui_to_wxconfig(conf)
+        dialog.Destroy()
+        
+    def read_config_from_file(self, event):
+        dialog = wx.FileDialog(self.main_frame, "Read configuration from file",
+                               "", "", "Configuration files (*.cfg)|*.cfg|All files|*",
+                               wx.FD_OPEN)
+        if dialog.ShowModal() == wx.ID_OK:
+            leafname = dialog.GetFilename()
+            dirname = dialog.GetDirectory()
+            filename = os.path.join(dirname, leafname)
+            conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
+                                 localFilename = filename,
+                                 style = wx.CONFIG_USE_LOCAL_FILE)
+            self.update_gui_from_wxconfig(conf)
+        dialog.Destroy()
     
-    def update_gui_from_wxconfig(self):
+    def reset_config(self, event):
+        choice = wx.MessageBox("Are you sure you want to reset all settings to "+
+                               "their default values?", "Reset configuration", 
+                               wx.YES_NO | wx.ICON_WARNING | wx.NO_DEFAULT)
+        if choice == wx.YES:
+            wxc = wx.Config("scoter")
+            wxc.DeleteAll()
+            self.update_gui_from_wxconfig()
+    
+    def update_gui_from_wxconfig(self, config = None):
+        logger.debug("Updating GUI from config: %s", str(config))
         mf = self.main_frame
-        wxc = wx.Config("scoter")
+        wxc = config
+        if wxc==None: wxc = wx.Config("scoter")
+        logger.debug("Reading configuration; %d items", wxc.GetNumberOfEntries())
         d = self.default_scoter_config
         detrend_map = {"none":0, "submean":1, "linear":2}
         mf.preproc_detrend.SetSelection(detrend_map.get(wxc.Read("detrend", d.detrend), "none"))
@@ -344,6 +380,7 @@ class ScoterApp(wx.App):
         wxc.Write("match_rates", mf.corr_match_rates.GetValue())
         wxc.Write("match_specified_path", mf.corr_match_specified_path.GetValue())
         wxc.WriteBool("match_use_specified_path", mf.corr_match_specify_button.GetValue())
+        logger.debug("Wrote configuration; %d items", wxc.GetNumberOfEntries())
         wxc.Flush()
         
     def read_params_from_gui(self):
@@ -404,5 +441,6 @@ def main():
     app = ScoterApp()
     app.MainLoop()
 
+logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     main()
