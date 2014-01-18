@@ -13,6 +13,8 @@ import random
 import shutil
 import tempfile
 from collections import namedtuple
+import ConfigParser
+import argparse
 
 def _find_executable_noext(leafname):
     def is_exe(supplied_path):
@@ -53,7 +55,7 @@ class ScoterConfig(ScoterConfigBase):
     
     def __new__(cls, nblocks = 64,
                   interp_type = "min",
-                  interp_npoints = None,
+                  interp_npoints = -1, # TODO check this doesn't break anything
                   detrend = "linear",
                   normalize = True,
                   max_rate = 4,
@@ -84,6 +86,48 @@ class ScoterConfig(ScoterConfigBase):
              rc_penalty, random_seed, match_nomatch, match_speed_p,
              match_tie_p, match_target_speed, match_speedchange_p,
              match_gap_p, match_rates, match_path)
+    
+    def write_to_file(self, filename):
+        parser = ConfigParser.RawConfigParser()
+        cfgdict = self._asdict()
+        for key, value in cfgdict.items():
+            parser.set("DEFAULT", key, value)
+        with open(filename, "wb") as fh:
+            parser.write(fh)
+    
+    @classmethod
+    def read_from_file(cls, filename):
+        default_config = ScoterConfig()
+        default_dict = default_config._asdict()
+        cp = ConfigParser.RawConfigParser(default_dict)
+        cp.read(filename)
+        s = "DEFAULT"
+        return ScoterConfig(
+            nblocks = cp.getint(s, "nblocks"),
+            interp_type = cp.get(s, "interp_type"),
+            interp_npoints = cp.getint(s, "interp_npoints"),
+            detrend = cp.get(s, "detrend"),
+            normalize = cp.getboolean(s, "normalize"),
+            max_rate = cp.getint(s, "max_rate"),
+            make_pdf = cp.getboolean(s, "make_pdf"),
+            live_display = cp.getboolean(s, "live_display"),
+            precalc = cp.getboolean(s, "precalc"),
+            temp_init = cp.getfloat(s, "temp_init"),
+            temp_final = cp.getfloat(s, "temp_final"),
+            cooling = cp.getfloat(s, "cooling"),
+            max_changes = cp.getint(s, "max_changes"),
+            max_steps = cp.getint(s, "max_steps"),
+            rc_penalty = cp.getfloat(s, "rc_penalty"),
+            random_seed = cp.getint(s, "random_seed"),
+            match_nomatch = cp.getfloat(s, "match_nomatch"),
+            match_speed_p = cp.getfloat(s, "match_speed_p"),
+            match_tie_p = cp.getfloat(s, "match_tie_p"),
+            match_target_speed = cp.get(s, "match_target_speed"),
+            match_speedchange_p = cp.getfloat(s, "match_speedchange_p"),
+            match_gap_p = cp.getfloat(s, "match_gap_p"),
+            match_rates = cp.get(s, "match_rates"),
+            match_path = cp.get(s, "match_path")
+            )
 
 class Scoter:
     
@@ -250,17 +294,18 @@ class Scoter:
         self.aligned_match = match_result.series1
         shutil.rmtree(dir_path, ignore_errors = True)
 
+def main():
+    logging.basicConfig(level=logging.DEBUG)
+    parser = argparse.ArgumentParser(description="Correlate geological records.")
+    parser.add_argument("configuration", metavar="filename", type=str, nargs=1,
+                   help="a Scoter configuration file")
+    args = parser.parse_args()
+    config = ScoterConfig.read_from_file(args.configuration)
+    print config._asdict()
+    #config = ScoterConfig()
+    #config.write_to_file("testconfig")
 
-
-
-
-
-
-
-
-
-
-
-
-
+logger = logging.getLogger(__name__)
+if __name__ == "__main__":
+    main()
 

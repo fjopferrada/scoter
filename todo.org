@@ -109,3 +109,17 @@
 ** TODO 023 Unequal weighting of two records in tandem
    Perhaps even dynamic? As a function of data resolution?
 
+** TODO 024 Command-line operation
+   Currently the only interface to the scoter module is via scotergui. Add a
+   command-line parser to scoter for non-interactive operation.
+** TODO 025 ScoterGui should remember data directories
+   ScoterGui's Save and Load dialogs should remember the last-used
+   directory (even across restarts).
+** TODO 026 Record paths are not saved in configuration
+   Neither the GUI configuration nor the non-interactive Scoter
+   configuration allows for saving and restoring paths to records,
+   so even though the rest of the configuration is persistent,
+   records need to be re-opened on every run. (In non-interactive
+   mode it is currently impossible to specify records, making it
+   impossible to run usefully.) Any per-record configuration (most
+   obviously truncation) needs to be saved as well.
