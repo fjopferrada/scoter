@@ -108,7 +108,8 @@
    record and target.
 ** TODO 023 Unequal weighting of two records in tandem
    Perhaps even dynamic? As a function of data resolution?
-
+   That might be overkill. But at least do it at the preprocessing
+   stage so that Match can also benefit.
 ** TODO 024 Command-line operation
    Currently the only interface to the scoter module is via scotergui. Add a
    command-line parser to scoter for non-interactive operation.

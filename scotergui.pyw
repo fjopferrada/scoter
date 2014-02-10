@@ -19,6 +19,8 @@ class ScoterApp(wx.App):
         self.scoter.read_test_data()
         self.SetVendorName("talvi.net") # may as well adopt the Java convention
         self.SetAppName("Scoter")
+        self.lastdir_record = ""
+        self.lastdir_config = ""
 
         mf = self.main_frame = forms.MainFrame(None)
 
@@ -173,17 +175,18 @@ class ScoterApp(wx.App):
             index, record_type = -1, -1
         assert(0 <= index <= 1)
         assert(0 <= record_type <= 1)
-        dialog = wx.FileDialog(self.main_frame, "Choose a file", "", "", "*.*", wx.OPEN)
+        dialog = wx.FileDialog(self.main_frame, "Choose a file", self.lastdir_record,
+                               "", "*.*", wx.OPEN)
         if dialog.ShowModal() == wx.ID_OK:
             leafname = dialog.GetFilename()
             dirname = dialog.GetDirectory()
+            self.lastdir_record = dirname
             filename = os.path.join(dirname, leafname)
             self.scoter.read_data(index, record_type, filename)
             self.plot_series()
         dialog.Destroy()
     
     def correlate_sa(self):
-        
         self.progress_axes.clear()
         self.progress_percentage = 0
         self.progress_lines = []
@@ -271,12 +274,14 @@ class ScoterApp(wx.App):
     
     def save_config_to_file(self, event):
         dialog = wx.FileDialog(self.main_frame, "Save configuration to file",
-                               "", "config.cfg", "Configuration files (*.cfg)|*.cfg|All files|*",
+                               self.lastdir_config, "config.cfg",
+                               "Configuration files (*.cfg)|*.cfg|All files|*",
                                wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if dialog.ShowModal() == wx.ID_OK:
             leafname = dialog.GetFilename()
             dirname = dialog.GetDirectory()
             filename = os.path.join(dirname, leafname)
+            self.lastdir_config = dirname
             conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
                                  localFilename = filename,
                                  style = wx.CONFIG_USE_LOCAL_FILE)
@@ -285,7 +290,8 @@ class ScoterApp(wx.App):
         
     def read_config_from_file(self, event):
         dialog = wx.FileDialog(self.main_frame, "Read configuration from file",
-                               "", "", "Configuration files (*.cfg)|*.cfg|All files|*",
+                               self.lastdir_config, "",
+                               "Configuration files (*.cfg)|*.cfg|All files|*",
                                wx.FD_OPEN)
         if dialog.ShowModal() == wx.ID_OK:
             leafname = dialog.GetFilename()
@@ -294,6 +300,7 @@ class ScoterApp(wx.App):
             conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
                                  localFilename = filename,
                                  style = wx.CONFIG_USE_LOCAL_FILE)
+            self.lastdir_config = dirname
             self.update_gui_from_wxconfig(conf)
         dialog.Destroy()
     
@@ -344,6 +351,11 @@ class ScoterApp(wx.App):
         mf.corr_match_guess_button.SetValue(not wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specify_button.SetValue(wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specified_path.SetValue(wxc.Read("match_specified_path"))
+        
+        if wxc.HasEntry("lastdir_record"):
+            self.lastdir_record = wxc.Read("lastdir_record", "")
+        if wxc.HasEntry("lastdir_config"):
+            self.lastdir_config = wxc.Read("lastdir_config", "")
 
     def write_gui_to_wxconfig(self, wxc = None):
         mf = self.main_frame
@@ -381,6 +393,11 @@ class ScoterApp(wx.App):
         wxc.Write("match_specified_path", mf.corr_match_specified_path.GetValue())
         wxc.WriteBool("match_use_specified_path", mf.corr_match_specify_button.GetValue())
         logger.debug("Wrote configuration; %d items", wxc.GetNumberOfEntries())
+        
+        if self.lastdir_record != None:
+            wxc.Write("lastdir_record", self.lastdir_record)
+        if self.lastdir_config != None:
+            wxc.Write("lastdir_config", self.lastdir_config)
         wxc.Flush()
         
     def read_params_from_gui(self):
