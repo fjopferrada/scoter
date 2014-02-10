@@ -113,7 +113,8 @@
 ** TODO 024 Command-line operation
    Currently the only interface to the scoter module is via scotergui. Add a
    command-line parser to scoter for non-interactive operation.
-** TODO 025 ScoterGui should remember data directories
+** DONE 025 ScoterGui should remember data directories
+   CLOSED: [2014-02-10 Mon 14:58]
    ScoterGui's Save and Load dialogs should remember the last-used
    directory (even across restarts).
 ** TODO 026 Record paths are not saved in configuration
