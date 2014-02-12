@@ -21,7 +21,7 @@ class ScoterApp(wx.App):
         self.SetAppName("Scoter")
         self.lastdir_record = ""
         self.lastdir_config = ""
-        self.series_truncations = [[-1, -1], [-1, -1], [-1, -1], [-1, -1]]
+        self.series_truncations = [[-1, -1], [-1, -1]] # [[targ st, targ end], [rec st, rec end]]
 
         mf = self.main_frame = forms.MainFrame(None)
 
@@ -87,13 +87,14 @@ class ScoterApp(wx.App):
         return True
     
     def click_on_series(self, event):
-        print 'button=%d, x=%d, y=%d, xdata=%f, ydata=%f'%(
-        event.button, event.x, event.y, event.xdata, event.ydata)
         for i in range(4):
             if self.figure_canvas[i] == event.canvas:
-                truncs = self.series_truncations[i]
-                if event.button == 1: truncs[0] = event.xdata
-                if event.button == 3: truncs[1] = event.xdata
+                truncs = self.series_truncations[i%2]
+                if event.button == 1:
+                    truncs[0] = event.xdata
+                if event.button == 3:
+                    truncs[1] = event.xdata
+                    if truncs[0] == -1: truncs[0] = 0
                 if truncs[0] > -1 and truncs[1] > -1 and truncs[0] > truncs[1]:
                     truncs[0], truncs[1] = truncs[1], truncs[0]
         self.plot_series()
@@ -149,7 +150,7 @@ class ScoterApp(wx.App):
         for dataset in (0,1):
             for record_type in (0,1):
                 index = 2 * record_type + dataset
-                trunc = self.series_truncations[index]
+                trunc = self.series_truncations[index%2]
                 axes = self.axes[index]
                 axes.clear()
                 series = self.scoter.series[dataset][record_type]
@@ -437,6 +438,7 @@ class ScoterApp(wx.App):
             match_path = ""
         else:
             match_path = mf.corr_match_specified_path.GetValue()
+        trunc = self.series_truncations
         self.params = ScoterConfig(detrend = detrend_opts[mf.preproc_detrend.GetSelection()],
                                    normalize = mf.preproc_normalize.GetValue(),
                                    max_rate = int(mf.corr_sa_max_rate.GetValue()),
@@ -457,7 +459,15 @@ class ScoterApp(wx.App):
                                    match_speedchange_p = float(mf.corr_match_speedchange.GetValue()),
                                    match_gap_p = float(mf.corr_match_gap.GetValue()),
                                    match_rates = mf.corr_match_rates.GetValue(),
-                                   match_path = match_path
+                                   match_path = match_path,
+                                   target_d18o_file = "",
+                                   record_d18o_file = "",
+                                   target_rpi_file = "",
+                                   record_rpi_file = "",
+                                   target_start = trunc[0][0],
+                                   target_end = trunc[0][1],
+                                   record_start = trunc[1][0],
+                                   record_end = trunc[1][1]
                                    )
 
 class AboutScoter(wx.AboutDialogInfo):

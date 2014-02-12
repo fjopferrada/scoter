@@ -125,3 +125,11 @@
    mode it is currently impossible to specify records, making it
    impossible to run usefully.) Any per-record configuration (most
    obviously truncation) needs to be saved as well.
+** TODO 027 Add one-point overlap when clipping records
+   Match requires that configured start/end points for records be (strictly?
+   probably not) within the range of the data -- otherwise it fails with an
+   error like "Configuration end value 978 follows the last point in the
+   series: 952". Add a parameter to Series.clip for "generous" clipping --
+   i.e. one extra data point on each side of the strict clipping window.
+
+

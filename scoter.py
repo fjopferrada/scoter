@@ -47,7 +47,11 @@ arg_names = \
     "temp_init, temp_final, cooling, max_changes, max_steps, "+\
     "rc_penalty, random_seed, match_nomatch, match_speed_p, "+\
     "match_tie_p, match_target_speed, match_speedchange_p, "+\
-    "match_gap_p, match_rates, match_path"
+    "match_gap_p, match_rates, match_path, "+\
+    "target_d18o_file, record_d18o_file, "+\
+    "target_rpi_file, record_rpi_file, "+\
+    "target_start, target_end, "+\
+    "record_start, record_end"
 
 ScoterConfigBase = namedtuple("ScoterConfigBase", arg_names)
 
@@ -76,8 +80,16 @@ class ScoterConfig(ScoterConfigBase):
                   match_speedchange_p = 1.0,
                   match_gap_p = 1,
                   match_rates = "1:4,1:3,1:2,2:3,3:4,1:1,4:3,3:2,2:1,3:1,4:1",
-                  match_path = "" # empty string => look for match on current path
-                ):
+                  match_path = "", # empty string => look for match on current path
+                  target_d18o_file = "",
+                  record_d18o_file = "",
+                  target_rpi_file = "",
+                  record_rpi_file = "",
+                  target_start = -1,
+                  target_end = -1,
+                  record_start = -1,
+                  record_end = -1,
+                  ):
         if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
             (cls, nblocks, interp_type, interp_npoints, detrend,
@@ -85,7 +97,10 @@ class ScoterConfig(ScoterConfigBase):
              temp_init, temp_final, cooling, max_changes, max_steps,
              rc_penalty, random_seed, match_nomatch, match_speed_p,
              match_tie_p, match_target_speed, match_speedchange_p,
-             match_gap_p, match_rates, match_path)
+             match_gap_p, match_rates, match_path,
+             target_d18o_file, record_d18o_file,
+             target_rpi_file, record_rpi_file,
+             target_start, target_end, record_start, record_end)
     
     def write_to_file(self, filename):
         parser = ConfigParser.RawConfigParser()
@@ -126,7 +141,15 @@ class ScoterConfig(ScoterConfigBase):
             match_speedchange_p = cp.getfloat(s, "match_speedchange_p"),
             match_gap_p = cp.getfloat(s, "match_gap_p"),
             match_rates = cp.get(s, "match_rates"),
-            match_path = cp.get(s, "match_path")
+            match_path = cp.get(s, "match_path"),
+            target_d18o_file = cp.get("target_d18o_file"),
+            record_d18o_file = cp.get("record_d18o_file"),
+            target_rpi_file = cp.get("target_rpi_file"),
+            record_rpi_file = cp.get("record_rpi_file"),
+            target_start = cp.getfloat("target_start"),
+            target_end = cp.getfloat("target_end"),
+            record_start = cp.getfloat("record_start"),
+            record_end = cp.getfloat("record_end")
             )
 
 class Scoter:
@@ -159,14 +182,11 @@ class Scoter:
         self.read_data(1, 1, self.rel_path("data-piso.txt"))
         
     def preprocess(self, args):
-        
         # make sure we actually have enough data to work with
-        
         assert((self.series[0][0] != None and self.series[1][0] != None) or
                (self.series[0][1] != None and self.series[1][1] != None))
         
         # Each series is a tuple of parallel records of different parameters
-
         series_picked = [[], []]
         for record_type in (0, 1):
             # Do we have this record type in both our data-sets?
@@ -191,11 +211,16 @@ class Scoter:
             assert(hasattr(args, "interp_npoints"))
             interp_npoints = args.interp_npoints
         
-        bottom_record = min([s.end() for s in series_picked[0]])
-        bottom_target = min([s.end() for s in series_picked[1]])
+        record_start = args.record_start if args.record_start > -1 else 0
+        record_end = args.record_end if args.record_end > -1 else 0
         
-        series_truncated = [map(lambda s: s.truncate(bottom_record), series_picked[0]),
-                            map(lambda s: s.truncate(bottom_target), series_picked[1])]
+        record_end = min([s.end() for s in series_picked[0]] +
+                            ([args.record_end] if args.record_end > -1 else []))
+        target_end = min([s.end() for s in series_picked[1]] +
+                            ([args.target_end] if args.target_end > -1 else []))
+        
+        series_truncated = [map(lambda s: s.clip((record_start, record_end)), series_picked[0]),
+                            map(lambda s: s.clip((0, target_end)), series_picked[1])]
         
         def preproc(series):
             result = series
