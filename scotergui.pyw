@@ -21,6 +21,7 @@ class ScoterApp(wx.App):
         self.SetAppName("Scoter")
         self.lastdir_record = ""
         self.lastdir_config = ""
+        self.series_truncations = [[-1, -1], [-1, -1], [-1, -1], [-1, -1]]
 
         mf = self.main_frame = forms.MainFrame(None)
 
@@ -67,6 +68,9 @@ class ScoterApp(wx.App):
         bind(wx.EVT_BUTTON, self.abort, mf.button_abort)
         mf.Bind(wx.EVT_CLOSE, self.quit)
         
+        for i in range(4):
+            self.figure_canvas[i].mpl_connect("button_press_event", self.click_on_series)
+        
         notebook = mf.Notebook
         notebook.SetSelection(0)
         mf.Center()
@@ -81,6 +85,18 @@ class ScoterApp(wx.App):
         self.plot_series()
         self.update_gui_from_wxconfig()
         return True
+    
+    def click_on_series(self, event):
+        print 'button=%d, x=%d, y=%d, xdata=%f, ydata=%f'%(
+        event.button, event.x, event.y, event.xdata, event.ydata)
+        for i in range(4):
+            if self.figure_canvas[i] == event.canvas:
+                truncs = self.series_truncations[i]
+                if event.button == 1: truncs[0] = event.xdata
+                if event.button == 3: truncs[1] = event.xdata
+                if truncs[0] > -1 and truncs[1] > -1 and truncs[0] > truncs[1]:
+                    truncs[0], truncs[1] = truncs[1], truncs[0]
+        self.plot_series()
     
     def make_results_figures(self, panel):
         figure = Figure()
@@ -133,13 +149,18 @@ class ScoterApp(wx.App):
         for dataset in (0,1):
             for record_type in (0,1):
                 index = 2 * record_type + dataset
+                trunc = self.series_truncations[index]
                 axes = self.axes[index]
                 axes.clear()
                 series = self.scoter.series[dataset][record_type]
                 if series is not None:
                     xs = series.data[0]
                     ys = series.data[1]
-                    axes.plot(xs, ys)
+                    axes.plot(xs, ys, color="blue")
+                    if trunc[0] != -1: axes.axvline(trunc[0], color="green")
+                    if trunc[1] != -1: axes.axvline(trunc[1], color="red")
+                    if trunc[0] != -1 and trunc[1] != -1:
+                        axes.axvspan(trunc[0], trunc[1], color="yellow")
                 self.figure_canvas[index].draw()
     
     def clear_record(self, event):
