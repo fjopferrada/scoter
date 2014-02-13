@@ -17,6 +17,7 @@ import ConfigParser
 import argparse
 
 def _find_executable_noext(leafname):
+    """Helper function for find_executable."""
     def is_exe(supplied_path):
         return os.path.isfile(supplied_path) and os.access(supplied_path, os.X_OK)
 
@@ -34,6 +35,18 @@ def _find_executable_noext(leafname):
     return None
 
 def find_executable(leafname):
+    """Look for an executable on the current system path.
+    
+    For the name "foo.bar", this function will first try to find an
+    executable with exactly that name; if this is not found, it will
+    look for "foo.bar.exe"; if this is not found either, it will look
+    for "foo".
+    
+    Args:
+        leafname: the name of the executable file (extension optional)
+    Returns:
+        the full path of the executable, or None if it cannot be found
+    """
     path = _find_executable_noext(leafname)
     if (path == None):
         path = _find_executable_noext(leafname+".exe")
@@ -41,21 +54,25 @@ def find_executable(leafname):
         path = _find_executable_noext(os.path.splitext(leafname)[0])
     return path
 
-arg_names = \
-    "nblocks, interp_type, interp_npoints, detrend, "+\
-    "normalize, max_rate, make_pdf, live_display, precalc, "+\
-    "temp_init, temp_final, cooling, max_changes, max_steps, "+\
-    "rc_penalty, random_seed, match_nomatch, match_speed_p, "+\
-    "match_tie_p, match_target_speed, match_speedchange_p, "+\
-    "match_gap_p, match_rates, match_path, "+\
-    "target_d18o_file, record_d18o_file, "+\
-    "target_rpi_file, record_rpi_file, "+\
-    "target_start, target_end, "+\
-    "record_start, record_end"
 
-ScoterConfigBase = namedtuple("ScoterConfigBase", arg_names)
+ScoterConfigBase = namedtuple("ScoterConfigBase",
+    "nblocks, interp_type, interp_npoints, detrend, " + 
+    "normalize, max_rate, make_pdf, live_display, precalc, " + 
+    "temp_init, temp_final, cooling, max_changes, max_steps, " + 
+    "rc_penalty, random_seed, match_nomatch, match_speed_p, " + 
+    "match_tie_p, match_target_speed, match_speedchange_p, " + 
+    "match_gap_p, match_rates, match_path, " + 
+    "target_d18o_file, record_d18o_file, " + 
+    "target_rpi_file, record_rpi_file, " + 
+    "target_start, target_end, " + 
+    "record_start, record_end")
 
 class ScoterConfig(ScoterConfigBase):
+    """A configuration for Scoter.
+    
+    This class encapsulates all the information required for a Scoter
+    run.    
+    """
     
     def __new__(cls, nblocks = 64,
                   interp_type = "min",
@@ -103,6 +120,8 @@ class ScoterConfig(ScoterConfigBase):
              target_start, target_end, record_start, record_end)
     
     def write_to_file(self, filename):
+        """Write this configuration to a ConfigParser file.
+        """
         parser = ConfigParser.RawConfigParser()
         cfgdict = self._asdict()
         for key, value in cfgdict.items():
@@ -112,6 +131,15 @@ class ScoterConfig(ScoterConfigBase):
     
     @classmethod
     def read_from_file(cls, filename):
+        """Create a new ScoterConfig from a ConfigParser file.
+        
+        Args:
+            filename: full path to ConfigParser file containing a
+                Scoter configuration
+        
+        Returns:
+            a ScoterConfig initialized from the supplied file            
+        """
         default_config = ScoterConfig()
         default_dict = default_config._asdict()
         cp = ConfigParser.RawConfigParser(default_dict)
@@ -153,35 +181,67 @@ class ScoterConfig(ScoterConfigBase):
             )
 
 class Scoter:
+    """Scoter correlates geological records with reference curves.
+    
+    This is the central class of the Scoter package, and provides high-level
+    methods to control the correlation process: reading data series,
+    preprocessing them, and running the actual correlation. It provides a simple
+    API suitable for use from the command line, from the companion GUI ScoterGui,
+    or from other Python code importing the scoter module. 
+    """
     
     def __init__(self):
         self.parent_dir = os.path.dirname(os.path.realpath(__file__))
         self.default_match_path = find_executable("match")
         self._init_data_structures()
     
-    def rel_path(self, filename):
+    def _rel_path(self, filename):
+        """Resolve a filename relative to the parent directory of this script."""
         return os.path.join(self.parent_dir, filename)
 
     def _init_data_structures(self):
+        """Initialize data structures."""
         self.series = [[None, None],[None, None]]
     
     def read_data(self, data_set, record_type, filename):
+        """Read a data series.
+        
+        Read a data series (record or target curve) into Scoter.
+        
+        Args:
+            data_set: 0 for record, 1 for target
+            record_type: 0 for d18O, 1 for RPI
+            filename: full path to data file
+        """
         assert(0 <= data_set <= 1)
         assert(0 <= record_type <= 1)
         self.series[data_set][record_type] = Series.read(filename)
     
     def clear_data(self, data_set, record_type):
+        """Clear a data series.
+        
+        Remove a previously read data series (record or target curve) from Scoter.
+        
+        Args:
+            data_set: 0 for record, 1 for target
+            record_type: 0 for d18O, 1 for RPI
+        """
         assert(0 <= data_set <= 1)
         assert(0 <= record_type <= 1)
         self.series[data_set][record_type] = None        
     
-    def read_test_data(self):
-        self.read_data(0, 0, self.rel_path("data-lr04.txt")) #self.rel_path("data-iso1306.txt"))
-        self.read_data(0, 1, self.rel_path("data-piso.txt")) #self.rel_path("data-rpi1306.txt"))
-        self.read_data(1, 0, self.rel_path("data-lr04.txt"))
-        self.read_data(1, 1, self.rel_path("data-piso.txt"))
+    def _read_test_data(self):
+        self.read_data(0, 0, self._rel_path("data-lr04.txt")) #self._rel_path("data-iso1306.txt"))
+        self.read_data(0, 1, self._rel_path("data-piso.txt")) #self._rel_path("data-rpi1306.txt"))
+        self.read_data(1, 0, self._rel_path("data-lr04.txt"))
+        self.read_data(1, 1, self._rel_path("data-piso.txt"))
         
-    def preprocess(self, args):
+    def preprocess(self, config):
+        """Preprocess data sets in preparation for correlation.
+        
+        Args:
+            config: a ScoterConfig object
+        """
         # make sure we actually have enough data to work with
         assert((self.series[0][0] != None and self.series[1][0] != None) or
                (self.series[0][1] != None and self.series[1][1] != None))
@@ -203,60 +263,67 @@ class Scoter:
         series_picked_flat = series_picked[0] + series_picked[1]
         series_npointss = [s.npoints() for s in series_picked_flat]
         interp_npoints = None
-        if args.interp_type == "min":
+        if config.interp_type == "min":
             interp_npoints = min(series_npointss)
-        elif args.interp_type == "max":
+        elif config.interp_type == "max":
             interp_npoints = min(series_npointss)
-        elif args.interp_type == "explicit":
-            assert(hasattr(args, "interp_npoints"))
-            interp_npoints = args.interp_npoints
+        elif config.interp_type == "explicit":
+            assert(hasattr(config, "interp_npoints"))
+            interp_npoints = config.interp_npoints
         
-        record_start = args.record_start if args.record_start > -1 else 0
-        record_end = args.record_end if args.record_end > -1 else 0
+        record_start = config.record_start if config.record_start > -1 else 0
+        target_start = config.target_start if config.target_start > -1 else 0
         
         record_end = min([s.end() for s in series_picked[0]] +
-                            ([args.record_end] if args.record_end > -1 else []))
+                            ([config.record_end] if config.record_end > -1 else []))
         target_end = min([s.end() for s in series_picked[1]] +
-                            ([args.target_end] if args.target_end > -1 else []))
+                            ([config.target_end] if config.target_end > -1 else []))
         
         series_truncated = [map(lambda s: s.clip((record_start, record_end)), series_picked[0]),
-                            map(lambda s: s.clip((0, target_end)), series_picked[1])]
+                            map(lambda s: s.clip((target_start, target_end)), series_picked[1])]
         
         def preproc(series):
             result = series
-            if args.detrend == "submean":
+            if config.detrend == "submean":
                 result = result.subtract_mean()
-            elif args.detrend == "linear":
+            elif config.detrend == "linear":
                 result = result.detrend()
             if interp_npoints != None: result = result.interpolate(interp_npoints)
-            if args.normalize: result = result.scale_std_to(1.0)
+            if config.normalize: result = result.scale_std_to(1.0)
             return result
 
         self.series_preprocessed = [map(preproc, series_truncated[0]),
                                map(preproc, series_truncated[1])]
 
-    def correlate_sa(self, known_line, args, callback_obj):
-        #if args.multiscale > -1:
-        #    return solve_sa_multiscale(series0, series1, args.nblocks, known_line, args)
+    def correlate_sa(self, known_line, config, callback_obj):
+        """Perform a correlation using simulated annealing.
         
-        random_generator = random.Random(args.random_seed)
+        Args:
+            known_line: known correlation curve (for display when testing) (optional)
+            config: a ScoterConfig object
+            callback_obj: callback object to monitor progress (optional)
+        """
+        #if config.multiscale > -1:
+        #    return solve_sa_multiscale(series0, series1, config.nblocks, known_line, config)
+        
+        random_generator = random.Random(config.random_seed)
         n_record_types = len(self.series_preprocessed[0])
         
-        starting_warp = Bwarp(Bseries(self.series_preprocessed[0], args.nblocks),
-                              Bseries(self.series_preprocessed[1], args.nblocks),
-                              max_rate = args.max_rate,
-                              rc_penalty = args.rc_penalty,
+        starting_warp = Bwarp(Bseries(self.series_preprocessed[0], config.nblocks),
+                              Bseries(self.series_preprocessed[1], config.nblocks),
+                              max_rate = config.max_rate,
+                              rc_penalty = config.rc_penalty,
                               rnd = random_generator)
         
-        starting_warp.max_rate = args.max_rate
+        starting_warp.max_rate = config.max_rate
         
         # Set up warp plotter if needed
         plotter = None
-        if args.live_display:
-            plotter = WarpPlotter(args.nblocks, known_line, 100,
-                                  pdf_file = 'dsaframes-1.pdf' if args.make_pdf else None)
+        if config.live_display:
+            plotter = WarpPlotter(config.nblocks, known_line, 100,
+                                  pdf_file = 'dsaframes-1.pdf' if config.make_pdf else None)
         
-        ltemp_max = math.log(args.temp_init)
+        ltemp_max = math.log(config.temp_init)
         
         def callback(soln_current, soln_new, schedule):
             if callback_obj != None:
@@ -268,11 +335,11 @@ class Scoter:
         
         # Create and run the simulated annealer.
 
-        schedule = AdaptiveSchedule(args.temp_init, args.temp_final,
-                                    args.max_changes, args.max_steps, rate = args.cooling)
+        schedule = AdaptiveSchedule(config.temp_init, config.temp_final,
+                                    config.max_changes, config.max_steps, rate = config.cooling)
 
         finished_ok = True
-        if args.precalc:
+        if config.precalc:
             bwarp_annealed = starting_warp
         else:
             annealer = Annealer(starting_warp, random_generator)
@@ -296,24 +363,31 @@ class Scoter:
         callback_obj.simann_callback_finished("completed")
         return "completed"
     
-    def correlate_match(self, args):
+    def correlate_match(self, config):
+        """Perform a correlation using the external match program.
+        
+        Args:
+            config: a ScoterConfig object
+        """
         
         dir_path = tempfile.mkdtemp("", "scoter", None)
         
         match_params = dict(
-        nomatch = args.match_nomatch,
-        speedpenalty = args.match_speed_p,
-        targetspeed = args.match_target_speed,
-        speedchange = args.match_speedchange_p,
-        tiepenalty = args.match_tie_p,
-        gappenalty = args.match_gap_p,
-        speeds = args.match_rates
+        nomatch = config.match_nomatch,
+        speedpenalty = config.match_speed_p,
+        targetspeed = config.match_target_speed,
+        speedchange = config.match_speedchange_p,
+        tiepenalty = config.match_tie_p,
+        gappenalty = config.match_gap_p,
+        speeds = config.match_rates
         )
 
-        match_conf =  MatchConf(MatchSeriesConf(self.series_preprocessed[0], intervals = args.nblocks),
-                            MatchSeriesConf(self.series_preprocessed[1], intervals = args.nblocks),
+        match_conf =  MatchConf(MatchSeriesConf(self.series_preprocessed[0],
+                                                intervals = config.nblocks),
+                                MatchSeriesConf(self.series_preprocessed[1],
+                                                intervals = config.nblocks),
                             match_params)
-        match_path = self.default_match_path if args.match_path == "" else args.match_path
+        match_path = self.default_match_path if config.match_path == "" else config.match_path
         logging.debug("Match path: %s", match_path)
         match_result = match_conf.run_match(match_path, dir_path, False)
         self.aligned_match = match_result.series1

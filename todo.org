@@ -133,3 +133,7 @@
    i.e. one extra data point on each side of the strict clipping window.
 
 
+
+** TODO 028 Capture Match exit status and output
+   At present, any Match failure is silent unless the user
+   runs scoter from the command line.

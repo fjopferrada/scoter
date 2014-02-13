@@ -13,10 +13,10 @@ import logging
 class ScoterApp(wx.App):
     
     def OnInit(self):
-        
+        self.parent_dir = os.path.dirname(os.path.realpath(__file__))
         self.scoter = Scoter()
         self.default_scoter_config = ScoterConfig()
-        self.scoter.read_test_data()
+        self.scoter._read_test_data()
         self.SetVendorName("talvi.net") # may as well adopt the Java convention
         self.SetAppName("Scoter")
         self.lastdir_record = ""
@@ -26,9 +26,9 @@ class ScoterApp(wx.App):
         mf = self.main_frame = forms.MainFrame(None)
 
         icon_bundle = wx.IconBundle()
-        icon_bundle.AddIcon(wx.Icon(self.scoter.rel_path("appicon16.png"), wx.BITMAP_TYPE_PNG))
-        icon_bundle.AddIcon(wx.Icon(self.scoter.rel_path("appicon32.png"), wx.BITMAP_TYPE_PNG))
-        icon_bundle.AddIcon(wx.Icon(self.scoter.rel_path("appicon64.png"), wx.BITMAP_TYPE_PNG))
+        icon_bundle.AddIcon(wx.Icon(self._rel_path("appicon16.png"), wx.BITMAP_TYPE_PNG))
+        icon_bundle.AddIcon(wx.Icon(self._rel_path("appicon32.png"), wx.BITMAP_TYPE_PNG))
+        icon_bundle.AddIcon(wx.Icon(self._rel_path("appicon64.png"), wx.BITMAP_TYPE_PNG))
         mf.SetIcons(icon_bundle) 
         
         self.axes = []
@@ -85,6 +85,9 @@ class ScoterApp(wx.App):
         self.plot_series()
         self.update_gui_from_wxconfig()
         return True
+    
+    def _rel_path(self, filename):
+        return os.path.join(self.parent_dir, filename)
     
     def click_on_series(self, event):
         for i in range(4):
@@ -475,7 +478,7 @@ class AboutScoter(wx.AboutDialogInfo):
     def __init__(self, scotergui):
         super(AboutScoter, self).__init__()
         self.SetName("Scoter")
-        self.SetIcon(wx.Icon(scotergui.scoter.rel_path("appicon64.png"), wx.BITMAP_TYPE_PNG))
+        self.SetIcon(wx.Icon(scotergui._rel_path("appicon64.png"), wx.BITMAP_TYPE_PNG))
         self.SetVersion("0.00")
         self.SetWebSite("https://bitbucket.org/pont/scoter")
         self.SetDescription("A program for the correlation of geological records.")
