@@ -11,8 +11,13 @@ import threading
 import logging
 
 class ScoterApp(wx.App):
+    """An interactive GUI for Scoter.
+    
+    ScoterGui provides a user-friendly desktop interface to the Scoter program.
+    """
     
     def OnInit(self):
+        """Initialize the program and display the main window."""
         self.parent_dir = os.path.dirname(os.path.realpath(__file__))
         self.scoter = Scoter()
         self.default_scoter_config = ScoterConfig()
@@ -65,7 +70,7 @@ class ScoterApp(wx.App):
         bind(wx.EVT_MENU, self.save_config_to_file, mf.menuitem_save_config)
         bind(wx.EVT_MENU, self.read_config_from_file, mf.menuitem_read_config)
         bind(wx.EVT_MENU, self.reset_config, mf.menuitem_reset_config)
-        bind(wx.EVT_BUTTON, self.abort, mf.button_abort)
+        bind(wx.EVT_BUTTON, self.abort_simann, mf.button_abort)
         mf.Bind(wx.EVT_CLOSE, self.quit)
         
         for i in range(4):
@@ -87,9 +92,11 @@ class ScoterApp(wx.App):
         return True
     
     def _rel_path(self, filename):
+        """Resolve a filename relative to the parent directory of this script."""
         return os.path.join(self.parent_dir, filename)
     
     def click_on_series(self, event):
+        """Respond to a mouse click on a data series plot."""
         for i in range(4):
             if self.figure_canvas[i] == event.canvas:
                 truncs = self.series_truncations[i%2]
@@ -103,6 +110,7 @@ class ScoterApp(wx.App):
         self.plot_series()
     
     def make_results_figures(self, panel):
+        """Create the figures for the correlation results"""
         figure = Figure()
         figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
         axes = (figure.add_subplot(211), figure.add_subplot(212))
@@ -112,6 +120,12 @@ class ScoterApp(wx.App):
         return axes, canvas
     
     def add_figure(self, page, panel):
+        """Create a figure for a data series plot.
+        
+        Args:
+            page: 0 for the d18O page, 1 for the RPI page
+            panel: 0 for the record panel, 1 for the target panel
+        """
         panel_obj = getattr(self.main_frame, "DataPanel%d%d" % (page, panel))
         figure = Figure()
         figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
@@ -125,7 +139,8 @@ class ScoterApp(wx.App):
         sizer = panel_obj.GetSizer()
         sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
 
-    def plot_results(self):
+    def plot_results_sa(self):
+        """Plot the results of a simulated annealing correlation."""
         for record_type in (0, 1):
             axes = self.axes_results_sa[record_type]
             axes.clear()
@@ -138,6 +153,7 @@ class ScoterApp(wx.App):
         self.canvas_results_sa.draw()
     
     def plot_results_match(self):
+        """Plot the results of a match correlation."""
         for record_type in (0, 1):
             axes = self.axes_results_match[record_type]
             axes.clear()
@@ -150,6 +166,7 @@ class ScoterApp(wx.App):
         self.canvas_results_sa.draw()
 
     def plot_series(self):
+        """Plot all the currently loaded input data series."""
         for dataset in (0,1):
             for record_type in (0,1):
                 index = 2 * record_type + dataset
@@ -168,6 +185,7 @@ class ScoterApp(wx.App):
                 self.figure_canvas[index].draw()
     
     def clear_record(self, event):
+        """Respond to a click on one of the "Clear Record" buttons."""
         eo = event.GetEventObject()
         fr = self.main_frame
         if eo == fr.button_clear_d18o_record:
@@ -186,6 +204,7 @@ class ScoterApp(wx.App):
         self.plot_series()
     
     def read_record(self, event):
+        """Respond to a click on one of the "Read Record" buttons."""
         eo = event.GetEventObject()
         fr = self.main_frame
         if eo == fr.button_read_d18o_record:
@@ -212,6 +231,7 @@ class ScoterApp(wx.App):
         dialog.Destroy()
     
     def correlate_sa(self):
+        """Perform a simulated annealing correlation"""
         self.progress_axes.clear()
         self.progress_percentage = 0
         self.progress_lines = []
@@ -228,20 +248,14 @@ class ScoterApp(wx.App):
         self.soln_current = None
         self.soln_new = None
         self.timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self._redraw_plot, self.timer)
+        self.Bind(wx.EVT_TIMER, self.redraw_sa_live_plot, self.timer)
         self.timer.Start(100, oneShot = wx.TIMER_ONE_SHOT)
 
         self.main_frame.text_progress.SetLabel("Simulated annealing in progress…")
         self.main_frame.Notebook.SetSelection(4)
     
-    def correlate_match(self, params):
-        self.scoter.correlate_match(self.params)
-        wx.CallAfter(self.match_finished_callback)
-    
-    def match_finished_callback(self):
-        self.plot_results_match()
-    
     def correlate(self, event):
+        """Correlate the data using both simulated annealing and the match program."""
         self.read_params_from_gui()
         self.scoter.preprocess(self.params)
         self.correlate_sa()
@@ -249,10 +263,12 @@ class ScoterApp(wx.App):
                                   args = (self.params,))
         thread.start()
     
-    def abort(self, event):
+    def abort_simann(self, event):
+        """Handle a click on the simulated annealing abort button."""
         self.simann_abort_flag = True
     
-    def _redraw_plot(self, event):
+    def redraw_sa_live_plot(self, event):
+        """Update the live plot of simulated annealing progress."""
         scale = 1.
         if self.soln_current == None: return
         soln_current, soln_new = self.soln_current, self.soln_new
@@ -264,6 +280,10 @@ class ScoterApp(wx.App):
         self.timer.Start(10, oneShot = wx.TIMER_ONE_SHOT)
             
     def simann_callback_update(self, soln_current, soln_new, percentage):
+        """Callback to update simulated annealing live display.
+        
+        During simulated annealing, this method is called periodically by
+        the Scoter object during simulated annealing."""
         percentage_int = int(percentage)
         # We avoid excessive GUI updates by rounding to the nearest whole percentage,
         # caching the value, and only updating the bar when it changes.
@@ -274,10 +294,14 @@ class ScoterApp(wx.App):
         self.soln_new = soln_new
         
     def simann_callback_finished(self, status):
+        """Callback to deal with completion of simulated annealing.
+        
+        This method is called by the Scoter object when simulated annealing is
+        complete."""
         self.timer.Stop()
         if status == "completed":
             wx.CallAfter(self.main_frame.text_progress.SetLabel, "Correlation complete.")
-            wx.CallAfter(self.plot_results)
+            wx.CallAfter(self.plot_results_sa)
             wx.CallAfter(self.main_frame.Notebook.SetSelection, 5)
             wx.CallAfter(self.main_frame.simann_progress_gauge.SetValue, 0)
         elif status == "aborted":
@@ -287,17 +311,41 @@ class ScoterApp(wx.App):
                          "Correlation finished with unrecognized status: "+status)
     
     def simann_check_abort(self):
+        """Callback to notify Scoter when user aborts simulated annealing.
+        
+        This function returns True if the user has clicked on "Abort". It is polled
+        at regular intervals by the Scoter simulated annealing thread.
+        """
         return self.simann_abort_flag
         
+    def correlate_match(self, params):
+        """Perform a correlation using the external match program."""
+        self.scoter.correlate_match(self.params)
+        wx.CallAfter(self.match_finished_callback)
+    
+    def match_finished_callback(self):
+        """A callback to be called after a match correlation has been completed.
+        
+        Currently just plots the match results."""
+        self.plot_results_match()
+        
     def quit(self, event):
+        """Quit the program."""
         self.write_gui_to_wxconfig()
         self.Destroy()
         wx.Exit()
     
     def about(self, event):
+        """Show the "About" dialog."""
         wx.AboutBox(self.about_frame)
     
     def save_config_to_file(self, event):
+        """Save ScoterGui configuration to a user-specified wx.FileConfig file.
+        
+        Note that this method saves the current state of the GUI, using a
+        wx.FileConfig which can only be read by ScoterGui. It does not produce a
+        Python ConfigParser configuration suitable for use by Scoter itself.
+        """
         dialog = wx.FileDialog(self.main_frame, "Save configuration to file",
                                self.lastdir_config, "config.cfg",
                                "Configuration files (*.cfg)|*.cfg|All files|*",
@@ -314,6 +362,10 @@ class ScoterApp(wx.App):
         dialog.Destroy()
         
     def read_config_from_file(self, event):
+        """Read ScoterGui configuration from a user-specified wx.FileConfig file.
+        
+        Note that a ScoterGui configuration is different from a Scoter configuration.
+        """
         dialog = wx.FileDialog(self.main_frame, "Read configuration from file",
                                self.lastdir_config, "",
                                "Configuration files (*.cfg)|*.cfg|All files|*",
@@ -330,6 +382,8 @@ class ScoterApp(wx.App):
         dialog.Destroy()
     
     def reset_config(self, event):
+        """Reset configuration to default values.
+        """
         choice = wx.MessageBox("Are you sure you want to reset all settings to "+
                                "their default values?", "Reset configuration", 
                                wx.YES_NO | wx.ICON_WARNING | wx.NO_DEFAULT)
@@ -339,6 +393,11 @@ class ScoterApp(wx.App):
             self.update_gui_from_wxconfig()
     
     def update_gui_from_wxconfig(self, config = None):
+        """Update the GUI from a supplied wx.Config object.
+        
+        Args:
+            config: configuration to use; if None, use default values from Scoter.
+        """
         logger.debug("Updating GUI from config: %s", str(config))
         mf = self.main_frame
         wxc = config
@@ -383,6 +442,11 @@ class ScoterApp(wx.App):
             self.lastdir_config = wxc.Read("lastdir_config", "")
 
     def write_gui_to_wxconfig(self, wxc = None):
+        """Write the current state of the GUI to a supplied wx.Config object.
+        
+        Args:
+            config: configuration to use; if None, use wx.Config("scoter").
+        """
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
         interp_type = "none"
@@ -426,6 +490,10 @@ class ScoterApp(wx.App):
         wxc.Flush()
         
     def read_params_from_gui(self):
+        """Create a ScoterConfig object from the current state of the GUI.
+        
+        The object is not returned, but is stored as self.params.
+        """
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
         interp_type = "none"
@@ -474,6 +542,7 @@ class ScoterApp(wx.App):
                                    )
 
 class AboutScoter(wx.AboutDialogInfo):
+    """An "About" dialog for ScoterGui."""
     
     def __init__(self, scotergui):
         super(AboutScoter, self).__init__()

@@ -302,6 +302,10 @@ class Scoter:
             known_line: known correlation curve (for display when testing) (optional)
             config: a ScoterConfig object
             callback_obj: callback object to monitor progress (optional)
+                This object must provide the methods:
+                    simann_callback_update(self, soln_current, soln_new, percentage)
+                    simann_callback_finished(self, status)
+                    simann_check_abort(self)
         """
         #if config.multiscale > -1:
         #    return solve_sa_multiscale(series0, series1, config.nblocks, known_line, config)
