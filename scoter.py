@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import os.path
 from series import Series
 from simann import Annealer, AdaptiveSchedule
 from block import Bwarp, Bseries
@@ -107,7 +107,7 @@ class ScoterConfig(ScoterConfigBase):
                   record_start = -1,
                   record_end = -1,
                   ):
-        if interp_npoints == -1: interp_npoints = None
+        # if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
             (cls, nblocks, interp_type, interp_npoints, detrend,
              normalize, max_rate, make_pdf, live_display, precalc,
@@ -170,14 +170,14 @@ class ScoterConfig(ScoterConfigBase):
             match_gap_p = cp.getfloat(s, "match_gap_p"),
             match_rates = cp.get(s, "match_rates"),
             match_path = cp.get(s, "match_path"),
-            target_d18o_file = cp.get("target_d18o_file"),
-            record_d18o_file = cp.get("record_d18o_file"),
-            target_rpi_file = cp.get("target_rpi_file"),
-            record_rpi_file = cp.get("record_rpi_file"),
-            target_start = cp.getfloat("target_start"),
-            target_end = cp.getfloat("target_end"),
-            record_start = cp.getfloat("record_start"),
-            record_end = cp.getfloat("record_end")
+            target_d18o_file = cp.get(s, "target_d18o_file"),
+            record_d18o_file = cp.get(s, "record_d18o_file"),
+            target_rpi_file = cp.get(s, "target_rpi_file"),
+            record_rpi_file = cp.get(s, "record_rpi_file"),
+            target_start = cp.getfloat(s, "target_start"),
+            target_end = cp.getfloat(s, "target_end"),
+            record_start = cp.getfloat(s, "record_start"),
+            record_end = cp.getfloat(s, "record_end")
             )
 
 class Scoter:
@@ -212,10 +212,14 @@ class Scoter:
             data_set: 0 for record, 1 for target
             record_type: 0 for d18O, 1 for RPI
             filename: full path to data file
+                If a filename of "" is supplied, read_data will ignore
+                it and return with no error.
         """
         assert(0 <= data_set <= 1)
         assert(0 <= record_type <= 1)
-        self.series[data_set][record_type] = Series.read(filename)
+        if filename != "":
+            logging.debug("Reading file: %d %d %s" % (data_set, record_type, filename))
+            self.series[data_set][record_type] = Series.read(filename)
     
     def clear_data(self, data_set, record_type):
         """Clear a data series.
@@ -228,7 +232,18 @@ class Scoter:
         """
         assert(0 <= data_set <= 1)
         assert(0 <= record_type <= 1)
-        self.series[data_set][record_type] = None        
+        self.series[data_set][record_type] = None
+
+    def read_data_using_config(self, config):
+        """Read data files specified in the supplied configuration.
+        
+        Args:
+            config: a ScoterConfig object
+        """
+        self.read_data(0, 0, config.record_d18o_file)
+        self.read_data(0, 1, config.record_rpi_file)
+        self.read_data(1, 0, config.target_d18o_file)
+        self.read_data(1, 1, config.target_rpi_file)
     
     def _read_test_data(self):
         self.read_data(0, 0, self._rel_path("data-lr04.txt")) #self._rel_path("data-iso1306.txt"))
@@ -364,7 +379,8 @@ class Scoter:
             self.aligned_sa.append(bwarp_annealed.apply(1, 1))
     
         self.warp_sa = bwarp_annealed
-        callback_obj.simann_callback_finished("completed")
+        if callback_obj:
+            callback_obj.simann_callback_finished("completed")
         return "completed"
     
     def correlate_match(self, config):
@@ -395,18 +411,83 @@ class Scoter:
         logging.debug("Match path: %s", match_path)
         match_result = match_conf.run_match(match_path, dir_path, False)
         self.aligned_match = match_result.series1
-        shutil.rmtree(dir_path, ignore_errors = True)
+        #shutil.rmtree(dir_path, ignore_errors = True)
+    
+    def save_results(self, directory):
+        """Save the results of correlation to the specified directory
+        """
+        assert(False)
+        # TODO
+        # Resolve relative path if required
+        # Check directory existence
+        # Create directory if required
+        # Move match directory
+        # Save dewarped data
+        # Save warp (i.e. sedimentation rate or depth/age ties)
+        # Save log file
+    
+    def perform_complete_correlation(self, config_file):
+        """Reads, correlates, and saves data.
+        
+        This is the master function for non-interactive operation. All parameters
+        are read from the supplied configuration file.
+        """
+        file_logger = logging.FileHandler("/home/pont/scoter-log")
+        file_logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
+        file_logger.setFormatter(formatter)
+        logging.getLogger("scoter").addHandler(file_logger)
+        
+        config = ScoterConfig.read_from_file(config_file)
+        print config._asdict()
+        logger.debug("Reading data.")
+        self.read_data_using_config(config)
+        self.preprocess(config)
+        self.correlate_sa(None, config, None)
+        logger.debug("Starting Match correlation.")
+        self.correlate_match(config)
+        #self.save_results("FIXME")
+        logger.debug("Finished correlation.")
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    # TODO configure logging to stdout
     parser = argparse.ArgumentParser(description="Correlate geological records.")
-    parser.add_argument("configuration", metavar="filename", type=str, nargs=1,
+    parser.add_argument("configuration", metavar="filename", type=str, nargs="?",
                    help="a Scoter configuration file")
+    parser.add_argument("--write-config", metavar="filename", type=str,
+                   help="write a configuration template to the supplied filename")
+    parser.add_argument("--overwrite", action="store_true",
+                   help="when writing a configuration template, overwrite any existing file")
+    parser.add_argument("--log-level", metavar="level", type=str,
+                   help="logging level (non-negative integer or CRITICAL/ERROR/WARNING/INFO/DEBUG/NOTSET)",
+                   default="INFO")
     args = parser.parse_args()
-    config = ScoterConfig.read_from_file(args.configuration)
-    print config._asdict()
-    #config = ScoterConfig()
-    #config.write_to_file("testconfig")
+    logging.basicConfig(level=args.log_level, format="%(levelname)-8s: %(message)s")
+    
+    if args.write_config:
+        ok_to_write = False
+        if os.path.isfile(args.write_config):
+            logging.info("File '%s' exists." % args.write_config)
+            if args.overwrite:
+                logging.info("Overwriting as requested.")
+                ok_to_write = True
+            else:
+                logging.info("Use --overwrite option to overwrite existing file")
+        elif os.path.isdir(args.write_config):
+            logging.error("'%s' is a directory; not writing configuration." % args.write_config)
+        else:
+            ok_to_write = True
+            
+        if ok_to_write:
+            config = ScoterConfig()
+            config.write_to_file(args.write_config)
+            
+    else:   # not args.write_config
+        if args.configuration:
+            scoter = Scoter()
+            scoter.perform_complete_correlation(args.configuration)
+        else:
+            logging.warning("No configuration file specified.")
 
 logger = logging.getLogger(__name__)
 if __name__ == "__main__":
