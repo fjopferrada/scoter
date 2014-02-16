@@ -65,7 +65,8 @@ ScoterConfigBase = namedtuple("ScoterConfigBase",
     "target_d18o_file, record_d18o_file, " + 
     "target_rpi_file, record_rpi_file, " + 
     "target_start, target_end, " + 
-    "record_start, record_end")
+    "record_start, record_end, " +
+    "output_dir")
 
 class ScoterConfig(ScoterConfigBase):
     """A configuration for Scoter.
@@ -106,6 +107,7 @@ class ScoterConfig(ScoterConfigBase):
                   target_end = -1,
                   record_start = -1,
                   record_end = -1,
+                  output_dir = ""
                   ):
         # if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
@@ -117,7 +119,7 @@ class ScoterConfig(ScoterConfigBase):
              match_gap_p, match_rates, match_path,
              target_d18o_file, record_d18o_file,
              target_rpi_file, record_rpi_file,
-             target_start, target_end, record_start, record_end)
+             target_start, target_end, record_start, record_end, output_dir)
     
     def write_to_file(self, filename):
         """Write this configuration to a ConfigParser file.
@@ -177,7 +179,8 @@ class ScoterConfig(ScoterConfigBase):
             target_start = cp.getfloat(s, "target_start"),
             target_end = cp.getfloat(s, "target_end"),
             record_start = cp.getfloat(s, "record_start"),
-            record_end = cp.getfloat(s, "record_end")
+            record_end = cp.getfloat(s, "record_end"),
+            output_dir = cp.get(s, "output_dir")
             )
 
 class Scoter:
@@ -193,6 +196,9 @@ class Scoter:
     def __init__(self):
         self.parent_dir = os.path.dirname(os.path.realpath(__file__))
         self.default_match_path = find_executable("match")
+        self.match_dir = None
+        self.log_file = None
+        self.aligned_sa = None
         self._init_data_structures()
     
     def _rel_path(self, filename):
@@ -383,7 +389,7 @@ class Scoter:
             callback_obj.simann_callback_finished("completed")
         return "completed"
     
-    def correlate_match(self, config):
+    def correlate_match(self, config, remove_files = False):
         """Perform a correlation using the external match program.
         
         Args:
@@ -411,20 +417,46 @@ class Scoter:
         logging.debug("Match path: %s", match_path)
         match_result = match_conf.run_match(match_path, dir_path, False)
         self.aligned_match = match_result.series1
-        #shutil.rmtree(dir_path, ignore_errors = True)
+        if remove_files:
+            shutil.rmtree(dir_path, ignore_errors = True)
+        else:
+            self.match_dir = dir_path
     
-    def save_results(self, directory):
+    def save_results(self, directory = None):
         """Save the results of correlation to the specified directory
         """
-        assert(False)
-        # TODO
-        # Resolve relative path if required
-        # Check directory existence
-        # Create directory if required
-        # Move match directory
+        
+        if directory == None:
+            path = self.output_dir
+        else:
+            assert(os.path.isabs(directory))
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            assert(os.path.isdir(directory))
+            path = directory
+            
+        logger.debug("Saving to: %s" % path)
+        
+        # Copy match directory
+        if self.match_dir:
+            shutil.copytree(self.match_dir, os.path.join(path, "match"))
+        
         # Save dewarped data
-        # Save warp (i.e. sedimentation rate or depth/age ties)
-        # Save log file
+        if self.aligned_sa:
+            for i in range(len(self.aligned_sa)):
+                self.aligned_sa[i].write(os.path.join(path, "data-simann-%d" % i))
+            # Save warp (i.e. sedimentation rate or depth/age ties)
+            warp = self.warp_sa
+            scale = (warp.series[1].series[0].end() /
+            warp.series[0].series[0].end())
+            rates_sa = warp.get_rates_as_series(scale = scale)
+            rates_sa.write(os.path.join(path, "rate-simann"))
+    
+    def finalize(self):
+        if self.match_dir:
+            shutil.rmtree(self.match_dir)
+        
+        self.file_logger.close()
     
     def perform_complete_correlation(self, config_file):
         """Reads, correlates, and saves data.
@@ -432,22 +464,41 @@ class Scoter:
         This is the master function for non-interactive operation. All parameters
         are read from the supplied configuration file.
         """
-        file_logger = logging.FileHandler("/home/pont/scoter-log")
-        file_logger.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
-        file_logger.setFormatter(formatter)
-        logging.getLogger("scoter").addHandler(file_logger)
-        
+
         config = ScoterConfig.read_from_file(config_file)
-        print config._asdict()
+        
+        # We need to locate (and possibly create) the output directory before doing
+        # anything else, because we need somewhere for the log file to go.
+        output_dir = config.output_dir
+        logging.debug("Output dir: ‘%s’" % output_dir)
+        if output_dir == "":
+            # If no output directory is explicitly set, use the parent directory
+            # of the configuration file.
+            output_dir = os.path.dirname(config_file)
+        if not os.path.isabs(output_dir):
+            # If the specified output directory is a relative path, resolve it
+            # relative to the parent directory of the configuration file.
+            output_dir = os.path.join(os.path.dirname(config_file), output_dir)
+        if not os.path.isdir(output_dir):
+            # Create the output directory if it does not already exist.
+            os.makedirs(output_dir)
+        self.output_dir = output_dir
+        
+        self.file_logger = logging.FileHandler(os.path.join(self.output_dir, "scoter.log"))
+        self.file_logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
+        self.file_logger.setFormatter(formatter)
+        logging.getLogger(__name__).addHandler(self.file_logger)
+        
         logger.debug("Reading data.")
         self.read_data_using_config(config)
         self.preprocess(config)
         self.correlate_sa(None, config, None)
         logger.debug("Starting Match correlation.")
-        self.correlate_match(config)
-        #self.save_results("FIXME")
+        self.match_dir = self.correlate_match(config)
+        self.save_results()
         logger.debug("Finished correlation.")
+        self.finalize()
 
 def main():
     # TODO configure logging to stdout
