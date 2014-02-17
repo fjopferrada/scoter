@@ -57,7 +57,8 @@
    CLOSED: [2014-01-17 Fri 14:41]
    An essential complement to a configuration that persists across
    restarts of the program!
-** TODO 013 Make progress bar work correctly
+** DONE 013 Make progress bar work correctly
+   CLOSED: [2014-02-17 Mon 15:26]
    Currently the progress bar only shows realistic progress if the
    final temperature is 1.
 
@@ -110,7 +111,8 @@
    Perhaps even dynamic? As a function of data resolution?
    That might be overkill. But at least do it at the preprocessing
    stage so that Match can also benefit.
-** TODO 024 Command-line operation
+** DONE 024 Command-line operation
+   CLOSED: [2014-02-16 Sun 20:03]
    Currently the only interface to the scoter module is via scotergui. Add a
    command-line parser to scoter for non-interactive operation.
 ** DONE 025 ScoterGui should remember data directories

@@ -349,11 +349,12 @@ class Scoter:
                                   pdf_file = 'dsaframes-1.pdf' if config.make_pdf else None)
         
         ltemp_max = math.log(config.temp_init)
+        ltemp_min = math.log(config.temp_final)
         
         def callback(soln_current, soln_new, schedule):
             if callback_obj != None:
-                callback_obj.simann_callback_update(soln_current, soln_new,
-                                                    (ltemp_max - math.log(schedule.temp)) / ltemp_max * 100)
+                pc = (ltemp_max - math.log(schedule.temp)) / (ltemp_max - ltemp_min) * 100
+                callback_obj.simann_callback_update(soln_current, soln_new, pc)
                 return callback_obj.simann_check_abort()
             if plotter != None:
                 plotter.replot(soln_current, soln_new, schedule.step)
