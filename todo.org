@@ -62,7 +62,8 @@
    Currently the progress bar only shows realistic progress if the
    final temperature is 1.
 
-** TODO 014 Add a plot-based GUI to truncate series
+** DONE 014 Add a plot-based GUI to truncate series
+   CLOSED: [2014-02-18 Tue 17:39]
    The current design, with truncation text entry boxes in the
    preprocessing tab, is a little clunky: it would be better to
    have the truncation options in the data-series tabs with
@@ -119,7 +120,8 @@
    CLOSED: [2014-02-10 Mon 14:58]
    ScoterGui's Save and Load dialogs should remember the last-used
    directory (even across restarts).
-** TODO 026 Record paths are not saved in configuration
+** DONE 026 Record paths are not saved in configuration
+   CLOSED: [2014-02-18 Tue 17:39]
    Neither the GUI configuration nor the non-interactive Scoter
    configuration allows for saving and restoring paths to records,
    so even though the rest of the configuration is persistent,

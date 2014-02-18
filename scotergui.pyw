@@ -21,7 +21,6 @@ class ScoterApp(wx.App):
         self.parent_dir = os.path.dirname(os.path.realpath(__file__))
         self.scoter = Scoter()
         self.default_scoter_config = ScoterConfig()
-        self.scoter._read_test_data()
         self.SetVendorName("talvi.net") # may as well adopt the Java convention
         self.SetAppName("Scoter")
         self.lastdir_record = ""
@@ -87,8 +86,8 @@ class ScoterApp(wx.App):
         mf.SetSize((width-1,height))
         
         self.about_frame = AboutScoter(self)
-        self.plot_series()
         self.update_gui_from_wxconfig()
+        self.plot_series()
         return True
     
     def _rel_path(self, filename):
@@ -435,6 +434,15 @@ class ScoterApp(wx.App):
         mf.corr_match_guess_button.SetValue(not wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specify_button.SetValue(wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specified_path.SetValue(wxc.Read("match_specified_path"))
+
+        self.scoter.read_data(1, 0, wxc.Read("target_d18o_file"))
+        self.scoter.read_data(0, 0, wxc.Read("record_d18o_file"))
+        self.scoter.read_data(1, 1, wxc.Read("target_rpi_file"))
+        self.scoter.read_data(0, 1, wxc.Read("record_rpi_file"))
+        self.series_truncations[0][0] = wxc.ReadFloat("target_start", d.target_start)
+        self.series_truncations[0][1] = wxc.ReadFloat("target_end", d.target_end)
+        self.series_truncations[1][0] = wxc.ReadFloat("record_start", d.record_start)
+        self.series_truncations[1][1] = wxc.ReadFloat("record_end", d.record_end)
         
         if wxc.HasEntry("lastdir_record"):
             self.lastdir_record = wxc.Read("lastdir_record", "")
@@ -481,13 +489,22 @@ class ScoterApp(wx.App):
         wxc.Write("match_rates", mf.corr_match_rates.GetValue())
         wxc.Write("match_specified_path", mf.corr_match_specified_path.GetValue())
         wxc.WriteBool("match_use_specified_path", mf.corr_match_specify_button.GetValue())
-        logger.debug("Wrote configuration; %d items", wxc.GetNumberOfEntries())
+        wxc.Write("target_d18o_file", self.scoter.filenames[1][0])
+        wxc.Write("record_d18o_file", self.scoter.filenames[0][0])
+        wxc.Write("target_rpi_file", self.scoter.filenames[1][1])
+        wxc.Write("record_rpi_file", self.scoter.filenames[0][1])
+        wxc.WriteFloat("target_start", self.series_truncations[0][0])
+        wxc.WriteFloat("target_end", self.series_truncations[0][1])
+        wxc.WriteFloat("record_start", self.series_truncations[1][0])
+        wxc.WriteFloat("record_end", self.series_truncations[1][1])
         
         if self.lastdir_record != None:
             wxc.Write("lastdir_record", self.lastdir_record)
         if self.lastdir_config != None:
             wxc.Write("lastdir_config", self.lastdir_config)
         wxc.Flush()
+
+        logger.debug("Wrote configuration; %d items", wxc.GetNumberOfEntries())
         
     def read_params_from_gui(self):
         """Create a ScoterConfig object from the current state of the GUI.

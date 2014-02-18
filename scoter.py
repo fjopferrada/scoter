@@ -208,6 +208,7 @@ class Scoter:
     def _init_data_structures(self):
         """Initialize data structures."""
         self.series = [[None, None],[None, None]]
+        self.filenames = [[None, None],[None, None]]
     
     def read_data(self, data_set, record_type, filename):
         """Read a data series.
@@ -225,6 +226,7 @@ class Scoter:
         assert(0 <= record_type <= 1)
         if filename != "":
             logging.debug("Reading file: %d %d %s" % (data_set, record_type, filename))
+            self.filenames[data_set][record_type] = filename
             self.series[data_set][record_type] = Series.read(filename)
     
     def clear_data(self, data_set, record_type):
@@ -250,12 +252,6 @@ class Scoter:
         self.read_data(0, 1, config.record_rpi_file)
         self.read_data(1, 0, config.target_d18o_file)
         self.read_data(1, 1, config.target_rpi_file)
-    
-    def _read_test_data(self):
-        self.read_data(0, 0, self._rel_path("data-lr04.txt")) #self._rel_path("data-iso1306.txt"))
-        self.read_data(0, 1, self._rel_path("data-piso.txt")) #self._rel_path("data-rpi1306.txt"))
-        self.read_data(1, 0, self._rel_path("data-lr04.txt"))
-        self.read_data(1, 1, self._rel_path("data-piso.txt"))
         
     def preprocess(self, config):
         """Preprocess data sets in preparation for correlation.
