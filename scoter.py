@@ -224,7 +224,7 @@ class Scoter:
         """
         assert(0 <= data_set <= 1)
         assert(0 <= record_type <= 1)
-        if filename != "":
+        if filename != "" and os.path.isfile(filename):
             logging.debug("Reading file: %d %d %s" % (data_set, record_type, filename))
             self.filenames[data_set][record_type] = filename
             self.series[data_set][record_type] = Series.read(filename)

@@ -1,3 +1,5 @@
 syntax: regexp
 ~$
 \.pyc$
+^user-guide/user-guide.pdf$
+^user-guide/user-guide.html$

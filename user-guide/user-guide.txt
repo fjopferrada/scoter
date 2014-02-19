@@ -1,0 +1,79 @@
+% Scoter user guide
+% Pontus Lurcock <fixme@fixme.com>
+% 19 February 2014
+
+# Introduction
+
+Scoter produces age models for geological records by aligning parameters
+measured from those records with dated reference curves. While Scoter is
+mainly intended for correlation of δ^18^O and relative palaeointensity (RPI)
+records, it can in practice be used on any numerical parameter.
+
+Scoter can use two techniques for alignment: its own simulated annealing
+algorithm, and the Match program of @lisiecki2002application. If the Match
+program is to be used, it must be installed separately.
+
+# Installation
+
+Scoter is written in Python (version 2.7) and can run on any operating system
+with the requisite Python libraries installed.
+
+## Windows
+
+## Mac OS X
+
+## Linux
+
+## Installing Match
+
+# The main Scoter window
+
+![The main Scoter window](placeholder.png)
+
+## The data tabs
+
+These tabs allow you to read data files, plot the data, and select which
+parts of the record and target data should be correlated. The tabs are 
+labelled ‘δ^18^O’ and ‘RPI’, but in fact any measured downcore parameter
+can be used. The only special treatment provided for δ^18^O data is that,
+in accordance with convention, the y-axis is inverted in the plots.
+
+For each record or target data-set, two buttons are provided: ‘Read’ and
+‘Clear’. ‘Read’ lets you choose a file for Scoter to read; ‘Clear’ clears 
+any data which has been read for that data-set.
+
+## The preprocessing tab
+
+## The correlation tab
+
+## The progress tab
+
+## The results tabs
+
+## Menu items
+
+# Non-interactive operation
+
+Graphic, interactive applications for data analysis have obvious advantages
+over non-interactive programs: they allow easy visualization of results and
+quick, easy experimentation with parameters. They also have disadvantages:
+analyses can be hard to automate or to reproduce exactly. Scoter allows both
+approaches, and can be run either as a graphical desktop application or as a
+non-interactive command-line application. The parameters for a correlation
+can be explored interactively in the graphical interface, then saved as a
+configuration file. This configuration file can be used to automatically
+re-run the configuration with the same parameters, ensuring the
+reproducibility of the analysis.
+
+## Configuration file
+
+## Command-line operation
+
+## Usage as a Python module
+
+As well as a command-line interface, Scoter provides an
+application-programmer interface (API) allowing it to be integrated into
+other programs.
+
+# References
+
