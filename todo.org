@@ -6,7 +6,8 @@
 ** TODO 003 Better handling for non-equal-length series
    Currently bombs out with an error. Should catch the error
    and present it to the user via the GUI.
-** TODO 004 Tidy up live SA plot code a bit
+** DONE 004 Tidy up live SA plot code a bit
+   CLOSED: [2014-02-21 Fri 15:30]
 ** TODO 005 Idea for improving the SA scheduler
    In the adaptive scheduler, a temperature step can be terminated either (2)
    by clocking a certain number of accepted changes or (as a fallback when
@@ -150,3 +151,20 @@
    should render the filenames "safe" when copying the files
    to the Match directory.
 ** TODO 031 Add licence information to source files
+** TODO 032 Fix the live SA display
+   Problems persist with the live plot of simulated annealing --
+   I suspect that the SA calculation thread is starving the GUI
+   update thread (updates can't be done directly from the SA
+   callback since redraws have to happen in the wx thread) --
+   however, the progress bar is well-behaved so this can't be
+   the only problem. I might be redrawing the plot in some 
+   unnecessarily slow way; the matplotlib animation API could
+   help in that case. In any case, if it turns out to be a hard
+   problem the easiest solution is to remove it at least from the
+   initial release. It's not essential.
+** TODO 033 Add SA metrics to live display
+   At least for development purposes, it would be useful to have
+   figures for current temperature, number of accepted changes,
+   whether temperature is reduced due to number of steps or
+   number of acceptances, etc. Would be even better (if I can
+   get matplotlib live display working properly) to graph them.

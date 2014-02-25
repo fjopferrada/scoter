@@ -9,6 +9,7 @@ import os.path
 import forms
 import threading
 import logging
+import time
 
 class ScoterApp(wx.App):
     """An interactive GUI for Scoter.
@@ -101,7 +102,9 @@ class ScoterApp(wx.App):
                 truncs = self.series_truncations[i%2]
                 if event.button == 1:
                     truncs[0] = event.xdata
-                if event.button == 3:
+                elif event.button == 2:
+                    truncs[0] = truncs[1] = -1
+                elif event.button == 3:
                     truncs[1] = event.xdata
                     if truncs[0] == -1: truncs[0] = 0
                 if truncs[0] > -1 and truncs[1] > -1 and truncs[0] > truncs[1]:
@@ -240,16 +243,14 @@ class ScoterApp(wx.App):
             self.progress_lines.append(self.progress_axes.plot(xs, ys)[0])
 
         self.simann_abort_flag = False
+        # avoid multiple simultaneous live plot updates
+        self.simann_redraw_queued = False
         thread = threading.Thread(target = self.scoter.correlate_sa,
                                   args = (None, self.params, self))
         thread.start()
 
         self.soln_current = None
         self.soln_new = None
-        self.timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.redraw_sa_live_plot, self.timer)
-        self.timer.Start(100, oneShot = wx.TIMER_ONE_SHOT)
-
         self.main_frame.text_progress.SetLabel("Simulated annealing in progress…")
         self.main_frame.Notebook.SetSelection(4)
     
@@ -266,17 +267,18 @@ class ScoterApp(wx.App):
         """Handle a click on the simulated annealing abort button."""
         self.simann_abort_flag = True
     
-    def redraw_sa_live_plot(self, event):
+    def redraw_sa_live_plot(self):
         """Update the live plot of simulated annealing progress."""
         scale = 1.
-        if self.soln_current == None: return
-        soln_current, soln_new = self.soln_current, self.soln_new
-        for i, soln in ((0, soln_current), (1, soln_new)):
-            xs, ys = soln.get_coords()
-            self.progress_lines[i].set_xdata([x * scale for x in xs])
-            self.progress_lines[i].set_ydata([y * scale for y in ys])
-        self.progress_canvas.draw()
-        self.timer.Start(10, oneShot = wx.TIMER_ONE_SHOT)
+        logger.debug("Solution: "+str(self.soln_current))
+        if self.soln_current != None:
+            soln_current, soln_new = self.soln_current, self.soln_new
+            for i, soln in ((0, soln_current), (1, soln_new)):
+                xs, ys = soln.get_coords()
+                self.progress_lines[i].set_xdata([x * scale for x in xs])
+                self.progress_lines[i].set_ydata([y * scale for y in ys])
+                self.progress_canvas.draw()
+        self.simann_redraw_queued = False
             
     def simann_callback_update(self, soln_current, soln_new, percentage):
         """Callback to update simulated annealing live display.
@@ -291,13 +293,16 @@ class ScoterApp(wx.App):
         wx.CallAfter(self.main_frame.simann_progress_gauge.SetValue, percentage_int)
         self.soln_current = soln_current
         self.soln_new = soln_new
+        if not self.simann_redraw_queued:
+            self.simann_redraw_queued = True
+            wx.CallAfter(self.redraw_sa_live_plot)
+        time.sleep(.01) # yield thread
         
     def simann_callback_finished(self, status):
         """Callback to deal with completion of simulated annealing.
         
         This method is called by the Scoter object when simulated annealing is
         complete."""
-        self.timer.Stop()
         if status == "completed":
             wx.CallAfter(self.main_frame.text_progress.SetLabel, "Correlation complete.")
             wx.CallAfter(self.plot_results_sa)
