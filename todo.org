@@ -3,9 +3,11 @@
    CLOSED: [2013-11-17 Sun 10:25]
 ** DONE 002 Fix the multiply-inverting y-axes
    CLOSED: [2013-11-08 Fri 21:55]
-** TODO 003 Better handling for non-equal-length series
+** DONE 003 Better handling for non-equal-length series
+   CLOSED: [2014-02-25 Tue 16:08]
    Currently bombs out with an error. Should catch the error
    and present it to the user via the GUI.
+   [Not sure when this got fixed but seems OK now.]
 ** DONE 004 Tidy up live SA plot code a bit
    CLOSED: [2014-02-21 Fri 15:30]
 ** TODO 005 Idea for improving the SA scheduler
