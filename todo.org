@@ -152,7 +152,8 @@
    Match can't handle filenames containing spaces. Scoter
    should render the filenames "safe" when copying the files
    to the Match directory.
-** TODO 031 Add licence information to source files
+** DONE 031 Add licence information to source files
+   CLOSED: [2014-02-25 Tue 18:05]
 ** TODO 032 Fix the live SA display
    Problems persist with the live plot of simulated annealing --
    I suspect that the SA calculation thread is starving the GUI
