@@ -170,7 +170,7 @@ class Series:
             while end >= start and self.data[0][end] > xmax:
                 end -= 1
         new_data = self.data.copy()[:, start:end+1]
-        return self.copy(data = new_data, suffix = '-clip')
+        return self.copy(data = new_data, suffix = '-cl')
 
     def npoints(self):
         """Return the number of points in this series."""

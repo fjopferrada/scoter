@@ -139,7 +139,8 @@
    series: 952". Add a parameter to Series.clip for "generous" clipping --
    i.e. one extra data point on each side of the strict clipping window.
 
-** TODO 028 Capture Match exit status and output
+** DONE 028 Capture Match exit status and output
+   CLOSED: [2014-03-01 Sat 23:50]
    At present, any Match failure is silent unless the user
    runs scoter from the command line.
 ** TODO 029 Resolve data paths relative to configuration file
@@ -174,3 +175,15 @@
 ** DONE 034 Drag-and-drop file loading
    CLOSED: [2014-03-01 Sat 19:13]
    For both configuration and data files.
+
+** TODO 035 Problems matching a series with itself
+   Obviously not something you'd actually want to do in practice, but useful
+   for testing and possibly indicative of other problems. If you match a
+   series with itself with different clipping windows for record and target,
+   Match fails with a message like "Configuration end value 1198 follows the
+   last point in the series: 998". I suspect that it's a problem with two
+   identically named series, one of which is overwriting the other. I think
+   this problem would also occur with two series with the same filename
+   residing in different directories. Easiest solution is probably to add
+   some short unique tag (e.g. "-dt" for d18O target, and so forth) when
+   creating a series identifier from a filename.

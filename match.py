@@ -19,7 +19,8 @@
 # along with Scoter.  If not, see <http://www.gnu.org/licenses/>.
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = <
 
-import os, subprocess
+import os
+import subprocess
 from series import Series
         
 class MatchSeriesConf:
@@ -93,7 +94,18 @@ class MatchConf:
 
     def run_match(self, match_path, dir_path, dummy_run = False):
         """Run the match program with this configuration, in the specified
-        directory. If the directory does not exist it will be created."""
+        directory. If the directory does not exist it will be created.
+        
+        Args:
+            match_path: path to the match binary
+            dir_path: directory for match input and output data
+            dummy_run: if True, match will not actually be run, but the directory
+                will be created and populated with input data files
+        
+        Returns:
+            a MatchResult object representing the results
+       
+        """
         if not os.path.isdir(dir_path):
             os.mkdir(dir_path)
         name = self.name
@@ -105,12 +117,15 @@ class MatchConf:
             for s in ss:
                 s.write_to_dir(dir_path)
         if not dummy_run:
-            p = subprocess.Popen([match_path, name + '.conf'], cwd = dir_path)
-            p.wait()
-            if p.returncode:
-                raise EnvironmentError('Match returned an error (%d) on %s' %
-                                       (p.returncode, dir_path))
-        return MatchResult(self, dir_path)
+            p = subprocess.Popen([match_path, name + '.conf'], cwd = dir_path,
+                                 stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+            result = MatchResult(self, dir_path)
+            result.stdout, result.stderr = p.communicate()
+            result.return_code = p.returncode
+            result.error = (p.returncode != 0)
+            return result
+        else:
+            return MatchResult(self, dir_path)
         
 class MatchResult:
     """The results of a run of the Match program"""
@@ -119,8 +134,11 @@ class MatchResult:
         self.series1 = []
         for s1 in match_conf.series1.series:
             fn1 = os.path.join(dir_path, s1.name + '.new')
-            self.series1.append(Series.read(fn1, name=s1.name+'-tuned',
-                                                  col1 = 1, col2 = 2))
-        self.match = Series.read(
-            os.path.join(dir_path, match_conf.matchfile),
-            name = os.path.basename(dir_path)+'-rel', col1 = 1, col2 = 3)
+            if os.path.isfile(fn1):
+                self.series1.append(Series.read(fn1, name=s1.name+'-tuned',
+                                                col1 = 1, col2 = 2))
+        match_file = os.path.join(dir_path, match_conf.matchfile)
+        if os.path.isfile(match_file):
+            self.match = Series.read(match_file,
+                                     name = os.path.basename(dir_path)+'-rel',
+                                     col1 = 1, col2 = 3)

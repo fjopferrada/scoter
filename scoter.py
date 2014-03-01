@@ -410,6 +410,9 @@ class Scoter:
         
         Args:
             config: a ScoterConfig object
+        
+        Returns:
+            a MatchResult object representing the results
         """
         
         dir_path = tempfile.mkdtemp("", "scoter", None)
@@ -432,11 +435,13 @@ class Scoter:
         match_path = self.default_match_path if config.match_path == "" else config.match_path
         logging.debug("Match path: %s", match_path)
         match_result = match_conf.run_match(match_path, dir_path, False)
-        self.aligned_match = match_result.series1
+        if not match_result.error:
+            self.aligned_match = match_result.series1
         if remove_files:
             shutil.rmtree(dir_path, ignore_errors = True)
         else:
             self.match_dir = dir_path
+        return match_result
     
     def save_results(self, directory = None):
         """Save the results of correlation to the specified directory

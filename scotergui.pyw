@@ -181,7 +181,8 @@ class ScoterApp(wx.App):
             axes = self.axes_results_match[record_type]
             axes.clear()
             target = self.scoter.series_preprocessed[1][record_type]
-            if target != None and self.scoter.series[0][record_type] != None:
+            if (target != None and self.scoter.series[0][record_type] != None and
+                hasattr(self.scoter, "aligned_match")):
                 axes.plot(target.data[0], target.data[1])
                 aligned = self.scoter.aligned_match[record_type]
                 axes.plot(aligned.data[0], aligned.data[1])
@@ -351,14 +352,19 @@ class ScoterApp(wx.App):
         
     def correlate_match(self, params):
         """Perform a correlation using the external match program."""
-        self.scoter.correlate_match(self.params)
-        wx.CallAfter(self.match_finished_callback)
+        match_result = self.scoter.correlate_match(self.params)
+        wx.CallAfter(self.match_finished_callback, match_result)
     
-    def match_finished_callback(self):
+    def match_finished_callback(self, result):
         """A callback to be called after a match correlation has been completed.
         
         Currently just plots the match results."""
-        self.plot_results_match()
+        if result.error:
+            dialog = wx.MessageDialog(self.main_frame, result.stderr, 'Error running the Match program', 
+            wx.OK | wx.ICON_ERROR)
+            dialog.ShowModal()
+        else:
+            self.plot_results_match()
         
     def quit(self, event):
         """Quit the program."""
