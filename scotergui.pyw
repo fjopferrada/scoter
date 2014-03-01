@@ -75,19 +75,19 @@ class ScoterApp(wx.App):
         mf.panel_progressplot.GetSizer().Add(self.progress_canvas, 1, wx.EXPAND | wx.ALL)
         
         bind = mf.Bind
-        bind(wx.EVT_BUTTON, self.read_record, mf.button_read_d18o_record)
-        bind(wx.EVT_BUTTON, self.read_record, mf.button_read_d18o_target)
-        bind(wx.EVT_BUTTON, self.read_record, mf.button_read_rpi_record)
-        bind(wx.EVT_BUTTON, self.read_record, mf.button_read_rpi_target)
-        bind(wx.EVT_BUTTON, self.clear_record, mf.button_clear_d18o_record)
-        bind(wx.EVT_BUTTON, self.clear_record, mf.button_clear_d18o_target)
-        bind(wx.EVT_BUTTON, self.clear_record, mf.button_clear_rpi_record)
-        bind(wx.EVT_BUTTON, self.clear_record, mf.button_clear_rpi_target)        
+        bind(wx.EVT_BUTTON, self.read_record_clicked, mf.button_read_d18o_record)
+        bind(wx.EVT_BUTTON, self.read_record_clicked, mf.button_read_d18o_target)
+        bind(wx.EVT_BUTTON, self.read_record_clicked, mf.button_read_rpi_record)
+        bind(wx.EVT_BUTTON, self.read_record_clicked, mf.button_read_rpi_target)
+        bind(wx.EVT_BUTTON, self.clear_record_clicked, mf.button_clear_d18o_record)
+        bind(wx.EVT_BUTTON, self.clear_record_clicked, mf.button_clear_d18o_target)
+        bind(wx.EVT_BUTTON, self.clear_record_clicked, mf.button_clear_rpi_record)
+        bind(wx.EVT_BUTTON, self.clear_record_clicked, mf.button_clear_rpi_target)        
         bind(wx.EVT_BUTTON, self.correlate, mf.button_correlate)
         bind(wx.EVT_MENU, self.quit, mf.menuitem_quit)
         bind(wx.EVT_MENU, self.about, mf.menuitem_about)
         bind(wx.EVT_MENU, self.save_config_to_file, mf.menuitem_save_config)
-        bind(wx.EVT_MENU, self.read_config_from_file, mf.menuitem_read_config)
+        bind(wx.EVT_MENU, self.open_read_config_dialog, mf.menuitem_read_config)
         bind(wx.EVT_MENU, self.reset_config, mf.menuitem_reset_config)
         bind(wx.EVT_BUTTON, self.abort_simann, mf.button_abort)
         mf.Bind(wx.EVT_CLOSE, self.quit)
@@ -97,6 +97,7 @@ class ScoterApp(wx.App):
         
         notebook = mf.Notebook
         notebook.SetSelection(0)
+        mf.SetDropTarget(ConfigFileDropTarget(self))
         mf.Center()
         mf.Show()
         
@@ -158,6 +159,7 @@ class ScoterApp(wx.App):
         figure_canvas = FigureCanvas(panel_obj, -1, figure)
         self.figure_canvas.append(figure_canvas)
         sizer = panel_obj.GetSizer()
+        figure_canvas.SetDropTarget(DataSeriesFileDropTarget(self, page, panel))
         sizer.Add(figure_canvas, 1, wx.EXPAND | wx.ALL)
 
     def plot_results_sa(self):
@@ -191,7 +193,7 @@ class ScoterApp(wx.App):
         for dataset in (0,1):
             for record_type in (0,1):
                 index = 2 * record_type + dataset
-                trunc = self.series_truncations[index%2]
+                trunc = self.series_truncations[dataset]
                 axes = self.axes[index]
                 axes.clear()
                 series = self.scoter.series[dataset][record_type]
@@ -205,7 +207,7 @@ class ScoterApp(wx.App):
                         axes.axvspan(trunc[0], trunc[1], color="yellow")
                 self.figure_canvas[index].draw()
     
-    def clear_record(self, event):
+    def clear_record_clicked(self, event):
         """Respond to a click on one of the "Clear Record" buttons."""
         eo = event.GetEventObject()
         fr = self.main_frame
@@ -224,7 +226,7 @@ class ScoterApp(wx.App):
         self.scoter.clear_data(index, record_type)
         self.plot_series()
     
-    def read_record(self, event):
+    def read_record_clicked(self, event):
         """Respond to a click on one of the "Read Record" buttons."""
         eo = event.GetEventObject()
         fr = self.main_frame
@@ -248,8 +250,14 @@ class ScoterApp(wx.App):
             self.lastdir_record = dirname
             filename = os.path.join(dirname, leafname)
             self.scoter.read_data(index, record_type, filename)
+            self.series_truncations[index] = [-1, -1]
             self.plot_series()
         dialog.Destroy()
+    
+    def read_record_dragged(self, page, panel, filenames):
+        self.scoter.read_data(panel, page, filenames[0])
+        self.series_truncations[panel] = [-1, -1]
+        self.plot_series()
     
     def correlate_sa(self):
         """Perform a simulated annealing correlation"""
@@ -384,7 +392,7 @@ class ScoterApp(wx.App):
             self.write_gui_to_wxconfig(conf)
         dialog.Destroy()
         
-    def read_config_from_file(self, event):
+    def open_read_config_dialog(self, event):
         """Read ScoterGui configuration from a user-specified wx.FileConfig file.
         
         Note that a ScoterGui configuration is different from a Scoter configuration.
@@ -397,12 +405,16 @@ class ScoterApp(wx.App):
             leafname = dialog.GetFilename()
             dirname = dialog.GetDirectory()
             filename = os.path.join(dirname, leafname)
-            conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
-                                 localFilename = filename,
-                                 style = wx.CONFIG_USE_LOCAL_FILE)
+            self.read_config_from_file(filename)
             self.lastdir_config = dirname
-            self.update_gui_from_wxconfig(conf)
+
         dialog.Destroy()
+    
+    def read_config_from_file(self, filename):
+        conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
+                             localFilename = filename,
+                             style = wx.CONFIG_USE_LOCAL_FILE)
+        self.update_gui_from_wxconfig(conf)        
     
     def reset_config(self, event):
         """Reset configuration to default values.
@@ -472,6 +484,8 @@ class ScoterApp(wx.App):
             self.lastdir_record = wxc.Read("lastdir_record", "")
         if wxc.HasEntry("lastdir_config"):
             self.lastdir_config = wxc.Read("lastdir_config", "")
+        
+        self.plot_series()
 
     def write_gui_to_wxconfig(self, wxc = None):
         """Write the current state of the GUI to a supplied wx.Config object.
@@ -581,6 +595,26 @@ class ScoterApp(wx.App):
                                    record_start = trunc[1][0],
                                    record_end = trunc[1][1]
                                    )
+
+class DataSeriesFileDropTarget(wx.FileDropTarget):
+
+    def __init__(self, scotergui, page, panel):
+        self.scotergui = scotergui
+        self.page = page
+        self.panel = panel
+        wx.FileDropTarget.__init__(self)
+ 
+    def OnDropFiles(self, x, y, filenames):
+        self.scotergui.read_record_dragged(self.page, self.panel, filenames)
+
+class ConfigFileDropTarget(wx.FileDropTarget):
+
+    def __init__(self, scotergui):
+        self.scotergui = scotergui
+        wx.FileDropTarget.__init__(self)
+
+    def OnDropFiles(self, x, y, filenames):
+        self.scotergui.read_config_from_file(filenames[0])
 
 class AboutScoter(wx.AboutDialogInfo):
     """An "About" dialog for ScoterGui."""

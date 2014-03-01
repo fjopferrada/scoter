@@ -171,3 +171,6 @@
    whether temperature is reduced due to number of steps or
    number of acceptances, etc. Would be even better (if I can
    get matplotlib live display working properly) to graph them.
+** DONE 034 Drag-and-drop file loading
+   CLOSED: [2014-03-01 Sat 19:13]
+   For both configuration and data files.
