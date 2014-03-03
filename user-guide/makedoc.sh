@@ -2,9 +2,14 @@
 
 NAME=user-guide
 BIB=refs.bibtex
+FORMAT=markdown
 
-pandoc -s $NAME.txt --bibliography $BIB --latex-engine=xelatex \
+COMMON_OPTS="-f $FORMAT --bibliography $BIB \
+-s $NAME.txt --number-sections --csl=harvard1.csl"
+
+pandoc $COMMON_OPTS \
+       --latex-engine=xelatex \
        --include-in-header=header-includes.tex \
        -o $NAME.pdf
 
-pandoc -s $NAME.txt --bibliography $BIB -o $NAME.html
+pandoc $COMMON_OPTS --self-contained -o $NAME.html

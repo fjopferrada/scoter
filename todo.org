@@ -187,3 +187,10 @@
    residing in different directories. Easiest solution is probably to add
    some short unique tag (e.g. "-dt" for d18O target, and so forth) when
    creating a series identifier from a filename.
+** TODO 036 Add exporting for Scoter config and bundle
+   Add a feature allowing the GUI to export a configparser Scoter
+   configuration (for offline operation) and a self-contained
+   "data and analysis" bundle: a folder with copies of the input
+   data and the configuration files -- both for ScoterGui and
+   Scoter. This is an important feature for easy reproducible
+   analysis.

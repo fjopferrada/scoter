@@ -26,9 +26,22 @@ with the requisite Python libraries installed.
 
 ## Installing Match
 
+Scoter uses its own simulated annealing algorithm to correlate records, but
+optionally it can also make use of the Match program of
+@lisiecki2002application. Match is not distributed as part of Scoter, and
+must be installed separately before Scoter can make use of it. Downloads and
+installation instructions for Match are available at
+<http://lorraine-lisiecki.com/match.html>. Once Match has been installed, its
+functions can be controlled through the
+[correlation tab](#the-correlation-tab).
+
 # The main Scoter window
 
 ![The main Scoter window](placeholder.png)
+
+Most of Scoter's operations are controlled through a single main window,
+divided into a number of tabs. In general, a typical correlation workgflow
+involves working through the tabs from left to right.
 
 ## The data tabs
 
@@ -36,23 +49,69 @@ These tabs allow you to read data files, plot the data, and select which
 parts of the record and target data should be correlated. The tabs are 
 labelled ‘δ^18^O’ and ‘RPI’, but in fact any measured downcore parameter
 can be used. The only special treatment provided for δ^18^O data is that,
-in accordance with convention, the y-axis is inverted in the plots.
+in accordance with common practice, the y-axis is inverted in the plots.
 
 For each record or target data-set, two buttons are provided: ‘Read’ and
 ‘Clear’. ‘Read’ lets you choose a file for Scoter to read; ‘Clear’ clears 
 any data which has been read for that data-set.
 
+The correlation need to be performed on the complete data series: each series
+can be clipped, so that only a selected portion of the data is considered.
+The selection is controlled by clicking on the data graphs, as follows:
+
+Left click
+:   Set left-hand limit (i.e. shallowest or youngest)
+Right click
+:   Set right-hand limit (i.e. deepest or oldest)
+Middle click
+:   Cancel existing limits and revert to using whole data series
+
+When clipping limits have been set for a series, the selected portion is
+highlighted in yellow.
+
 ## The preprocessing tab
+
+This tab controls the preprocessing steps that are applied to the 
+data before the actual correlation takes place.
 
 ## The correlation tab
 
+This tab controls the settings for the actual correlation procedures,
+using either Scoter's built-in simulated annealing algorithm or the
+Match program of @lisiecki2002application. (Remember that, in order to 
+be used, the Match program must be installed separately.)
+
+Press the ‘Correlate’ button at the bottom right of this tab to start the
+actual correlation.
+
 ## The progress tab
+
+This tab is only active during the actual correlation procedure. Depending on
+the speed of the computer, the number of data points, and the chosen
+configuration options, correlation can be nearly instantaneous or can take
+several minutes. The progress bar at the top shows how far the simulated
+annealing has proceeded. Pressing ‘Abort’ button at the bottom right will
+stop the simulated annealing process and abort the correlation attempt.
 
 ## The results tabs
 
+These two tabs show the results of the correlations performed using
+simulated annealing and the Match program.
+
 ## Menu items
 
-# Non-interactive operation
+File > Configuration > Save configuration to file…
+:    TODO
+File > Configuration > Read configuration from file…
+:    TODO
+File > Configuration > Reset configuration…
+:    TODO
+File > Quit
+:    TODO
+Help > About…
+:    TODO
+
+# Advanced operation: using Scoter without the graphical interface
 
 Graphic, interactive applications for data analysis have obvious advantages
 over non-interactive programs: they allow easy visualization of results and
@@ -67,7 +126,37 @@ reproducibility of the analysis.
 
 ## Configuration file
 
+Non-interactive Scoter does not use the same format of configuration file as
+the graphical interface, but from the graphical interface you can export a
+configuration for the non-interactive version. This allows you to explore
+analysis parameters using the graphical interface, while providing a way to
+re-run the exact same analysis with no human intervention. A configuration
+file for non-interactive analysis can also be written or edited directly
+by hand, since it uses a simple text-based format. The easiest way to
+create a configuration file by hand is to make a copy of the supplied 
+template file and edit it to your needs.
+
 ## Command-line operation
+
+In normal operation, running Scoter from the command line is straightforward:
+
+    scoter.py CONFIG
+
+-- where CONFIG is the name of the configuration file. A few options are
+available:
+
+`-h, --help`
+:   Show a help message and exit.
+`--write-config FILENAME`
+:   Write a configuration template to the supplied filename. The template
+	can then be edited by hand to produce a working configuration file.
+`--overwrite`
+:   When writing a configuration template, overwrite any existing
+	file of the same name.
+`--log-level level`
+:   Set the logging level. This option is intended for development and
+	debugging of the Scoter program itself, and is unlikely to be useful to
+	most users.
 
 ## Usage as a Python module
 
@@ -77,3 +166,6 @@ other programs.
 
 # References
 
+<!--- Local Variables: --->
+<!--- mode: markdown --->
+<!--- End: --->
