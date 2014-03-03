@@ -227,7 +227,7 @@ class Scoter:
     def _init_data_structures(self):
         """Initialize data structures."""
         self.series = [[None, None],[None, None]]
-        self.filenames = [[None, None],[None, None]]
+        self.filenames = [["", ""],["", ""]]
     
     def read_data(self, data_set, record_type, filename):
         """Read a data series.
@@ -260,6 +260,7 @@ class Scoter:
         assert(0 <= data_set <= 1)
         assert(0 <= record_type <= 1)
         self.series[data_set][record_type] = None
+        self.filenames[data_set][record_type] = ""
 
     def read_data_using_config(self, config):
         """Read data files specified in the supplied configuration.
@@ -315,6 +316,8 @@ class Scoter:
         target_end = min([s.end() for s in series_picked[1]] +
                             ([config.target_end] if config.target_end > -1 else []))
         
+        logger.debug(str(record_end))
+        
         series_truncated = [map(lambda s: s.clip((record_start, record_end)), series_picked[0]),
                             map(lambda s: s.clip((target_start, target_end)), series_picked[1])]
         
@@ -329,7 +332,7 @@ class Scoter:
             return result
 
         self.series_preprocessed = [map(preproc, series_truncated[0]),
-                               map(preproc, series_truncated[1])]
+                                    map(preproc, series_truncated[1])]
 
     def correlate_sa(self, known_line, config, callback_obj):
         """Perform a correlation using simulated annealing.

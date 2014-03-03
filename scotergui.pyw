@@ -481,10 +481,10 @@ class ScoterApp(wx.App):
         self.scoter.read_data(0, 0, wxc.Read("record_d18o_file"))
         self.scoter.read_data(1, 1, wxc.Read("target_rpi_file"))
         self.scoter.read_data(0, 1, wxc.Read("record_rpi_file"))
-        self.series_truncations[0][0] = wxc.ReadFloat("target_start", d.target_start)
-        self.series_truncations[0][1] = wxc.ReadFloat("target_end", d.target_end)
-        self.series_truncations[1][0] = wxc.ReadFloat("record_start", d.record_start)
-        self.series_truncations[1][1] = wxc.ReadFloat("record_end", d.record_end)
+        self.series_truncations[1][0] = wxc.ReadFloat("target_start", d.target_start)
+        self.series_truncations[1][1] = wxc.ReadFloat("target_end", d.target_end)
+        self.series_truncations[0][0] = wxc.ReadFloat("record_start", d.record_start)
+        self.series_truncations[0][1] = wxc.ReadFloat("record_end", d.record_end)
         
         if wxc.HasEntry("lastdir_record"):
             self.lastdir_record = wxc.Read("lastdir_record", "")
@@ -537,10 +537,10 @@ class ScoterApp(wx.App):
         wxc.Write("record_d18o_file", self.scoter.filenames[0][0])
         wxc.Write("target_rpi_file", self.scoter.filenames[1][1])
         wxc.Write("record_rpi_file", self.scoter.filenames[0][1])
-        wxc.WriteFloat("target_start", self.series_truncations[0][0])
-        wxc.WriteFloat("target_end", self.series_truncations[0][1])
-        wxc.WriteFloat("record_start", self.series_truncations[1][0])
-        wxc.WriteFloat("record_end", self.series_truncations[1][1])
+        wxc.WriteFloat("target_start", self.series_truncations[1][0])
+        wxc.WriteFloat("target_end", self.series_truncations[1][1])
+        wxc.WriteFloat("record_start", self.series_truncations[0][0])
+        wxc.WriteFloat("record_end", self.series_truncations[0][1])
         
         if self.lastdir_record != None:
             wxc.Write("lastdir_record", self.lastdir_record)
@@ -596,10 +596,10 @@ class ScoterApp(wx.App):
                                    record_d18o_file = "",
                                    target_rpi_file = "",
                                    record_rpi_file = "",
-                                   target_start = trunc[0][0],
-                                   target_end = trunc[0][1],
-                                   record_start = trunc[1][0],
-                                   record_end = trunc[1][1]
+                                   target_start = trunc[1][0],
+                                   target_end = trunc[1][1],
+                                   record_start = trunc[0][0],
+                                   record_end = trunc[0][1]
                                    )
 
 class DataSeriesFileDropTarget(wx.FileDropTarget):
