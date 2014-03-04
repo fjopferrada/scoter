@@ -119,8 +119,9 @@ class MatchConf:
         if not dummy_run:
             p = subprocess.Popen([match_path, name + '.conf'], cwd = dir_path,
                                  stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+            output = p.communicate() # run Match and wait for it to terminate
             result = MatchResult(self, dir_path)
-            result.stdout, result.stderr = p.communicate()
+            result.stdout, result.stderr = output
             result.return_code = p.returncode
             result.error = (p.returncode != 0)
             return result

@@ -296,6 +296,8 @@ class Scoter:
         # [[record_d18O, record_RPI] , [target_d18O, target_RPI]]
         # or for a non-tandem match something like
         # [[record_d18O] , [target_d18O]]
+        
+        self.n_record_types = len(series_picked[0])
 
         series_picked_flat = series_picked[0] + series_picked[1]
         series_npointss = [s.npoints() for s in series_picked_flat]
@@ -397,11 +399,11 @@ class Scoter:
         # Apply the annealed antiwarp to the warped data
         if plotter: plotter.finish()
         bwarp_annealed.name = 'Sim. Ann.'
-        bwarp_annealed.printself()
+        for s in bwarp_annealed.to_strings(): logger.debug(s)
         self.aligned_sa = []
-        self.aligned_sa.append(bwarp_annealed.apply(1, 0))
+        self.aligned_sa.append(bwarp_annealed.apply(0, 0))
         if (n_record_types == 2):
-            self.aligned_sa.append(bwarp_annealed.apply(1, 1))
+            self.aligned_sa.append(bwarp_annealed.apply(0, 1))
     
         self.warp_sa = bwarp_annealed
         if callback_obj:

@@ -195,3 +195,16 @@
    data and the configuration files -- both for ScoterGui and
    Scoter. This is an important feature for easy reproducible
    analysis.
+** TODO 037 Make block comparison formula configurable?
+   Various methods have been used in the literature for assessing the similarity
+   of two series-chunks, for correlation purposes. Match uses sum of squared 
+   distances. Other use cross correlation. Experiments with Scoter so far have
+   used either Match-style squared distance, or simple sum of absolute distance
+   (since I couldn't really see any particular rationale for squaring it). In any
+   case, the formula needs to be officially fixed to ensure reproducibility of
+   analysis, or made configurable by the user.
+   
+
+
+** TODO 038 Include Scoter version number in saved configurations
+   Obviously important for reproducibility!

@@ -120,7 +120,7 @@ class Bseries:
             xs0, ys0 = data0[i][0], data0[i][1]
             xs1, ys1 = data1[i][0], data1[i][1]
             total += (difference(xs0, ys0, xs1, ys1) +
-                     difference(xs1, ys1, xs0, ys0)) # ** 2
+                     difference(xs1, ys1, xs0, ys0)) ** 2
            
         return total
 
@@ -478,7 +478,7 @@ class Bwarp:
             pos_w += len_w
             pos_t += len_t
             
-        return Series(new_data, 'warped')
+        return Series(new_data, warpee_bs.series[subseries].name + "-wp")
 
     def plot_pylab(self, scale = 1, colour = 'white', invert = False):
         xs, ys = self.get_coords(scale, invert)

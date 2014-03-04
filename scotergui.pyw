@@ -167,7 +167,7 @@ class ScoterApp(wx.App):
 
     def plot_results_sa(self):
         """Plot the results of a simulated annealing correlation."""
-        for record_type in (0, 1):
+        for record_type in range(self.scoter.n_record_types):
             axes = self.axes_results_sa[record_type]
             axes.clear()
             target = self.scoter.warp_sa.series[1].series[record_type]
@@ -175,12 +175,13 @@ class ScoterApp(wx.App):
                 axes.plot(target.data[0], target.data[1])
                 aligned = self.scoter.aligned_sa[record_type]
                 axes.plot(aligned.data[0], aligned.data[1])
+                logger.debug("Aligned dataset: "+aligned.name)
                 axes.autoscale()
         self.canvas_results_sa.draw()
     
     def plot_results_match(self):
         """Plot the results of a match correlation."""
-        for record_type in (0, 1):
+        for record_type in range(self.scoter.n_record_types):
             axes = self.axes_results_match[record_type]
             axes.clear()
             target = self.scoter.series_preprocessed[1][record_type]
@@ -326,8 +327,9 @@ class ScoterApp(wx.App):
         self.soln_new = soln_new
         if not self.simann_redraw_queued:
             self.simann_redraw_queued = True
-            wx.CallAfter(self.redraw_sa_live_plot)
-        time.sleep(.01) # yield thread
+            # Disabled until I can get it working properly
+            # wx.CallAfter(self.redraw_sa_live_plot)
+        #time.sleep(.01) # yield thread
         
     def simann_callback_finished(self, status):
         """Callback to deal with completion of simulated annealing.
