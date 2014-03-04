@@ -1,24 +1,5 @@
 # -*- coding: utf-8 -*- 
 
-# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >
-# Copyright 2014 Pontus Lurcock
-#
-# This file is part of Scoter.
-#
-# Scoter is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Scoter is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Scoter.  If not, see <http://www.gnu.org/licenses/>.
-# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = <
-
 ###########################################################################
 ## Python code generated with wxFormBuilder (version Apr 30 2013)
 ## http://www.wxformbuilder.org/
@@ -567,6 +548,9 @@ class MainFrame ( wx.Frame ):
 		self.menubar.Append( self.menu_file, u"File" ) 
 		
 		self.menu_help = wx.Menu()
+		self.menuitem_userguide = wx.MenuItem( self.menu_help, wx.ID_ANY, u"User guide…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_help.AppendItem( self.menuitem_userguide )
+		
 		self.menuitem_about = wx.MenuItem( self.menu_help, wx.ID_ABOUT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_help.AppendItem( self.menuitem_about )
 		

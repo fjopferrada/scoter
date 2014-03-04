@@ -108,7 +108,9 @@ File > Configuration > Reset configuration…
 :    TODO
 File > Quit
 :    TODO
-Help > About…
+Help > User guide…
+:    TODO
+Help > About
 :    TODO
 
 # Advanced operation: using Scoter without the graphical interface

@@ -73,7 +73,8 @@
    the graphs, with a hook into matplotlib to allow the user to
    select the truncation points graphically.
 
-** TODO 015 First proto-draft of manual
+** DONE 015 First proto-draft of manual
+   CLOSED: [2014-03-04 Tue 14:31]
    No sense in fleshing it out fully until the program's complete, but I need
    a skeleton in place into which I can drop snippets as they occur to me.
    Growing the manual slowly from a "hello world" will also make it easier to

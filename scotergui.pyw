@@ -24,11 +24,13 @@ import wx
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 from scoter import Scoter, ScoterConfig
-import os.path
+import os
 import forms
 import threading
 import logging
 import time
+import sys
+import subprocess
 
 class ScoterApp(wx.App):
     """An interactive GUI for Scoter.
@@ -86,6 +88,7 @@ class ScoterApp(wx.App):
         bind(wx.EVT_BUTTON, self.correlate, mf.button_correlate)
         bind(wx.EVT_MENU, self.quit, mf.menuitem_quit)
         bind(wx.EVT_MENU, self.about, mf.menuitem_about)
+        bind(wx.EVT_MENU, self.open_user_guide, mf.menuitem_userguide)
         bind(wx.EVT_MENU, self.save_config_to_file, mf.menuitem_save_config)
         bind(wx.EVT_MENU, self.open_read_config_dialog, mf.menuitem_read_config)
         bind(wx.EVT_MENU, self.reset_config, mf.menuitem_reset_config)
@@ -375,6 +378,22 @@ class ScoterApp(wx.App):
     def about(self, event):
         """Show the "About" dialog."""
         wx.AboutBox(self.about_frame)
+    
+    def open_user_guide(self, event):
+        """Open the user guide using an external program."""
+        
+        # Bizarrely, no cross-platform way to do this until http://bugs.python.org/issue3177
+        # is resolved. Six years and counting...
+        path = self._rel_path("user-guide/user-guide.html")
+        path = os.path.normpath(path)
+        if sys.platform.startswith("win32"):
+            os.startfile(path) #@UndefinedVariable
+        elif sys.platform.startswith("darwin"):
+            cmd = ["open", path]
+            subprocess.Popen(cmd)
+        elif os.name == "posix":
+            cmd = ["xdg-open", path]
+            subprocess.Popen(cmd)
     
     def save_config_to_file(self, event):
         """Save ScoterGui configuration to a user-specified wx.FileConfig file.
