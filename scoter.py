@@ -85,7 +85,7 @@ ScoterConfigBase = namedtuple("ScoterConfigBase",
     "target_rpi_file, record_rpi_file, " + 
     "target_start, target_end, " + 
     "record_start, record_end, " +
-    "output_dir")
+    "output_dir, debug")
 
 class ScoterConfig(ScoterConfigBase):
     """A configuration for Scoter.
@@ -126,7 +126,8 @@ class ScoterConfig(ScoterConfigBase):
                   target_end = -1,
                   record_start = -1,
                   record_end = -1,
-                  output_dir = ""
+                  output_dir = "",
+                  debug = ""
                   ):
         # if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
@@ -138,7 +139,8 @@ class ScoterConfig(ScoterConfigBase):
              match_gap_p, match_rates, match_path,
              target_d18o_file, record_d18o_file,
              target_rpi_file, record_rpi_file,
-             target_start, target_end, record_start, record_end, output_dir)
+             target_start, target_end, record_start, record_end, output_dir,
+             debug)
     
     def write_to_file(self, filename):
         """Write this configuration to a ConfigParser file.
@@ -199,7 +201,8 @@ class ScoterConfig(ScoterConfigBase):
             target_end = cp.getfloat(s, "target_end"),
             record_start = cp.getfloat(s, "record_start"),
             record_end = cp.getfloat(s, "record_end"),
-            output_dir = cp.get(s, "output_dir")
+            output_dir = cp.get(s, "output_dir"),
+            debug = cp.get(s, "debug")
             )
 
 class Scoter:
@@ -279,6 +282,7 @@ class Scoter:
         Args:
             config: a ScoterConfig object
         """
+        
         # make sure we actually have enough data to work with
         assert((self.series[0][0] != None and self.series[1][0] != None) or
                (self.series[0][1] != None and self.series[1][1] != None))
@@ -370,14 +374,19 @@ class Scoter:
         
         ltemp_max = math.log(config.temp_init)
         ltemp_min = math.log(config.temp_final)
+        debug_file = None
+        if config.debug:
+            debug_file = open(os.path.expanduser("~/scoter-sa.txt"), "w")
         
         def callback(soln_current, soln_new, schedule):
+            if plotter != None:
+                plotter.replot(soln_current, soln_new, schedule.step)
+            if debug_file != None:
+                debug_file.write(str(soln_current.score()) + "\n")
             if callback_obj != None:
                 pc = (ltemp_max - math.log(schedule.temp)) / (ltemp_max - ltemp_min) * 100
                 callback_obj.simann_callback_update(soln_current, soln_new, pc)
                 return callback_obj.simann_check_abort()
-            if plotter != None:
-                plotter.replot(soln_current, soln_new, schedule.step)
         
         # Create and run the simulated annealer.
 
@@ -395,6 +404,9 @@ class Scoter:
                 callback_obj.simann_callback_finished("aborted")
                 return "aborted"
             bwarp_annealed = annealer.soln_best
+        
+        debug_file.close()
+        logger.debug("SA final score: %.3g" % bwarp_annealed.score())
         
         # Apply the annealed antiwarp to the warped data
         if plotter: plotter.finish()

@@ -28,7 +28,6 @@ import os
 import forms
 import threading
 import logging
-import time
 import sys
 import subprocess
 
@@ -40,6 +39,7 @@ class ScoterApp(wx.App):
     
     def OnInit(self):
         """Initialize the program and display the main window."""
+        self.debug = ""
         self.parent_dir = os.path.dirname(os.path.realpath(__file__))
         self.scoter = Scoter()
         self.default_scoter_config = ScoterConfig()
@@ -497,6 +497,7 @@ class ScoterApp(wx.App):
         mf.corr_match_guess_button.SetValue(not wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specify_button.SetValue(wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specified_path.SetValue(wxc.Read("match_specified_path"))
+        self.debug = wxc.Read("Debug", "")
 
         self.scoter.read_data(1, 0, wxc.Read("target_d18o_file"))
         self.scoter.read_data(0, 0, wxc.Read("record_d18o_file"))
@@ -562,6 +563,7 @@ class ScoterApp(wx.App):
         wxc.WriteFloat("target_end", self.series_truncations[1][1])
         wxc.WriteFloat("record_start", self.series_truncations[0][0])
         wxc.WriteFloat("record_end", self.series_truncations[0][1])
+        wxc.Write("debug", self.debug)
         
         if self.lastdir_record != None:
             wxc.Write("lastdir_record", self.lastdir_record)
@@ -620,7 +622,8 @@ class ScoterApp(wx.App):
                                    target_start = trunc[1][0],
                                    target_end = trunc[1][1],
                                    record_start = trunc[0][0],
-                                   record_end = trunc[0][1]
+                                   record_end = trunc[0][1],
+                                   debug = self.debug
                                    )
 
 class DataSeriesFileDropTarget(wx.FileDropTarget):

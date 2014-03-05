@@ -205,6 +205,18 @@
    analysis, or made configurable by the user.
    
 
-
 ** TODO 038 Include Scoter version number in saved configurations
    Obviously important for reproducibility!
+** TODO 039 License icon correctly
+   The Scoter icon is derived from a CC-licensed photograph. Scoter docs need
+   to attribute the original photograph, and apply the appropriate licence to
+   the derived icon.
+** TODO 040 Improve terminology for series designations
+   At present, terminology in the source code is inconsistent can be a little
+   confusing when attempting to distinguish between d18/RPI and record/target
+   for data series. I need to enforce a standard terminology for this --
+   perhaps "property" and "role" respectively. Probably hard to find terms
+   that are both brief and clear, but I think I can do better than the
+   current ones.
+
+** TODO 041 SA algorithm: cut off when score stops improving
