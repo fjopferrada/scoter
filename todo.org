@@ -211,7 +211,8 @@
    The Scoter icon is derived from a CC-licensed photograph. Scoter docs need
    to attribute the original photograph, and apply the appropriate licence to
    the derived icon.
-** TODO 040 Improve terminology for series designations
+** DONE 040 Improve terminology for series designations
+   CLOSED: [2014-03-05 Wed 17:49]
    At present, terminology in the source code is inconsistent can be a little
    confusing when attempting to distinguish between d18/RPI and record/target
    for data series. I need to enforce a standard terminology for this --
@@ -219,4 +220,7 @@
    that are both brief and clear, but I think I can do better than the
    current ones.
 
+   Turns out "property" is a bad choice, since it's a Python builtin.
+   Going with "parameter", despite the unfortunate overlap with 
+   programming terminology.
 ** TODO 041 SA algorithm: cut off when score stops improving

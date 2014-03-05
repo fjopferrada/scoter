@@ -235,18 +235,19 @@ class ScoterApp(wx.App):
         """Respond to a click on one of the "Read Record" buttons."""
         eo = event.GetEventObject()
         fr = self.main_frame
+        # role: 0 record, 1 target; parameter: 0 d18O, 1 RPI
         if eo == fr.button_read_d18o_record:
-            index, record_type = 0, 0
+            role, parameter = 0, 0
         elif eo == fr.button_read_rpi_record:
-            index, record_type = 0, 1
+            role, parameter = 0, 1
         elif eo == fr.button_read_d18o_target:
-            index, record_type = 1, 0
+            role, parameter = 1, 0
         elif eo == fr.button_read_rpi_target:
-            index, record_type = 1, 1
+            role, parameter = 1, 1
         else:
-            index, record_type = -1, -1
-        assert(0 <= index <= 1)
-        assert(0 <= record_type <= 1)
+            role, parameter = -1, -1
+        assert(0 <= role <= 1)
+        assert(0 <= parameter <= 1)
         dialog = wx.FileDialog(self.main_frame, "Choose a file", self.lastdir_record,
                                "", "*.*", wx.OPEN)
         if dialog.ShowModal() == wx.ID_OK:
@@ -254,8 +255,8 @@ class ScoterApp(wx.App):
             dirname = dialog.GetDirectory()
             self.lastdir_record = dirname
             filename = os.path.join(dirname, leafname)
-            self.scoter.read_data(index, record_type, filename)
-            self.series_truncations[index] = [-1, -1]
+            self.scoter.read_data(role, parameter, filename)
+            self.series_truncations[role] = [-1, -1]
             self.plot_series()
         dialog.Destroy()
     

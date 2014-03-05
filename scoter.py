@@ -232,38 +232,38 @@ class Scoter:
         self.series = [[None, None],[None, None]]
         self.filenames = [["", ""],["", ""]]
     
-    def read_data(self, data_set, record_type, filename):
+    def read_data(self, role, parameter, filename):
         """Read a data series.
         
         Read a data series (record or target curve) into Scoter.
         
         Args:
-            data_set: 0 for record, 1 for target
-            record_type: 0 for d18O, 1 for RPI
+            role: 0 for record, 1 for target
+            parameter: 0 for d18O, 1 for RPI
             filename: full path to data file
                 If a filename of "" is supplied, read_data will ignore
                 it and return with no error.
         """
-        assert(0 <= data_set <= 1)
-        assert(0 <= record_type <= 1)
+        assert(0 <= role <= 1)
+        assert(0 <= parameter <= 1)
         if filename != "" and os.path.isfile(filename):
-            logging.debug("Reading file: %d %d %s" % (data_set, record_type, filename))
-            self.filenames[data_set][record_type] = filename
-            self.series[data_set][record_type] = Series.read(filename)
+            logging.debug("Reading file: %d %d %s" % (role, parameter, filename))
+            self.filenames[role][parameter] = filename
+            self.series[role][parameter] = Series.read(filename)
     
-    def clear_data(self, data_set, record_type):
+    def clear_data(self, role, parameter):
         """Clear a data series.
         
         Remove a previously read data series (record or target curve) from Scoter.
         
         Args:
-            data_set: 0 for record, 1 for target
-            record_type: 0 for d18O, 1 for RPI
+            role: 0 for record, 1 for target
+            parameter: 0 for d18O, 1 for RPI
         """
-        assert(0 <= data_set <= 1)
-        assert(0 <= record_type <= 1)
-        self.series[data_set][record_type] = None
-        self.filenames[data_set][record_type] = ""
+        assert(0 <= role <= 1)
+        assert(0 <= parameter <= 1)
+        self.series[role][parameter] = None
+        self.filenames[role][parameter] = ""
 
     def read_data_using_config(self, config):
         """Read data files specified in the supplied configuration.
@@ -289,12 +289,12 @@ class Scoter:
         
         # Each series is a tuple of parallel records of different parameters
         series_picked = [[], []]
-        for record_type in (0, 1):
-            # Do we have this record type in both our data-sets?
-            if self.series[0][record_type] != None and self.series[1][record_type] != None:
+        for parameter in (0, 1):
+            # Do we have this parameter as both record and target?
+            if self.series[0][parameter] != None and self.series[1][parameter] != None:
                 # If so, interpolate and store for matching
-                series_picked[0].append(self.series[0][record_type])
-                series_picked[1].append(self.series[1][record_type])
+                for role in (0, 1):
+                    series_picked[role].append(self.series[role][parameter])
 
         # series_picked will now be something like
         # [[record_d18O, record_RPI] , [target_d18O, target_RPI]]
