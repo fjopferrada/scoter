@@ -167,6 +167,7 @@ class ScoterApp(wx.App):
 
     def plot_results_sa(self):
         """Plot the results of a simulated annealing correlation."""
+        logging.debug("Plotting SA results")
         for record_type in range(self.scoter.n_record_types):
             axes = self.axes_results_sa[record_type]
             axes.clear()
@@ -175,12 +176,12 @@ class ScoterApp(wx.App):
                 axes.plot(target.data[0], target.data[1])
                 aligned = self.scoter.aligned_sa[record_type]
                 axes.plot(aligned.data[0], aligned.data[1])
-                logger.debug("Aligned dataset: "+aligned.name)
                 axes.autoscale()
         self.canvas_results_sa.draw()
     
     def plot_results_match(self):
         """Plot the results of a match correlation."""
+        logging.debug("Plotting Match results")
         for record_type in range(self.scoter.n_record_types):
             axes = self.axes_results_match[record_type]
             axes.clear()
@@ -191,7 +192,7 @@ class ScoterApp(wx.App):
                 aligned = self.scoter.aligned_match[record_type]
                 axes.plot(aligned.data[0], aligned.data[1])
                 axes.autoscale()
-        self.canvas_results_sa.draw()
+        self.canvas_results_match.draw()
 
     def plot_series(self):
         """Plot all the currently loaded input data series."""
@@ -364,10 +365,10 @@ class ScoterApp(wx.App):
     def match_finished_callback(self, result):
         """A callback to be called after a match correlation has been completed.
         
-        Currently just plots the match results."""
+        Checks for errors during Match run and plots the match results."""
         if result.error:
             dialog = wx.MessageDialog(self.main_frame, result.stderr, 'Error running the Match program', 
-            wx.OK | wx.ICON_ERROR)
+                                      wx.OK | wx.ICON_ERROR)
             dialog.ShowModal()
         else:
             self.plot_results_match()

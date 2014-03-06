@@ -81,10 +81,14 @@
    debug any asciidoc problems.
 
 ** TODO 016 Separate nblocks parameters for SA and Match
-** TODO 017 Match graphs don't always update after run
+** DONE 017 Match graphs don't always update after run
+   CLOSED: [2014-03-06 Thu 11:33]
    To reproduce: start program, run correlation, switch to Match results tab,
    observe that plots are blank. Resize window and graphs appear. NB does
    not manifest itself when scotergui is run in debug mode.
+
+   Fixed: it was a stupid typo -- the code was calling FigureCanvas.draw()
+   on the SA canvas, not the Match one!
 ** DONE 018 Use Scoter defaults as wx.Config defaults
    CLOSED: [2013-12-03 Tue 10:44]
    Currently, ScoterConfig has hardcoded defaults for any missing
