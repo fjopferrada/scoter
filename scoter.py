@@ -74,18 +74,21 @@ def find_executable(leafname):
     return path
 
 
-ScoterConfigBase = namedtuple("ScoterConfigBase",
-    "nblocks, interp_type, interp_npoints, detrend, " + 
-    "normalize, max_rate, make_pdf, live_display, precalc, " + 
-    "temp_init, temp_final, cooling, max_changes, max_steps, " + 
-    "rc_penalty, random_seed, match_nomatch, match_speed_p, " + 
-    "match_tie_p, match_target_speed, match_speedchange_p, " + 
-    "match_gap_p, match_rates, match_path, " + 
-    "target_d18o_file, record_d18o_file, " + 
-    "target_rpi_file, record_rpi_file, " + 
-    "target_start, target_end, " + 
-    "record_start, record_end, " +
-    "output_dir, debug")
+ScoterConfigBase = namedtuple("ScoterConfigBase", """
+interp_type interp_npoints     detrend
+normalize   max_rate           make_pdf            live_display   precalc
+
+sa_intervals  temp_init     temp_final  cooling
+max_changes   max_steps   rc_penalty  random_seed
+
+match_intervals  match_nomatch       match_speed_p
+match_tie_p      match_target_speed  match_speedchange_p
+match_gap_p      match_rates         match_path
+
+target_d18o_file  record_d18o_file  target_rpi_file  record_rpi_file
+target_start      target_end        record_start     record_end
+output_dir debug
+""")
 
 class ScoterConfig(ScoterConfigBase):
     """A configuration for Scoter.
@@ -94,7 +97,7 @@ class ScoterConfig(ScoterConfigBase):
     run.    
     """
     
-    def __new__(cls, nblocks = 64,
+    def __new__(cls,
                   interp_type = "min",
                   interp_npoints = -1, # TODO check this doesn't break anything
                   detrend = "linear",
@@ -103,6 +106,7 @@ class ScoterConfig(ScoterConfigBase):
                   make_pdf = False,
                   live_display = False,
                   precalc = False,
+                  sa_intervals = 64,
                   temp_init = 1.0e3,
                   temp_final = 1.0,
                   cooling = 0.95,
@@ -110,6 +114,7 @@ class ScoterConfig(ScoterConfigBase):
                   max_steps = 200,
                   rc_penalty = 0.,
                   random_seed = 42,
+                  match_intervals = 64,
                   match_nomatch = 1e12,
                   match_speed_p = 0.0,
                   match_tie_p = 100,
@@ -131,10 +136,11 @@ class ScoterConfig(ScoterConfigBase):
                   ):
         # if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
-            (cls, nblocks, interp_type, interp_npoints, detrend,
+            (cls, interp_type, interp_npoints, detrend,
              normalize, max_rate, make_pdf, live_display, precalc,
-             temp_init, temp_final, cooling, max_changes, max_steps,
-             rc_penalty, random_seed, match_nomatch, match_speed_p,
+             sa_intervals, temp_init, temp_final, cooling, max_changes, max_steps,
+             rc_penalty, random_seed,
+             match_intervals, match_nomatch, match_speed_p,
              match_tie_p, match_target_speed, match_speedchange_p,
              match_gap_p, match_rates, match_path,
              target_d18o_file, record_d18o_file,
@@ -169,7 +175,6 @@ class ScoterConfig(ScoterConfigBase):
         cp.read(filename)
         s = "DEFAULT"
         return ScoterConfig(
-            nblocks = cp.getint(s, "nblocks"),
             interp_type = cp.get(s, "interp_type"),
             interp_npoints = cp.getint(s, "interp_npoints"),
             detrend = cp.get(s, "detrend"),
@@ -178,6 +183,7 @@ class ScoterConfig(ScoterConfigBase):
             make_pdf = cp.getboolean(s, "make_pdf"),
             live_display = cp.getboolean(s, "live_display"),
             precalc = cp.getboolean(s, "precalc"),
+            sa_intervals = cp.getint(s, "sa_intervals"),
             temp_init = cp.getfloat(s, "temp_init"),
             temp_final = cp.getfloat(s, "temp_final"),
             cooling = cp.getfloat(s, "cooling"),
@@ -185,6 +191,7 @@ class ScoterConfig(ScoterConfigBase):
             max_steps = cp.getint(s, "max_steps"),
             rc_penalty = cp.getfloat(s, "rc_penalty"),
             random_seed = cp.getint(s, "random_seed"),
+            match_intervals = cp.getint(s, "match_intervals"),
             match_nomatch = cp.getfloat(s, "match_nomatch"),
             match_speed_p = cp.getfloat(s, "match_speed_p"),
             match_tie_p = cp.getfloat(s, "match_tie_p"),
@@ -353,13 +360,13 @@ class Scoter:
                     simann_check_abort(self)
         """
         #if config.multiscale > -1:
-        #    return solve_sa_multiscale(series0, series1, config.nblocks, known_line, config)
+        #    return solve_sa_multiscale(series0, series1, config.sa_intervals, known_line, config)
         
         random_generator = random.Random(config.random_seed)
         n_record_types = len(self.series_preprocessed[0])
         
-        starting_warp = Bwarp(Bseries(self.series_preprocessed[0], config.nblocks),
-                              Bseries(self.series_preprocessed[1], config.nblocks),
+        starting_warp = Bwarp(Bseries(self.series_preprocessed[0], config.sa_intervals),
+                              Bseries(self.series_preprocessed[1], config.sa_intervals),
                               max_rate = config.max_rate,
                               rc_penalty = config.rc_penalty,
                               rnd = random_generator)
@@ -369,7 +376,7 @@ class Scoter:
         # Set up warp plotter if needed
         plotter = None
         if config.live_display:
-            plotter = WarpPlotter(config.nblocks, known_line, 100,
+            plotter = WarpPlotter(config.sa_intervals, known_line, 100,
                                   pdf_file = 'dsaframes-1.pdf' if config.make_pdf else None)
         
         ltemp_max = math.log(config.temp_init)
@@ -445,10 +452,10 @@ class Scoter:
         )
 
         match_conf =  MatchConf(MatchSeriesConf(self.series_preprocessed[0],
-                                                intervals = config.nblocks),
+                                                intervals = config.match_intervals),
                                 MatchSeriesConf(self.series_preprocessed[1],
-                                                intervals = config.nblocks),
-                            match_params)
+                                                intervals = config.match_intervals),
+                                match_params)
         match_path = self.default_match_path if config.match_path == "" else config.match_path
         logging.debug("Match path: %s", match_path)
         match_result = match_conf.run_match(match_path, dir_path, False)

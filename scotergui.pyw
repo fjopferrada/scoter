@@ -272,8 +272,8 @@ class ScoterApp(wx.App):
         self.progress_percentage = 0
         self.progress_lines = []
         for _ in 0, 1:
-            xs = range(self.params.nblocks)
-            ys = range(self.params.nblocks)
+            xs = range(self.params.sa_intervals)
+            ys = range(self.params.sa_intervals)
             self.progress_lines.append(self.progress_axes.plot(xs, ys)[0])
 
         self.simann_abort_flag = False
@@ -479,7 +479,7 @@ class ScoterApp(wx.App):
         interp_npoints = wxc.ReadInt("interp_npoints", -1)
         if interp_npoints != -1:
             mf.preproc_interp_npoints.SetValue(interp_npoints)
-        mf.corr_common_intervals.SetValue(str(wxc.ReadInt("nblocks", d.nblocks)))
+        mf.corr_sa_intervals.SetValue(str(wxc.ReadInt("sa_intervals", d.sa_intervals)))
         mf.corr_sa_max_rate.SetValue(str(wxc.ReadInt("max_rate", d.max_rate)))
         mf.corr_sa_max_changes.SetValue(str(wxc.ReadInt("max_changes", d.max_changes)))
         mf.corr_sa_max_steps.SetValue(str(wxc.ReadInt("max_steps", d.max_steps)))
@@ -495,6 +495,7 @@ class ScoterApp(wx.App):
         mf.corr_match_speedchange.SetValue(str(wxc.ReadFloat("match_speedchange_p", d.match_speedchange_p)))
         mf.corr_match_gap.SetValue(str(wxc.ReadFloat("match_gap_p", d.match_gap_p)))
         mf.corr_match_rates.SetValue(str(wxc.Read("match_rates", d.match_rates)))
+        mf.corr_match_intervals.SetValue(str(wxc.ReadInt("match_intervals", d.match_intervals)))
         mf.corr_match_guessed_path.SetValue(str(self.scoter.default_match_path))
         mf.corr_match_guess_button.SetValue(not wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specify_button.SetValue(wxc.ReadBool("match_use_specified_path", False))
@@ -539,8 +540,8 @@ class ScoterApp(wx.App):
         wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
         wxc.Write("interp_type", interp_type)
         wxc.WriteInt("interp_npoints", mf.preproc_interp_npoints.GetValue())
-        wxc.WriteInt("nblocks", int(mf.corr_common_intervals.GetValue()))
         wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
+        wxc.WriteInt("sa_intervals", int(mf.corr_sa_intervals.GetValue()))
         wxc.WriteFloat("temp_init", float(mf.corr_sa_temp_init.GetValue()))
         wxc.WriteFloat("temp_final", float(mf.corr_sa_temp_final.GetValue()))
         wxc.WriteFloat("cooling", float(mf.corr_sa_rate.GetValue()))
@@ -548,6 +549,7 @@ class ScoterApp(wx.App):
         wxc.WriteInt("max_steps", int(mf.corr_sa_max_steps.GetValue()))
         wxc.WriteFloat("rc_penalty", float(mf.corr_sa_rc_penalty.GetValue()))
         wxc.WriteInt("random_seed", int(mf.corr_sa_seed.GetValue()))
+        wxc.WriteInt("match_intervals", int(mf.corr_match_intervals.GetValue()))
         wxc.WriteFloat("match_nomatch", float(mf.corr_match_nomatch.GetValue()))
         wxc.WriteFloat("match_speed_p", float(mf.corr_match_speed.GetValue()))
         wxc.WriteFloat("match_tie_p", float(mf.corr_match_tie.GetValue()))
@@ -601,14 +603,15 @@ class ScoterApp(wx.App):
                                    max_rate = int(mf.corr_sa_max_rate.GetValue()),
                                    interp_type = interp_type,
                                    interp_npoints = interp_npoints,
-                                   nblocks = int(mf.corr_common_intervals.GetValue()),
                                    max_changes = float(mf.corr_sa_max_changes.GetValue()),
                                    max_steps = float(mf.corr_sa_max_steps.GetValue()),
+                                   sa_intervals = int(mf.corr_sa_intervals.GetValue()),
                                    temp_init = float(mf.corr_sa_temp_init.GetValue()),
                                    temp_final = float(mf.corr_sa_temp_final.GetValue()),
                                    cooling = float(mf.corr_sa_rate.GetValue()),
                                    rc_penalty = float(mf.corr_sa_rc_penalty.GetValue()),
                                    random_seed = int(mf.corr_sa_seed.GetValue()),
+                                   match_intervals = int(mf.corr_match_intervals.GetValue()),
                                    match_nomatch = float(mf.corr_match_nomatch.GetValue()),
                                    match_speed_p = float(mf.corr_match_speed.GetValue()),
                                    match_tie_p = float(mf.corr_match_tie.GetValue()),

@@ -80,7 +80,8 @@
    Growing the manual slowly from a "hello world" will also make it easier to
    debug any asciidoc problems.
 
-** TODO 016 Separate nblocks parameters for SA and Match
+** DONE 016 Separate nblocks parameters for SA and Match
+   CLOSED: [2014-03-10 Mon 17:29]
 ** DONE 017 Match graphs don't always update after run
    CLOSED: [2014-03-06 Thu 11:33]
    To reproduce: start program, run correlation, switch to Match results tab,
@@ -208,7 +209,6 @@
    case, the formula needs to be officially fixed to ensure reproducibility of
    analysis, or made configurable by the user.
    
-
 ** TODO 038 Include Scoter version number in saved configurations
    Obviously important for reproducibility!
 ** TODO 039 License icon correctly
