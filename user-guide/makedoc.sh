@@ -10,6 +10,7 @@ COMMON_OPTS="-f $FORMAT --bibliography $BIB \
 pandoc $COMMON_OPTS \
        --latex-engine=xelatex \
        --include-in-header=header-includes.tex \
+       --variable fontsize=11pt \
        -o $NAME.pdf
 
 pandoc $COMMON_OPTS --self-contained -o $NAME.html

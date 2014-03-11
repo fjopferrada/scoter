@@ -166,6 +166,27 @@ As well as a command-line interface, Scoter provides an
 application-programmer interface (API) allowing it to be integrated into
 other programs.
 
+# Licensing
+
+Scoter is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. Scoter is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+details. You should have received a copy of the GNU General Public License
+along with Scoter. If not, see <http://www.gnu.org/licenses/>.
+
+The full text of Scoter's license is in a file named COPYING which is
+distributed with the program.
+
+The Scoter icon is licensed separately from the program. The icon depicts a
+white-winged Scoter (Melanitta deglandi) in flight and is based on a
+photograph (<http://www.flickr.com/photos/9765210@N03/4411670433/>) by
+Dominic Sherony; both the photograph and the icon are under the the Creative
+Commons CC BY-SA 2.0 license
+(<http://creativecommons.org/licenses/by-sa/2.0/>).
+
 # References
 
 <!--- Local Variables: --->

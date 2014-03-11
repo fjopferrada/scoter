@@ -211,7 +211,8 @@
    
 ** TODO 038 Include Scoter version number in saved configurations
    Obviously important for reproducibility!
-** TODO 039 License icon correctly
+** DONE 039 License icon correctly
+   CLOSED: [2014-03-11 Tue 14:47]
    The Scoter icon is derived from a CC-licensed photograph. Scoter docs need
    to attribute the original photograph, and apply the appropriate licence to
    the derived icon.
