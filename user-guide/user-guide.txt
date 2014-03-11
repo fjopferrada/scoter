@@ -69,6 +69,16 @@ Middle click
 When clipping limits have been set for a series, the selected portion is
 highlighted in yellow.
 
+## Reading data files
+
+[explanation of required input format]
+
+Note that Scoter does not need to know anything about the units of the
+data-sets: when the record has been correlated with the target, the output
+will be expressed in whatever time-unit was used for the target curve.
+The only constraint is that, for a tandem correlation, the same depth
+and time units must be used for both parameters.
+
 ## The preprocessing tab
 
 This tab controls the preprocessing steps that are applied to the 

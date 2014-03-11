@@ -471,14 +471,15 @@ class ScoterApp(wx.App):
         detrend_map = {"none":0, "submean":1, "linear":2}
         mf.preproc_detrend.SetSelection(detrend_map.get(wxc.Read("detrend", d.detrend), "none"))
         mf.preproc_normalize.SetValue(wxc.ReadBool("normalize", d.normalize))
-        interp_type = wxc.Read("interp_type", d.interp_type)
-        mf.preproc_interp_none.SetValue(interp_type == "none")
-        mf.preproc_interp_min.SetValue(interp_type == "min")
-        mf.preproc_interp_max.SetValue(interp_type == "max")
-        mf.preproc_interp_explicit.SetValue(interp_type == "explicit")
+        mf.preproc_interp_active.SetValue(wxc.ReadBool("interp_active", d.interp_active))
+        interp_npoints_type = wxc.Read("interp_npoints_type", "min")
+        mf.preproc_interp_min.SetValue(interp_npoints_type == "min")
+        mf.preproc_interp_max.SetValue(interp_npoints_type == "max")
+        mf.preproc_interp_explicit.SetValue(interp_npoints_type == "explicit")
         interp_npoints = wxc.ReadInt("interp_npoints", -1)
         if interp_npoints != -1:
             mf.preproc_interp_npoints.SetValue(interp_npoints)
+        mf.preproc_interp_type.SetStringSelection(wxc.Read("interp_type", d.interp_type))
         mf.corr_sa_intervals.SetValue(str(wxc.ReadInt("sa_intervals", d.sa_intervals)))
         mf.corr_sa_max_rate.SetValue(str(wxc.ReadInt("max_rate", d.max_rate)))
         mf.corr_sa_max_changes.SetValue(str(wxc.ReadInt("max_changes", d.max_changes)))
@@ -526,19 +527,21 @@ class ScoterApp(wx.App):
         """
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
-        interp_type = "none"
+        interp_npoints_type = "min" # default in case (impossibly) no radio button selected
         if mf.preproc_interp_min.GetValue():
-            interp_type = "min"
+            interp_npoints_type = "min"
         elif mf.preproc_interp_max.GetValue():
-            interp_type = "max"
+            interp_npoints_type = "max"
         elif mf.preproc_interp_explicit.GetValue():
-            interp_type = "explicit"
+            interp_npoints_type = "explicit"
         mf = self.main_frame
         if wxc == None: wxc = wx.Config("scoter")
         wxc.Write("detrend", detrend_opts[mf.preproc_detrend.GetSelection()])
         wxc.WriteBool("normalize", mf.preproc_normalize.GetValue())
         wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
-        wxc.Write("interp_type", interp_type)
+        wxc.WriteBool("interp_active", mf.preproc_interp_active.GetValue())
+        wxc.Write("interp_type", mf.preproc_interp_type.GetStringSelection())
+        wxc.Write("interp_npoints_type", interp_npoints_type)
         wxc.WriteInt("interp_npoints", mf.preproc_interp_npoints.GetValue())
         wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
         wxc.WriteInt("sa_intervals", int(mf.corr_sa_intervals.GetValue()))

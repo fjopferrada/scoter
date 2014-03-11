@@ -145,65 +145,124 @@ class MainFrame ( wx.Frame ):
 		bSizer21.Fit( self.DataPanel1 )
 		self.Notebook.AddPage( self.DataPanel1, u"RPI data", False )
 		self.PreprocessingPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer24 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_panel25 = wx.Panel( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel25, wx.ID_ANY, u"General" ), wx.VERTICAL )
+		
+		self.m_panel26 = wx.Panel( self.m_panel25, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer1 = wx.FlexGridSizer( 2, 2, 0, 0 )
 		fgSizer1.AddGrowableCol( 1 )
 		fgSizer1.SetFlexibleDirection( wx.BOTH )
 		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText3 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Detrending", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText3 = wx.StaticText( self.m_panel26, wx.ID_ANY, u"Detrending", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText3, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
 		preproc_detrendChoices = [ u"None", u"Subtract mean", u"Linear detrend" ]
-		self.preproc_detrend = wx.Choice( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, preproc_detrendChoices, 0 )
+		self.preproc_detrend = wx.Choice( self.m_panel26, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, preproc_detrendChoices, 0 )
 		self.preproc_detrend.SetSelection( 0 )
 		fgSizer1.Add( self.preproc_detrend, 0, wx.ALL, 5 )
 		
-		self.m_staticText6 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Normalization", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText6 = wx.StaticText( self.m_panel26, wx.ID_ANY, u"Normalization", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText6, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
-		self.preproc_normalize = wx.CheckBox( self.PreprocessingPanel, wx.ID_ANY, u"Normalize", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.preproc_normalize = wx.CheckBox( self.m_panel26, wx.ID_ANY, u"Normalize", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.preproc_normalize.SetValue(True) 
 		fgSizer1.Add( self.preproc_normalize, 0, wx.ALL, 5 )
 		
-		self.m_staticText7 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Deepest depth", wx.DefaultPosition, wx.DefaultSize, 0 )
+		
+		self.m_panel26.SetSizer( fgSizer1 )
+		self.m_panel26.Layout()
+		fgSizer1.Fit( self.m_panel26 )
+		sbSizer3.Add( self.m_panel26, 1, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		self.m_panel25.SetSizer( sbSizer3 )
+		self.m_panel25.Layout()
+		sbSizer3.Fit( self.m_panel25 )
+		bSizer24.Add( self.m_panel25, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		self.m_panel272 = wx.Panel( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		sbSizer4 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel272, wx.ID_ANY, u"Clipping" ), wx.VERTICAL )
+		
+		self.m_panel29 = wx.Panel( self.m_panel272, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer5 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer5.SetFlexibleDirection( wx.BOTH )
+		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText7 = wx.StaticText( self.m_panel29, wx.ID_ANY, u"Deepest depth", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText7.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText7, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		fgSizer5.Add( self.m_staticText7, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
-		self.preproc_deepest = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer1.Add( self.preproc_deepest, 0, wx.ALL, 5 )
+		self.preproc_deepest = wx.SpinCtrl( self.m_panel29, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer5.Add( self.preproc_deepest, 0, wx.ALL, 5 )
 		
-		self.m_staticText71 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Shallowest depth", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText71 = wx.StaticText( self.m_panel29, wx.ID_ANY, u"Shallowest depth", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText71.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText71, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		fgSizer5.Add( self.m_staticText71, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
-		self.preproc_shallowest = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer1.Add( self.preproc_shallowest, 0, wx.ALL, 5 )
+		self.preproc_shallowest = wx.SpinCtrl( self.m_panel29, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer5.Add( self.preproc_shallowest, 0, wx.ALL, 5 )
 		
-		self.m_staticText711 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Oldest time", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText711 = wx.StaticText( self.m_panel29, wx.ID_ANY, u"Oldest time", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText711.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText711, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		fgSizer5.Add( self.m_staticText711, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
-		self.preproc_oldest = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer1.Add( self.preproc_oldest, 0, wx.ALL, 5 )
+		self.preproc_oldest = wx.SpinCtrl( self.m_panel29, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer5.Add( self.preproc_oldest, 0, wx.ALL, 5 )
 		
-		self.m_staticText712 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Youngest time", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText712 = wx.StaticText( self.m_panel29, wx.ID_ANY, u"Youngest time", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText712.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText712, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		fgSizer5.Add( self.m_staticText712, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
-		self.preproc_youngest = wx.SpinCtrl( self.PreprocessingPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer1.Add( self.preproc_youngest, 0, wx.ALL, 5 )
+		self.preproc_youngest = wx.SpinCtrl( self.m_panel29, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer5.Add( self.preproc_youngest, 0, wx.ALL, 5 )
 		
-		self.m_staticText7121 = wx.StaticText( self.PreprocessingPanel, wx.ID_ANY, u"Interpolation", wx.DefaultPosition, wx.DefaultSize, 0 )
+		
+		self.m_panel29.SetSizer( fgSizer5 )
+		self.m_panel29.Layout()
+		fgSizer5.Fit( self.m_panel29 )
+		sbSizer4.Add( self.m_panel29, 1, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		self.m_panel272.SetSizer( sbSizer4 )
+		self.m_panel272.Layout()
+		sbSizer4.Fit( self.m_panel272 )
+		bSizer24.Add( self.m_panel272, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		self.m_panel28 = wx.Panel( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		sbSizer5 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel28, wx.ID_ANY, u"Interpolation" ), wx.VERTICAL )
+		
+		self.m_panel30 = wx.Panel( self.m_panel28, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer6 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer6.SetFlexibleDirection( wx.BOTH )
+		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText27 = wx.StaticText( self.m_panel30, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText27.Wrap( -1 )
+		fgSizer6.Add( self.m_staticText27, 0, wx.ALL, 5 )
+		
+		self.preproc_interp_active = wx.CheckBox( self.m_panel30, wx.ID_ANY, u"Use interpolation", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer6.Add( self.preproc_interp_active, 0, wx.ALL, 5 )
+		
+		self.m_staticText28 = wx.StaticText( self.m_panel30, wx.ID_ANY, u"Type", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText28.Wrap( -1 )
+		fgSizer6.Add( self.m_staticText28, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
+		
+		preproc_interp_typeChoices = [ u"linear", u"nearest", u"zero", u"slinear", u"quadratic", u"cubic" ]
+		self.preproc_interp_type = wx.Choice( self.m_panel30, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, preproc_interp_typeChoices, 0 )
+		self.preproc_interp_type.SetSelection( 0 )
+		fgSizer6.Add( self.preproc_interp_type, 0, wx.ALL, 5 )
+		
+		self.m_staticText7121 = wx.StaticText( self.m_panel30, wx.ID_ANY, u"Number of points", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText7121.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText7121, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText7121, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
-		self.m_panel13 = wx.Panel( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel13 = wx.Panel( self.m_panel30, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer12 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.preproc_interp_none = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"None", wx.DefaultPosition, wx.DefaultSize, wx.RB_GROUP )
-		bSizer12.Add( self.preproc_interp_none, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
 		self.preproc_interp_min = wx.RadioButton( self.m_panel13, wx.ID_ANY, u"Minimum", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.preproc_interp_min.SetToolTipString( u"Interpolate to the minimum number of points in any of the data-sets" )
@@ -232,13 +291,25 @@ class MainFrame ( wx.Frame ):
 		self.m_panel13.SetSizer( bSizer12 )
 		self.m_panel13.Layout()
 		bSizer12.Fit( self.m_panel13 )
-		fgSizer1.Add( self.m_panel13, 1, wx.EXPAND |wx.ALL, 5 )
+		fgSizer6.Add( self.m_panel13, 1, wx.EXPAND, 5 )
 		
 		
-		self.PreprocessingPanel.SetSizer( fgSizer1 )
+		self.m_panel30.SetSizer( fgSizer6 )
+		self.m_panel30.Layout()
+		fgSizer6.Fit( self.m_panel30 )
+		sbSizer5.Add( self.m_panel30, 1, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		self.m_panel28.SetSizer( sbSizer5 )
+		self.m_panel28.Layout()
+		sbSizer5.Fit( self.m_panel28 )
+		bSizer24.Add( self.m_panel28, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		self.PreprocessingPanel.SetSizer( bSizer24 )
 		self.PreprocessingPanel.Layout()
-		fgSizer1.Fit( self.PreprocessingPanel )
-		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", False )
+		bSizer24.Fit( self.PreprocessingPanel )
+		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", True )
 		self.panel_correlate = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -420,7 +491,7 @@ class MainFrame ( wx.Frame ):
 		self.panel_correlate.SetSizer( bSizer14 )
 		self.panel_correlate.Layout()
 		bSizer14.Fit( self.panel_correlate )
-		self.Notebook.AddPage( self.panel_correlate, u"Correlation", True )
+		self.Notebook.AddPage( self.panel_correlate, u"Correlation", False )
 		self.panel_progress = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		

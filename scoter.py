@@ -75,7 +75,7 @@ def find_executable(leafname):
 
 
 ScoterConfigBase = namedtuple("ScoterConfigBase", """
-interp_type interp_npoints     detrend
+interp_active interp_type interp_npoints     detrend
 normalize   max_rate           make_pdf            live_display   precalc
 
 sa_intervals  temp_init     temp_final  cooling
@@ -98,8 +98,9 @@ class ScoterConfig(ScoterConfigBase):
     """
     
     def __new__(cls,
-                  interp_type = "min",
-                  interp_npoints = -1, # TODO check this doesn't break anything
+                  interp_active = True,
+                  interp_type = "linear",
+                  interp_npoints = -2, # -2 min, -1 max, 0 undef, >0 actual #points
                   detrend = "linear",
                   normalize = True,
                   max_rate = 4,
@@ -136,7 +137,7 @@ class ScoterConfig(ScoterConfigBase):
                   ):
         # if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
-            (cls, interp_type, interp_npoints, detrend,
+            (cls, interp_active, interp_type, interp_npoints, detrend,
              normalize, max_rate, make_pdf, live_display, precalc,
              sa_intervals, temp_init, temp_final, cooling, max_changes, max_steps,
              rc_penalty, random_seed,
@@ -313,13 +314,16 @@ class Scoter:
         series_picked_flat = series_picked[0] + series_picked[1]
         series_npointss = [s.npoints() for s in series_picked_flat]
         interp_npoints = None
-        if config.interp_type == "min":
-            interp_npoints = min(series_npointss)
-        elif config.interp_type == "max":
-            interp_npoints = min(series_npointss)
-        elif config.interp_type == "explicit":
-            assert(hasattr(config, "interp_npoints"))
-            interp_npoints = config.interp_npoints
+        if config.interp_active:
+            if config.interp_npoints == -2: # use minimum
+                interp_npoints = min(series_npointss)
+            elif config.interp_npoints == -1: # use maximum
+                interp_npoints = min(series_npointss)
+            elif config.interp_type > 0:
+                assert(hasattr(config, "interp_npoints"))
+                interp_npoints = config.interp_npoints
+            else:
+                raise Exception("Illegal interp_npoints value: %d" % interp_npoints)
         
         record_start = config.record_start if config.record_start > -1 else 0
         target_start = config.target_start if config.target_start > -1 else 0
@@ -340,7 +344,8 @@ class Scoter:
                 result = result.subtract_mean()
             elif config.detrend == "linear":
                 result = result.detrend()
-            if interp_npoints != None: result = result.interpolate(interp_npoints)
+            if config.interp_active:
+                result = result.interpolate(interp_npoints, config.interp_type)
             if config.normalize: result = result.scale_std_to(1.0)
             return result
 
@@ -412,7 +417,8 @@ class Scoter:
                 return "aborted"
             bwarp_annealed = annealer.soln_best
         
-        debug_file.close()
+        if debug_file:
+            debug_file.close()
         logger.debug("SA final score: %.3g" % bwarp_annealed.score())
         
         # Apply the annealed antiwarp to the warped data

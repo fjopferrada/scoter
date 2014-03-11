@@ -345,11 +345,20 @@ class Series:
             d[-endzone:]))
         return self.copy(data = new_data, suffix = '-sm'+str(window))
 
-    def interpolate(self, npoints = None):
+    def interpolate(self, npoints = None, kind = "linear"):
         """Interpolate this series to give regularly spaced x values.
-
-        This is done by linear interpolation. If npoints is not
-        supplied, the current number of points will be used."""
+        
+        Args:
+            npoints: number of points to interpolate to. If None,
+                use the current number of points.
+            kind: kind of interpolation to use. ‘linear’, ‘nearest’,
+                ‘zero’, ‘slinear’, ‘quadratic, ‘cubic’ where ‘slinear’,
+                ‘quadratic’ and ‘cubic’ refer to a spline interpolation
+                of first, second or third order. Default: ‘linear’.
+        
+        Returns:
+            A new series containing the interpolated data.
+        """
         f = interp1d(self.data[0], self.data[1])
         if not npoints: npoints = self.npoints()
         new_xs = np.linspace(self.start(), self.end(), npoints)
