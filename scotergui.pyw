@@ -471,6 +471,8 @@ class ScoterApp(wx.App):
         detrend_map = {"none":0, "submean":1, "linear":2}
         mf.preproc_detrend.SetSelection(detrend_map.get(wxc.Read("detrend", d.detrend), "none"))
         mf.preproc_normalize.SetValue(wxc.ReadBool("normalize", d.normalize))
+        mf.preproc_d18o_weight.SetValue(wxc.ReadFloat("weight_d18o", d.weight_d18o))
+        mf.preproc_rpi_weight.SetValue(wxc.ReadFloat("weight_rpi", d.weight_rpi))
         mf.preproc_interp_active.SetValue(wxc.ReadBool("interp_active", d.interp_active))
         interp_npoints_type = wxc.Read("interp_npoints_type", "min")
         mf.preproc_interp_min.SetValue(interp_npoints_type == "min")
@@ -538,7 +540,8 @@ class ScoterApp(wx.App):
         if wxc == None: wxc = wx.Config("scoter")
         wxc.Write("detrend", detrend_opts[mf.preproc_detrend.GetSelection()])
         wxc.WriteBool("normalize", mf.preproc_normalize.GetValue())
-        wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
+        wxc.WriteFloat("weight_d18o", mf.preproc_d18o_weight.GetValue())
+        wxc.WriteFloat("weight_rpi", mf.preproc_rpi_weight.GetValue())
         wxc.WriteBool("interp_active", mf.preproc_interp_active.GetValue())
         wxc.Write("interp_type", mf.preproc_interp_type.GetStringSelection())
         wxc.Write("interp_npoints_type", interp_npoints_type)

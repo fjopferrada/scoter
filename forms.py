@@ -158,7 +158,7 @@ class MainFrame ( wx.Frame ):
 		
 		self.m_staticText3 = wx.StaticText( self.m_panel26, wx.ID_ANY, u"Detrending", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText3, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		fgSizer1.Add( self.m_staticText3, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
 		preproc_detrendChoices = [ u"None", u"Subtract mean", u"Linear detrend" ]
 		self.preproc_detrend = wx.Choice( self.m_panel26, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, preproc_detrendChoices, 0 )
@@ -167,11 +167,25 @@ class MainFrame ( wx.Frame ):
 		
 		self.m_staticText6 = wx.StaticText( self.m_panel26, wx.ID_ANY, u"Normalization", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText6, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		fgSizer1.Add( self.m_staticText6, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
 		self.preproc_normalize = wx.CheckBox( self.m_panel26, wx.ID_ANY, u"Normalize", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.preproc_normalize.SetValue(True) 
 		fgSizer1.Add( self.preproc_normalize, 0, wx.ALL, 5 )
+		
+		self.m_staticText29 = wx.StaticText( self.m_panel26, wx.ID_ANY, u"δ18O weighting", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText29.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText29, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
+		
+		self.preproc_d18o_weight = wx.SpinCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer1.Add( self.preproc_d18o_weight, 0, wx.ALL, 5 )
+		
+		self.m_staticText291 = wx.StaticText( self.m_panel26, wx.ID_ANY, u"RPI weighting", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText291.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText291, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
+		
+		self.preproc_rpi_weight = wx.SpinCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		fgSizer1.Add( self.preproc_rpi_weight, 0, wx.ALL, 5 )
 		
 		
 		self.m_panel26.SetSizer( fgSizer1 )

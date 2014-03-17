@@ -75,11 +75,12 @@ def find_executable(leafname):
 
 
 ScoterConfigBase = namedtuple("ScoterConfigBase", """
-interp_active interp_type interp_npoints     detrend
-normalize   max_rate           make_pdf            live_display   precalc
+interp_active interp_type  interp_npoints detrend
+normalize     weight_d18o  weight_rpi     max_rate
+make_pdf      live_display precalc
 
-sa_intervals  temp_init     temp_final  cooling
-max_changes   max_steps   rc_penalty  random_seed
+sa_intervals  temp_init    temp_final  cooling
+max_changes   max_steps    rc_penalty  random_seed
 
 match_intervals  match_nomatch       match_speed_p
 match_tie_p      match_target_speed  match_speedchange_p
@@ -87,7 +88,7 @@ match_gap_p      match_rates         match_path
 
 target_d18o_file  record_d18o_file  target_rpi_file  record_rpi_file
 target_start      target_end        record_start     record_end
-output_dir debug
+output_dir        debug
 """)
 
 class ScoterConfig(ScoterConfigBase):
@@ -103,6 +104,8 @@ class ScoterConfig(ScoterConfigBase):
                   interp_npoints = -2, # -2 min, -1 max, 0 undef, >0 actual #points
                   detrend = "linear",
                   normalize = True,
+                  weight_d18o = 1.0,
+                  weight_rpi = 1.0,
                   max_rate = 4,
                   make_pdf = False,
                   live_display = False,
@@ -138,7 +141,7 @@ class ScoterConfig(ScoterConfigBase):
         # if interp_npoints == -1: interp_npoints = None
         return super(ScoterConfig, cls).__new__\
             (cls, interp_active, interp_type, interp_npoints, detrend,
-             normalize, max_rate, make_pdf, live_display, precalc,
+             normalize, weight_d18o, weight_rpi, max_rate, make_pdf, live_display, precalc,
              sa_intervals, temp_init, temp_final, cooling, max_changes, max_steps,
              rc_penalty, random_seed,
              match_intervals, match_nomatch, match_speed_p,
@@ -180,6 +183,8 @@ class ScoterConfig(ScoterConfigBase):
             interp_npoints = cp.getint(s, "interp_npoints"),
             detrend = cp.get(s, "detrend"),
             normalize = cp.getboolean(s, "normalize"),
+            weight_d18o = cp.getfloat(s, "weight_d18o"),
+            weight_rpi = cp.getfloat(s, "weight_rpi"),
             max_rate = cp.getint(s, "max_rate"),
             make_pdf = cp.getboolean(s, "make_pdf"),
             live_display = cp.getboolean(s, "live_display"),

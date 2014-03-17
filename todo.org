@@ -230,3 +230,9 @@
    Going with "parameter", despite the unfortunate overlap with 
    programming terminology.
 ** TODO 041 SA algorithm: cut off when score stops improving
+** TODO 042 Move and activate clipping limit text boxes
+   These are currently present on the preprocessing tab, but inactive.
+   It would make much more sense to have them on the input series tabs
+   alongside the associated graphs (and, of course, to have them actually
+   working).
+
