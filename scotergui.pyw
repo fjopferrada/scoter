@@ -590,14 +590,13 @@ class ScoterApp(wx.App):
         """
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
-        interp_type = "none"
+        interp_type = mf.preproc_interp_type.GetStringSelection()
         interp_npoints = None
         if mf.preproc_interp_min.GetValue():
-            interp_type = "min"
+            interp_npoints = -2
         elif mf.preproc_interp_max.GetValue():
-            interp_type = "max"
+            interp_npoints = -1
         elif mf.preproc_interp_explicit.GetValue():
-            interp_type = "explicit"
             interp_npoints = mf.preproc_interp_npoints.GetValue()
         if mf.corr_match_guess_button.GetValue():
             match_path = ""

@@ -305,7 +305,7 @@ class Scoter:
         for parameter in (0, 1):
             # Do we have this parameter as both record and target?
             if self.series[0][parameter] != None and self.series[1][parameter] != None:
-                # If so, interpolate and store for matching
+                # If so, store for matching
                 for role in (0, 1):
                     series_picked[role].append(self.series[role][parameter])
 
@@ -324,7 +324,7 @@ class Scoter:
                 interp_npoints = min(series_npointss)
             elif config.interp_npoints == -1: # use maximum
                 interp_npoints = min(series_npointss)
-            elif config.interp_type > 0:
+            elif config.interp_npoints > 0:
                 assert(hasattr(config, "interp_npoints"))
                 interp_npoints = config.interp_npoints
             else:
@@ -351,6 +351,7 @@ class Scoter:
                 result = result.detrend()
             if config.interp_active:
                 result = result.interpolate(interp_npoints, config.interp_type)
+                logger.debug("Interpolating to "+str(interp_npoints))
             if config.normalize: result = result.scale_std_to(1.0)
             return result
 

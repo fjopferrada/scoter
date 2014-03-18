@@ -47,7 +47,7 @@ class Bseries:
         self.nblocks = nblocks
         lengths = [s.npoints() for s in self.series]
         if lengths.count(lengths[0]) != len(lengths):
-            raise ValueError("All series must be of equal length")
+            raise ValueError("All series must be of equal length " + str(lengths))
         N = self.series[0].npoints()
         self.block_starts = map(int, np.linspace(0, N, nblocks,
                                                  endpoint=False))
