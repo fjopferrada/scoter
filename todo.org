@@ -118,7 +118,8 @@
 ** TODO 022 Assessment of goodness of correlation
    Even if just a simple correlation coefficient between tuned
    record and target.
-** TODO 023 Unequal weighting of two records in tandem
+** DONE 023 Unequal weighting of two records in tandem
+   CLOSED: [2014-03-18 Tue 16:58]
    Perhaps even dynamic? As a function of data resolution?
    That might be overkill. But at least do it at the preprocessing
    stage so that Match can also benefit.

@@ -259,10 +259,11 @@ class Scoter:
         """
         assert(0 <= role <= 1)
         assert(0 <= parameter <= 1)
+        param_name = ("d18o", "rpi")[parameter]
         if filename != "" and os.path.isfile(filename):
-            logging.debug("Reading file: %d %d %s" % (role, parameter, filename))
+            logger.debug("Reading file: %d %d %s" % (role, parameter, filename))
             self.filenames[role][parameter] = filename
-            self.series[role][parameter] = Series.read(filename)
+            self.series[role][parameter] = Series.read(filename, parameter=param_name)
     
     def clear_data(self, role, parameter):
         """Clear a data series.
@@ -352,7 +353,15 @@ class Scoter:
             if config.interp_active:
                 result = result.interpolate(interp_npoints, config.interp_type)
                 logger.debug("Interpolating to "+str(interp_npoints))
-            if config.normalize: result = result.scale_std_to(1.0)
+            if config.normalize:
+                if series.parameter == "d18o":
+                    result = result.scale_std_to(config.weight_d18o)
+                    logger.debug("Scaling to: %f" % config.weight_d18o)
+                elif series.parameter == "rpi":
+                    result = result.scale_std_to(config.weight_rpi)
+                    logger.debug("Scaling to: %f" % config.weight_rpi)
+                else:
+                    raise Exception("Unknown parameter type: %s" % series.parameter)
             return result
 
         self.series_preprocessed = [map(preproc, series_truncated[0]),
@@ -369,6 +378,10 @@ class Scoter:
                     simann_callback_update(self, soln_current, soln_new, percentage)
                     simann_callback_finished(self, status)
                     simann_check_abort(self)
+        
+        Returns:
+            "completed" if simulated annealing was completed successfully;
+            "aborted" if it was aborted by the user.
         """
         #if config.multiscale > -1:
         #    return solve_sa_multiscale(series0, series1, config.sa_intervals, known_line, config)
@@ -575,14 +588,14 @@ def main():
     if args.write_config:
         ok_to_write = False
         if os.path.isfile(args.write_config):
-            logging.info("File '%s' exists." % args.write_config)
+            logger.info("File '%s' exists." % args.write_config)
             if args.overwrite:
-                logging.info("Overwriting as requested.")
+                logger.info("Overwriting as requested.")
                 ok_to_write = True
             else:
-                logging.info("Use --overwrite option to overwrite existing file")
+                logger.info("Use --overwrite option to overwrite existing file")
         elif os.path.isdir(args.write_config):
-            logging.error("'%s' is a directory; not writing configuration." % args.write_config)
+            logger.error("'%s' is a directory; not writing configuration." % args.write_config)
         else:
             ok_to_write = True
             
@@ -595,7 +608,7 @@ def main():
             scoter = Scoter()
             scoter.perform_complete_correlation(args.configuration)
         else:
-            logging.warning("No configuration file specified.")
+            logger.warning("No configuration file specified.")
 
 logger = logging.getLogger(__name__)
 if __name__ == "__main__":

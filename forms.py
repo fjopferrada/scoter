@@ -177,14 +177,14 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText29.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText29, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
-		self.preproc_d18o_weight = wx.SpinCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		self.preproc_d18o_weight = wx.TextCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer1.Add( self.preproc_d18o_weight, 0, wx.ALL, 5 )
 		
 		self.m_staticText291 = wx.StaticText( self.m_panel26, wx.ID_ANY, u"RPI weighting", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText291.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText291, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
-		self.preproc_rpi_weight = wx.SpinCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
+		self.preproc_rpi_weight = wx.TextCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer1.Add( self.preproc_rpi_weight, 0, wx.ALL, 5 )
 		
 		

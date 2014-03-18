@@ -19,13 +19,14 @@
 # along with Scoter.  If not, see <http://www.gnu.org/licenses/>.
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = <
 
-# cython: profile=True
-
 import numpy as np
 from scipy.interpolate import interp1d
 import scipy.signal, scipy.stats
 import os.path
 from math import ceil, floor, log
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Series:
     """A time series for a single value.
@@ -34,14 +35,14 @@ class Series:
     depth). The data is intended to be immutable (though this is not
     enforced): the various transformation methods return updated copies
     and do not alter the original series."""
-    def __init__(self, data, name = 'unknown', filename = None):
+    def __init__(self, data, name = 'unknown', filename = None, parameter = None):
         if len(data.shape) != 2:
             raise ValueError("Data must be a rank-2 array.")
         elif data.shape[0] != 2:
             raise ValueError("Length of first dimension of data must be 2.")
         self.data = data
         self.filename = filename
-        self.name = name
+        self.parameter = parameter
         if name != None:
             self.name = name
         else:
@@ -51,13 +52,24 @@ class Series:
                 self.name = None
 
     @classmethod
-    def read(cls, filename, col1 = 0, col2 = 1, name = None):
+    def read(cls, filename, col1 = 0, col2 = 1, name = None, parameter = None):
         """Read a series from a text file.
 
-        Read a series from a two-column whitespace-delimited text file. If
-        there are more than two columns, the extra ones are ignored. If there
-        is a header line (or any other non-numeric line), it is ignored. The
-        first column is the position, the second the value."""
+        Read a series from a columnar whitespace-delimited text file. One column
+        specifies the position, and another the value. If there
+        is a header line (or any other non-numeric line), it is ignored.
+        
+        Args:
+            filename: full pathname of file to read
+            col1: index (0-based) of column containing position
+            col2: index (0-based) of column containing value
+            name: a name for the series
+            parameter: name of the parameter represented by the value column
+        
+        Returns:
+            A Series representing the data read from the file.
+        
+        """
         
         rows = []
         # 'U' for universal newlines
@@ -69,13 +81,13 @@ class Series:
                     if len(parts) > col2:
                         value = float(parts[col2])
                     else:
-                        print 'WARNING: missing data at '+str(position)
+                        logger.warning("missing data at %f." % position)
                         value = 0
                     rows.append([position, value])
                 except ValueError:
                     pass # ignore non-numeric lines
         data = np.array(rows).transpose()
-        return Series(data, name=name, filename=filename)
+        return Series(data, name=name, filename=filename, parameter=parameter)
 
     @classmethod
     def pink1d(cls, n, rvs=scipy.stats.norm.rvs):
@@ -135,7 +147,7 @@ class Series:
         if name == None: name = self.name
         if filename == None: filename = self.filename
         if suffix: name = name + suffix
-        return Series(data, name, filename)
+        return Series(data, name, filename, self.parameter)
 
     def accumulate(self):
         newdata = self.data.copy()
