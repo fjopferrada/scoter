@@ -22,7 +22,10 @@
 import os
 import subprocess
 from series import Series
-        
+
+def _fix_spaces(string):
+    return string.replace(" ", "_")
+
 class MatchSeriesConf:
     """Configuration for a series in a run of the match program.
     Note that more than one series may be specified (as a tuple)."""
@@ -45,7 +48,7 @@ class MatchSeriesConf:
 
     def write(self, fh, num):
         self.writep(fh, num, 'series',
-                    ' '.join(map(lambda x: x.name, self.series)))
+                    ' '.join(map(lambda x: _fix_spaces(x.name), self.series)))
         self.writep(fh, num, 'begin', self.begin)
         self.writep(fh, num, 'end', self.end)
         self.writep(fh, num, 'numintervals', self.intervals)
@@ -115,7 +118,8 @@ class MatchConf:
             self.write_to(fh)
         for ss in [self.series1.series, self.series2.series]:
             for s in ss:
-                s.write_to_dir(dir_path)
+                filename = _fix_spaces(os.path.join(dir_path, s.name))
+                s.write(filename)
         if not dummy_run:
             p = subprocess.Popen([match_path, name + '.conf'], cwd = dir_path,
                                  stdout = subprocess.PIPE, stderr = subprocess.PIPE)

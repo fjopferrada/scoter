@@ -163,10 +163,14 @@
    This will be helpful in producing self-contained "bundles"
    of data and configuration.
 
-** TODO 030 Remove spaces from Match input files
+** DONE 030 Remove spaces from Match input files
+   CLOSED: [2014-03-21 Fri 20:56]
    Match can't handle filenames containing spaces. Scoter
    should render the filenames "safe" when copying the files
    to the Match directory.
+
+   Fixed: spaces are now replaced with underscored when writing
+   Match input files and configurations.
 ** DONE 031 Add licence information to source files
    CLOSED: [2014-02-25 Tue 18:05]
 ** TODO 032 Fix the live SA display
@@ -245,3 +249,4 @@
 
 ** TODO 043 Allow correlation using only one method
    At present, both SA and Match are used every time.
+** TODO 044 Show filenames of loaded data files
