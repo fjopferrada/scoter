@@ -77,14 +77,14 @@ class ScoterApp(wx.App):
         mf.panel_progressplot.GetSizer().Add(self.progress_canvas, 1, wx.EXPAND | wx.ALL)
         
         bind = mf.Bind
-        bind(wx.EVT_BUTTON, self.read_record_clicked, mf.button_read_d18o_record)
-        bind(wx.EVT_BUTTON, self.read_record_clicked, mf.button_read_d18o_target)
-        bind(wx.EVT_BUTTON, self.read_record_clicked, mf.button_read_rpi_record)
-        bind(wx.EVT_BUTTON, self.read_record_clicked, mf.button_read_rpi_target)
-        bind(wx.EVT_BUTTON, self.clear_record_clicked, mf.button_clear_d18o_record)
-        bind(wx.EVT_BUTTON, self.clear_record_clicked, mf.button_clear_d18o_target)
-        bind(wx.EVT_BUTTON, self.clear_record_clicked, mf.button_clear_rpi_record)
-        bind(wx.EVT_BUTTON, self.clear_record_clicked, mf.button_clear_rpi_target)        
+        
+        for action in "read", "clear":
+            for parameter in "d18o", "rpi":
+                for role in "record", "target":
+                    # handler = getattr(self, "%s_record_clicked" % action)
+                    handler = self.make_click_handler(action, parameter, role)
+                    widget = getattr(mf, "button_%s_%s_%s" % (action, parameter, role))
+                    bind(wx.EVT_BUTTON, handler, widget)
         bind(wx.EVT_BUTTON, self.correlate, mf.button_correlate)
         bind(wx.EVT_MENU, self.quit, mf.menuitem_quit)
         bind(wx.EVT_MENU, self.about, mf.menuitem_about)
@@ -212,54 +212,32 @@ class ScoterApp(wx.App):
                     if trunc[0] != -1 and trunc[1] != -1:
                         axes.axvspan(trunc[0], trunc[1], color="yellow")
                 self.figure_canvas[index].draw()
+
+    def make_click_handler(self, action, parameter, role):
+        def handler(event):
+            self.series_button_clicked(event, action, parameter, role)
+        return handler
     
-    def clear_record_clicked(self, event):
-        """Respond to a click on one of the "Clear Record" buttons."""
-        eo = event.GetEventObject()
-        fr = self.main_frame
-        if eo == fr.button_clear_d18o_record:
-            index, record_type = 0, 0
-        elif eo == fr.button_clear_rpi_record:
-            index, record_type = 0, 1
-        elif eo == fr.button_clear_d18o_target:
-            index, record_type = 1, 0
-        elif eo == fr.button_clear_rpi_target:
-            index, record_type = 1, 1
-        else:
-            index, record_type = -1, -1
-        assert(0 <= index <= 1)
-        assert(0 <= record_type <= 1)
-        self.scoter.clear_data(index, record_type)
-        self.plot_series()
-    
-    def read_record_clicked(self, event):
-        """Respond to a click on one of the "Read Record" buttons."""
-        eo = event.GetEventObject()
-        fr = self.main_frame
-        # role: 0 record, 1 target; parameter: 0 d18O, 1 RPI
-        if eo == fr.button_read_d18o_record:
-            role, parameter = 0, 0
-        elif eo == fr.button_read_rpi_record:
-            role, parameter = 0, 1
-        elif eo == fr.button_read_d18o_target:
-            role, parameter = 1, 0
-        elif eo == fr.button_read_rpi_target:
-            role, parameter = 1, 1
-        else:
-            role, parameter = -1, -1
-        assert(0 <= role <= 1)
-        assert(0 <= parameter <= 1)
-        dialog = wx.FileDialog(self.main_frame, "Choose a file", self.lastdir_record,
-                               "", "*.*", wx.OPEN)
-        if dialog.ShowModal() == wx.ID_OK:
-            leafname = dialog.GetFilename()
-            dirname = dialog.GetDirectory()
-            self.lastdir_record = dirname
-            filename = os.path.join(dirname, leafname)
-            self.scoter.read_data(role, parameter, filename)
-            self.series_truncations[role] = [-1, -1]
+    def series_button_clicked(self, event, action, parameter, role):
+        """Respond to a click on one of the Read or Clear buttons."""
+        logger.debug("%s %s %s" % (action, parameter, role))
+        parameter_ = ("d18o", "rpi").index(parameter)
+        role_ = ("record", "target").index(role)
+        if action == "read":
+            dialog = wx.FileDialog(self.main_frame, "Choose a file", self.lastdir_record,
+                                   "", "*.*", wx.OPEN)
+            if dialog.ShowModal() == wx.ID_OK:
+                leafname = dialog.GetFilename()
+                dirname = dialog.GetDirectory()
+                self.lastdir_record = dirname
+                filename = os.path.join(dirname, leafname)
+                self.scoter.read_data(role_, parameter_, filename)
+                self.series_truncations[role_] = [-1, -1]
+                self.plot_series()
+            dialog.Destroy()
+        else: # clear record
+            self.scoter.clear_data(role_, parameter_)
             self.plot_series()
-        dialog.Destroy()
     
     def read_record_dragged(self, page, panel, filenames):
         self.scoter.read_data(panel, page, filenames[0])

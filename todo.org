@@ -1,3 +1,5 @@
+#+TODO: TODO(t) | STARTED(s) | DONE(d)
+
 * Tasks
 ** DONE 001 Look at namedtuple for configuration parameters
    CLOSED: [2013-11-17 Sun 10:25]
@@ -250,3 +252,7 @@
 ** TODO 043 Allow correlation using only one method
    At present, both SA and Match are used every time.
 ** TODO 044 Show filenames of loaded data files
+** TODO 045 Add "revert to initial configuration" to GUI
+   "Initial" meaning the one stored via the wx config API which was loaded
+   when ScoterGui was started. Should be easy to do since it can just be
+   re-read.
