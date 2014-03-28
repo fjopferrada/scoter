@@ -265,6 +265,9 @@ class Scoter:
             self.filenames[role][parameter] = filename
             self.series[role][parameter] = Series.read(filename, parameter=param_name)
     
+    def has_series(self, role, parameter):
+        return (self.series[role][parameter] != None)
+    
     def clear_data(self, role, parameter):
         """Clear a data series.
         

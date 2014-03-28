@@ -246,11 +246,14 @@ class ScoterApp(wx.App):
                 self.lastdir_record = dirname
                 filename = os.path.join(dirname, leafname)
                 self.scoter.read_data(role_, parameter_, filename)
-                self.series_truncations[role_] = [-1, -1]
                 self.plot_series()
             dialog.Destroy()
         else: # clear record
             self.scoter.clear_data(role_, parameter_)
+            if (not self.scoter.has_series(role_, 0) and
+                not self.scoter.has_series(role_, 1)):
+                # no data for this role, so clear its clipping limits
+                self.series_truncations[role_] = [-1, -1]
             self.plot_series()
     
     def read_record_dragged(self, page, panel, filenames):

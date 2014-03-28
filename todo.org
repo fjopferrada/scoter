@@ -257,9 +257,10 @@
    "Initial" meaning the one stored via the wx config API which was loaded
    when ScoterGui was started. Should be easy to do since it can just be
    re-read.
-** TODO 046 Keep clip limits when clearing data
-   Currently, when a series is cleared, the clipping limits are removed. This
+** DONE 046 Keep clip limits when reading data
+   CLOSED: [2014-03-28 Fri 21:50]
+   Currently, when a series is read, the clipping limits are removed. This
    should only happen if there is no data for either parameter in the cleared
-   role. For example, if the user clears the $\delta^{18}\mathrm{O}$ record
+   role. For example, if the user reads a $\delta^{18}\mathrm{O}$ record
    while there is still an RPI record loaded, the limits are still relevant
    and should be retained.
