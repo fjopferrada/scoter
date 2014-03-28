@@ -195,14 +195,25 @@ class ScoterApp(wx.App):
         self.canvas_results_match.draw()
 
     def plot_series(self):
-        """Plot all the currently loaded input data series."""
-        for dataset in (0,1):
-            for record_type in (0,1):
-                index = 2 * record_type + dataset
-                trunc = self.series_truncations[dataset]
+        """Plot all the currently loaded input data series.
+        
+        Also update displayed filenames for series.
+        """
+        for role in (0,1):
+            for parameter in (0,1):
+                fn_widget = getattr(self.main_frame,
+                                    "text_%s_%s_filename" % (("d18o","rpi")[parameter],
+                                                              ("record","target")[role]))
+                maxlen = 40
+                filename = self.scoter.filenames[role][parameter]
+                if len(filename) > maxlen:
+                    filename = "…" + filename[-maxlen:]
+                fn_widget.SetValue(filename)
+                index = 2 * parameter + role
+                trunc = self.series_truncations[role]
                 axes = self.axes[index]
                 axes.clear()
-                series = self.scoter.series[dataset][record_type]
+                series = self.scoter.series[role][parameter]
                 if series is not None:
                     xs = series.data[0]
                     ys = series.data[1]
@@ -222,9 +233,12 @@ class ScoterApp(wx.App):
         """Respond to a click on one of the Read or Clear buttons."""
         logger.debug("%s %s %s" % (action, parameter, role))
         parameter_ = ("d18o", "rpi").index(parameter)
+        parameter_display = ("δ18O", "RPI")[parameter_]
         role_ = ("record", "target").index(role)
         if action == "read":
-            dialog = wx.FileDialog(self.main_frame, "Choose a file", self.lastdir_record,
+            dialog = wx.FileDialog(self.main_frame,
+                                   "Select file for %s %s" % (parameter_display, role),
+                                   self.lastdir_record,
                                    "", "*.*", wx.OPEN)
             if dialog.ShowModal() == wx.ID_OK:
                 leafname = dialog.GetFilename()

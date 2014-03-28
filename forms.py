@@ -30,17 +30,36 @@ class MainFrame ( wx.Frame ):
 		self.ControlPanel00 = wx.Panel( self.DataPanel0, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer7 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_read_d18o_record = wx.Button( self.ControlPanel00, wx.ID_ANY, u"Read δ18O record", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer7.Add( self.button_read_d18o_record, 0, wx.ALL, 5 )
+		self.m_staticText31 = wx.StaticText( self.ControlPanel00, wx.ID_ANY, u"δ18O record", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText31.Wrap( -1 )
+		bSizer7.Add( self.m_staticText31, 0, wx.ALIGN_CENTER|wx.RIGHT, 5 )
 		
-		self.button_clear_d18o_record = wx.Button( self.ControlPanel00, wx.ID_ANY, u"Clear δ18O record", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer7.Add( self.button_clear_d18o_record, 0, wx.ALL, 5 )
+		self.button_read_d18o_record = wx.Button( self.ControlPanel00, wx.ID_ANY, u"Read", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer7.Add( self.button_read_d18o_record, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.button_clear_d18o_record = wx.Button( self.ControlPanel00, wx.ID_ANY, u"Clear", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer7.Add( self.button_clear_d18o_record, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText32 = wx.StaticText( self.ControlPanel00, wx.ID_ANY, u"Limits", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText32.Wrap( -1 )
+		bSizer7.Add( self.m_staticText32, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
+		
+		self.text_d18o_record_start = wx.TextCtrl( self.ControlPanel00, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer7.Add( self.text_d18o_record_start, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
+		
+		self.text_d18o_record_end = wx.TextCtrl( self.ControlPanel00, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer7.Add( self.text_d18o_record_end, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.text_d18o_record_filename = wx.TextCtrl( self.ControlPanel00, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.TE_RIGHT )
+		self.text_d18o_record_filename.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+		
+		bSizer7.Add( self.text_d18o_record_filename, 1, wx.ALL, 5 )
 		
 		
 		self.ControlPanel00.SetSizer( bSizer7 )
 		self.ControlPanel00.Layout()
 		bSizer7.Fit( self.ControlPanel00 )
-		bSizer2.Add( self.ControlPanel00, 0, wx.ALL, 5 )
+		bSizer2.Add( self.ControlPanel00, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.DataPanel00 = wx.Panel( self.DataPanel0, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.DataPanel00.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
@@ -53,20 +72,37 @@ class MainFrame ( wx.Frame ):
 		bSizer5.Fit( self.DataPanel00 )
 		bSizer2.Add( self.DataPanel00, 1, wx.EXPAND |wx.ALL, 5 )
 		
-		self.m_panel27 = wx.Panel( self.DataPanel0, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.ControlPanel01 = wx.Panel( self.DataPanel0, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer20 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_read_d18o_target = wx.Button( self.m_panel27, wx.ID_ANY, u"Read δ18O target", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer20.Add( self.button_read_d18o_target, 0, wx.ALL, 5 )
+		self.m_staticText311 = wx.StaticText( self.ControlPanel01, wx.ID_ANY, u"δ18O target", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText311.Wrap( -1 )
+		bSizer20.Add( self.m_staticText311, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT, 5 )
 		
-		self.button_clear_d18o_target = wx.Button( self.m_panel27, wx.ID_ANY, u"Clear δ18O target", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer20.Add( self.button_clear_d18o_target, 0, wx.ALL, 5 )
+		self.button_read_d18o_target = wx.Button( self.ControlPanel01, wx.ID_ANY, u"Read", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer20.Add( self.button_read_d18o_target, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.button_clear_d18o_target = wx.Button( self.ControlPanel01, wx.ID_ANY, u"Clear", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer20.Add( self.button_clear_d18o_target, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText321 = wx.StaticText( self.ControlPanel01, wx.ID_ANY, u"Limits", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText321.Wrap( -1 )
+		bSizer20.Add( self.m_staticText321, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
+		
+		self.text_d18o_target_start = wx.TextCtrl( self.ControlPanel01, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer20.Add( self.text_d18o_target_start, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
+		
+		self.text_d18o_target_end = wx.TextCtrl( self.ControlPanel01, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer20.Add( self.text_d18o_target_end, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.text_d18o_target_filename = wx.TextCtrl( self.ControlPanel01, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.TE_RIGHT )
+		bSizer20.Add( self.text_d18o_target_filename, 1, wx.ALL, 5 )
 		
 		
-		self.m_panel27.SetSizer( bSizer20 )
-		self.m_panel27.Layout()
-		bSizer20.Fit( self.m_panel27 )
-		bSizer2.Add( self.m_panel27, 0, wx.EXPAND |wx.ALL, 5 )
+		self.ControlPanel01.SetSizer( bSizer20 )
+		self.ControlPanel01.Layout()
+		bSizer20.Fit( self.ControlPanel01 )
+		bSizer2.Add( self.ControlPanel01, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.DataPanel01 = wx.Panel( self.DataPanel0, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.DataPanel01.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
@@ -90,17 +126,34 @@ class MainFrame ( wx.Frame ):
 		self.ControlPanel001 = wx.Panel( self.DataPanel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer71 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_read_rpi_record = wx.Button( self.ControlPanel001, wx.ID_ANY, u"Read RPI record", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer71.Add( self.button_read_rpi_record, 0, wx.ALL, 5 )
+		self.m_staticText43 = wx.StaticText( self.ControlPanel001, wx.ID_ANY, u"RPI record", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText43.Wrap( -1 )
+		bSizer71.Add( self.m_staticText43, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT, 5 )
 		
-		self.button_clear_rpi_record = wx.Button( self.ControlPanel001, wx.ID_ANY, u"Clear RPI record", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer71.Add( self.button_clear_rpi_record, 0, wx.ALL, 5 )
+		self.button_read_rpi_record = wx.Button( self.ControlPanel001, wx.ID_ANY, u"Read", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer71.Add( self.button_read_rpi_record, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.button_clear_rpi_record = wx.Button( self.ControlPanel001, wx.ID_ANY, u"Clear", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer71.Add( self.button_clear_rpi_record, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText44 = wx.StaticText( self.ControlPanel001, wx.ID_ANY, u"Limits", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText44.Wrap( -1 )
+		bSizer71.Add( self.m_staticText44, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
+		
+		self.text_rpi_record_start = wx.TextCtrl( self.ControlPanel001, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer71.Add( self.text_rpi_record_start, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.text_rpi_record_end = wx.TextCtrl( self.ControlPanel001, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer71.Add( self.text_rpi_record_end, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.text_rpi_record_filename = wx.TextCtrl( self.ControlPanel001, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.TE_RIGHT )
+		bSizer71.Add( self.text_rpi_record_filename, 1, wx.ALL, 5 )
 		
 		
 		self.ControlPanel001.SetSizer( bSizer71 )
 		self.ControlPanel001.Layout()
 		bSizer71.Fit( self.ControlPanel001 )
-		bSizer21.Add( self.ControlPanel001, 0, wx.ALL, 5 )
+		bSizer21.Add( self.ControlPanel001, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.DataPanel10 = wx.Panel( self.DataPanel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.DataPanel10.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
@@ -116,11 +169,28 @@ class MainFrame ( wx.Frame ):
 		self.m_panel271 = wx.Panel( self.DataPanel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer201 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_read_rpi_target = wx.Button( self.m_panel271, wx.ID_ANY, u"Read RPI target", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer201.Add( self.button_read_rpi_target, 0, wx.ALL, 5 )
+		self.m_staticText46 = wx.StaticText( self.m_panel271, wx.ID_ANY, u"RPI target", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText46.Wrap( -1 )
+		bSizer201.Add( self.m_staticText46, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.button_clear_rpi_target = wx.Button( self.m_panel271, wx.ID_ANY, u"Clear RPI target", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer201.Add( self.button_clear_rpi_target, 0, wx.ALL, 5 )
+		self.button_read_rpi_target = wx.Button( self.m_panel271, wx.ID_ANY, u"Read", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer201.Add( self.button_read_rpi_target, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
+		
+		self.button_clear_rpi_target = wx.Button( self.m_panel271, wx.ID_ANY, u"Clear", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer201.Add( self.button_clear_rpi_target, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT, 5 )
+		
+		self.m_staticText47 = wx.StaticText( self.m_panel271, wx.ID_ANY, u"Limits", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText47.Wrap( -1 )
+		bSizer201.Add( self.m_staticText47, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.text_rpi_target_start = wx.TextCtrl( self.m_panel271, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer201.Add( self.text_rpi_target_start, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.text_rpi_target_end = wx.TextCtrl( self.m_panel271, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer201.Add( self.text_rpi_target_end, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.text_rpi_target_filename = wx.TextCtrl( self.m_panel271, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.TE_RIGHT )
+		bSizer201.Add( self.text_rpi_target_filename, 1, wx.ALL, 5 )
 		
 		
 		self.m_panel271.SetSizer( bSizer201 )
@@ -143,7 +213,7 @@ class MainFrame ( wx.Frame ):
 		self.DataPanel1.SetSizer( bSizer21 )
 		self.DataPanel1.Layout()
 		bSizer21.Fit( self.DataPanel1 )
-		self.Notebook.AddPage( self.DataPanel1, u"RPI data", False )
+		self.Notebook.AddPage( self.DataPanel1, u"RPI data", True )
 		self.PreprocessingPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer24 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -198,54 +268,6 @@ class MainFrame ( wx.Frame ):
 		self.m_panel25.Layout()
 		sbSizer3.Fit( self.m_panel25 )
 		bSizer24.Add( self.m_panel25, 0, wx.EXPAND |wx.ALL, 5 )
-		
-		self.m_panel272 = wx.Panel( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		sbSizer4 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel272, wx.ID_ANY, u"Clipping" ), wx.VERTICAL )
-		
-		self.m_panel29 = wx.Panel( self.m_panel272, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		fgSizer5 = wx.FlexGridSizer( 0, 4, 0, 0 )
-		fgSizer5.SetFlexibleDirection( wx.BOTH )
-		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
-		
-		self.m_staticText7 = wx.StaticText( self.m_panel29, wx.ID_ANY, u"Deepest depth", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText7.Wrap( -1 )
-		fgSizer5.Add( self.m_staticText7, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
-		
-		self.preproc_deepest = wx.SpinCtrl( self.m_panel29, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer5.Add( self.preproc_deepest, 0, wx.ALL, 5 )
-		
-		self.m_staticText71 = wx.StaticText( self.m_panel29, wx.ID_ANY, u"Shallowest depth", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText71.Wrap( -1 )
-		fgSizer5.Add( self.m_staticText71, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
-		
-		self.preproc_shallowest = wx.SpinCtrl( self.m_panel29, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer5.Add( self.preproc_shallowest, 0, wx.ALL, 5 )
-		
-		self.m_staticText711 = wx.StaticText( self.m_panel29, wx.ID_ANY, u"Oldest time", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText711.Wrap( -1 )
-		fgSizer5.Add( self.m_staticText711, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
-		
-		self.preproc_oldest = wx.SpinCtrl( self.m_panel29, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer5.Add( self.preproc_oldest, 0, wx.ALL, 5 )
-		
-		self.m_staticText712 = wx.StaticText( self.m_panel29, wx.ID_ANY, u"Youngest time", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText712.Wrap( -1 )
-		fgSizer5.Add( self.m_staticText712, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
-		
-		self.preproc_youngest = wx.SpinCtrl( self.m_panel29, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 10, 0 )
-		fgSizer5.Add( self.preproc_youngest, 0, wx.ALL, 5 )
-		
-		
-		self.m_panel29.SetSizer( fgSizer5 )
-		self.m_panel29.Layout()
-		fgSizer5.Fit( self.m_panel29 )
-		sbSizer4.Add( self.m_panel29, 1, wx.EXPAND |wx.ALL, 5 )
-		
-		
-		self.m_panel272.SetSizer( sbSizer4 )
-		self.m_panel272.Layout()
-		sbSizer4.Fit( self.m_panel272 )
-		bSizer24.Add( self.m_panel272, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.m_panel28 = wx.Panel( self.PreprocessingPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		sbSizer5 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel28, wx.ID_ANY, u"Interpolation" ), wx.VERTICAL )
@@ -323,7 +345,7 @@ class MainFrame ( wx.Frame ):
 		self.PreprocessingPanel.SetSizer( bSizer24 )
 		self.PreprocessingPanel.Layout()
 		bSizer24.Fit( self.PreprocessingPanel )
-		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", True )
+		self.Notebook.AddPage( self.PreprocessingPanel, u"Preprocessing", False )
 		self.panel_correlate = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer14 = wx.BoxSizer( wx.VERTICAL )
 		

@@ -1,4 +1,4 @@
-#+TODO: TODO(t) | STARTED(s) | DONE(d)
+#+TODO: TODO(t) STARTED(s) | DONE(d)
 
 * Tasks
 ** DONE 001 Look at namedtuple for configuration parameters
@@ -243,7 +243,7 @@
    Going with "parameter", despite the unfortunate overlap with 
    programming terminology.
 ** TODO 041 SA algorithm: cut off when score stops improving
-** TODO 042 Move and activate clipping limit text boxes
+** STARTED 042 Move and activate clipping limit text boxes
    These are currently present on the preprocessing tab, but inactive.
    It would make much more sense to have them on the input series tabs
    alongside the associated graphs (and, of course, to have them actually
@@ -251,8 +251,15 @@
 
 ** TODO 043 Allow correlation using only one method
    At present, both SA and Match are used every time.
-** TODO 044 Show filenames of loaded data files
+** DONE 044 Show filenames of loaded data files
+   CLOSED: [2014-03-28 Fri 21:05]
 ** TODO 045 Add "revert to initial configuration" to GUI
    "Initial" meaning the one stored via the wx config API which was loaded
    when ScoterGui was started. Should be easy to do since it can just be
    re-read.
+** TODO 046 Keep clip limits when clearing data
+   Currently, when a series is cleared, the clipping limits are removed. This
+   should only happen if there is no data for either parameter in the cleared
+   role. For example, if the user clears the $\delta^{18}\mathrm{O}$ record
+   while there is still an RPI record loaded, the limits are still relevant
+   and should be retained.
