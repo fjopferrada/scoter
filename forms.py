@@ -44,10 +44,10 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText32.Wrap( -1 )
 		bSizer7.Add( self.m_staticText32, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
 		
-		self.text_d18o_record_start = wx.TextCtrl( self.ControlPanel00, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_d18o_record_start = wx.TextCtrl( self.ControlPanel00, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		bSizer7.Add( self.text_d18o_record_start, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
 		
-		self.text_d18o_record_end = wx.TextCtrl( self.ControlPanel00, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_d18o_record_end = wx.TextCtrl( self.ControlPanel00, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		bSizer7.Add( self.text_d18o_record_end, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.text_d18o_record_filename = wx.TextCtrl( self.ControlPanel00, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.TE_RIGHT )
@@ -89,10 +89,10 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText321.Wrap( -1 )
 		bSizer20.Add( self.m_staticText321, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
 		
-		self.text_d18o_target_start = wx.TextCtrl( self.ControlPanel01, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_d18o_target_start = wx.TextCtrl( self.ControlPanel01, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		bSizer20.Add( self.text_d18o_target_start, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
 		
-		self.text_d18o_target_end = wx.TextCtrl( self.ControlPanel01, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_d18o_target_end = wx.TextCtrl( self.ControlPanel01, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		bSizer20.Add( self.text_d18o_target_end, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.text_d18o_target_filename = wx.TextCtrl( self.ControlPanel01, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.TE_RIGHT )
@@ -119,7 +119,7 @@ class MainFrame ( wx.Frame ):
 		self.DataPanel0.SetSizer( bSizer2 )
 		self.DataPanel0.Layout()
 		bSizer2.Fit( self.DataPanel0 )
-		self.Notebook.AddPage( self.DataPanel0, u"δ18O data", False )
+		self.Notebook.AddPage( self.DataPanel0, u"δ18O data", True )
 		self.DataPanel1 = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer21 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -140,10 +140,10 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText44.Wrap( -1 )
 		bSizer71.Add( self.m_staticText44, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
 		
-		self.text_rpi_record_start = wx.TextCtrl( self.ControlPanel001, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_rpi_record_start = wx.TextCtrl( self.ControlPanel001, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		bSizer71.Add( self.text_rpi_record_start, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_rpi_record_end = wx.TextCtrl( self.ControlPanel001, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_rpi_record_end = wx.TextCtrl( self.ControlPanel001, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		bSizer71.Add( self.text_rpi_record_end, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.text_rpi_record_filename = wx.TextCtrl( self.ControlPanel001, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.TE_RIGHT )
@@ -183,10 +183,10 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText47.Wrap( -1 )
 		bSizer201.Add( self.m_staticText47, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_rpi_target_start = wx.TextCtrl( self.m_panel271, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_rpi_target_start = wx.TextCtrl( self.m_panel271, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		bSizer201.Add( self.text_rpi_target_start, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_rpi_target_end = wx.TextCtrl( self.m_panel271, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_rpi_target_end = wx.TextCtrl( self.m_panel271, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		bSizer201.Add( self.text_rpi_target_end, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.text_rpi_target_filename = wx.TextCtrl( self.m_panel271, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.TE_RIGHT )
@@ -213,7 +213,7 @@ class MainFrame ( wx.Frame ):
 		self.DataPanel1.SetSizer( bSizer21 )
 		self.DataPanel1.Layout()
 		bSizer21.Fit( self.DataPanel1 )
-		self.Notebook.AddPage( self.DataPanel1, u"RPI data", True )
+		self.Notebook.AddPage( self.DataPanel1, u"RPI data", False )
 		self.PreprocessingPanel = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer24 = wx.BoxSizer( wx.VERTICAL )
 		

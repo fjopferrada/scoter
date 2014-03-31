@@ -31,6 +31,10 @@ import logging
 import sys
 import subprocess
 
+_roledict = {"record" : 0, "target" : 1}
+_paramdict = {"d18o" : 0, "rpi" : 1}
+_limitdict = {"start" : 0, "end" : 1}
+
 class ScoterApp(wx.App):
     """An interactive GUI for Scoter.
     
@@ -78,13 +82,18 @@ class ScoterApp(wx.App):
         
         bind = mf.Bind
         
-        for action in "read", "clear":
-            for parameter in "d18o", "rpi":
-                for role in "record", "target":
-                    # handler = getattr(self, "%s_record_clicked" % action)
+        
+        for parameter in "d18o", "rpi":
+            for role in "record", "target":
+                for limit in "start", "end":
+                    handler = self.make_limit_change_handler(limit, parameter, role)
+                    widget = getattr(mf, "text_%s_%s_%s" % (parameter, role, limit))
+                    bind(wx.EVT_TEXT_ENTER, handler, widget)
+                for action in "read", "clear":
                     handler = self.make_click_handler(action, parameter, role)
                     widget = getattr(mf, "button_%s_%s_%s" % (action, parameter, role))
                     bind(wx.EVT_BUTTON, handler, widget)
+                    
         bind(wx.EVT_BUTTON, self.correlate, mf.button_correlate)
         bind(wx.EVT_MENU, self.quit, mf.menuitem_quit)
         bind(wx.EVT_MENU, self.about, mf.menuitem_about)
@@ -93,6 +102,7 @@ class ScoterApp(wx.App):
         bind(wx.EVT_MENU, self.open_read_config_dialog, mf.menuitem_read_config)
         bind(wx.EVT_MENU, self.reset_config, mf.menuitem_reset_config)
         bind(wx.EVT_BUTTON, self.abort_simann, mf.button_abort)
+        
         mf.Bind(wx.EVT_CLOSE, self.quit)
         
         for i in range(4):
@@ -197,32 +207,87 @@ class ScoterApp(wx.App):
     def plot_series(self):
         """Plot all the currently loaded input data series.
         
-        Also update displayed filenames for series.
+        Also update displayed filenames and clipping limits for series.
         """
         for role in (0,1):
             for parameter in (0,1):
+                paraname = ("d18o","rpi")[parameter]
+                rolename = ("record","target")[role]
+                widget_prefix = "text_%s_%s_" % (paraname, rolename)
                 fn_widget = getattr(self.main_frame,
-                                    "text_%s_%s_filename" % (("d18o","rpi")[parameter],
-                                                              ("record","target")[role]))
+                                    widget_prefix + "filename")
                 maxlen = 40
                 filename = self.scoter.filenames[role][parameter]
                 if len(filename) > maxlen:
-                    filename = "…" + filename[-maxlen:]
+                    filename = u"…" + filename[-maxlen:]
                 fn_widget.SetValue(filename)
                 index = 2 * parameter + role
                 trunc = self.series_truncations[role]
                 axes = self.axes[index]
+                getattr(self.main_frame, widget_prefix + "start").SetValue("")
+                getattr(self.main_frame, widget_prefix + "end").SetValue("")
                 axes.clear()
                 series = self.scoter.series[role][parameter]
                 if series is not None:
                     xs = series.data[0]
                     ys = series.data[1]
                     axes.plot(xs, ys, color="blue")
-                    if trunc[0] != -1: axes.axvline(trunc[0], color="green")
-                    if trunc[1] != -1: axes.axvline(trunc[1], color="red")
+                    if trunc[0] != -1:
+                        axes.axvline(trunc[0], color="green")
+                        widget = getattr(self.main_frame, widget_prefix + "start")
+                        widget.SetValue(str(trunc[0]))
+                    if trunc[1] != -1:
+                        axes.axvline(trunc[1], color="red")
+                        widget = getattr(self.main_frame, widget_prefix + "end")
+                        widget.SetValue(str(trunc[1]))
                     if trunc[0] != -1 and trunc[1] != -1:
                         axes.axvspan(trunc[0], trunc[1], color="yellow")
                 self.figure_canvas[index].draw()
+
+    def make_limit_change_handler(self, limit, parameter, role):
+        def handler(event):
+            self.series_limit_changed(event, limit, parameter, role)
+        return handler
+
+    def series_limit_changed(self, event, limit, parameter, role):
+        """Respond to a change in a series limit text box."""
+        widget_name = "text_%s_%s_%s" % (parameter, role, limit)
+        widget = getattr(self.main_frame, widget_name)
+        value_str = widget.GetValue()
+        role_ = _roledict[role]
+        parameter_ = _paramdict[parameter]
+        limit_ = _limitdict[limit]
+        prev_value = self.series_truncations[role_][limit_]
+        value = None
+        try:
+            value = float(value_str)
+            if self.scoter.series[role_][parameter_] == None:
+                wx.MessageBox("There is no data for this series, so you can't change its limits.",
+                              "Invalid limit", 
+                              wx.OK | wx.ICON_ERROR)
+                value = None
+            elif value < 0:
+                wx.MessageBox("Limits must be positive.",
+                              "Invalid limit", 
+                              wx.OK | wx.ICON_ERROR)
+                value = None
+            elif value > self.scoter.series[role_][parameter_].end():
+                wx.MessageBox("Limits cannot be beyond the end of the series.",
+                              "Invalid limit", 
+                              wx.OK | wx.ICON_ERROR)
+                value = None
+        except ValueError:
+            wx.MessageBox("‘%s’ is not a valid number." % value_str,
+                          "Invalid limit", 
+                          wx.OK | wx.ICON_ERROR)
+        if value == None:
+            widget.SetValue(str(prev_value))
+            return
+        limits = self.series_truncations[role_]
+        limits[limit_] = value
+        if limits[0] > limits[1]:
+            limits[0], limits[1] = limits[1], limits[0] 
+        self.plot_series()
 
     def make_click_handler(self, action, parameter, role):
         def handler(event):
@@ -232,9 +297,9 @@ class ScoterApp(wx.App):
     def series_button_clicked(self, event, action, parameter, role):
         """Respond to a click on one of the Read or Clear buttons."""
         logger.debug("%s %s %s" % (action, parameter, role))
-        parameter_ = ("d18o", "rpi").index(parameter)
+        parameter_ = _paramdict[parameter]
         parameter_display = ("δ18O", "RPI")[parameter_]
-        role_ = ("record", "target").index(role)
+        role_ = _roledict[role]
         if action == "read":
             dialog = wx.FileDialog(self.main_frame,
                                    "Select file for %s %s" % (parameter_display, role),
