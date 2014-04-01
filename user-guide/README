@@ -1,0 +1,5 @@
+The user guide uses a custom LaTeX template for Pandoc; note that
+this may cause breakage if used with a different Pandoc version
+(the current template is for Pandoc 1.9.1.1). At present, the
+custom template is only used to add a "urlcolor=blue" option for
+the hyperref package.

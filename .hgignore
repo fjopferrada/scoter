@@ -2,4 +2,6 @@ syntax: regexp
 ~$
 \.pyc$
 ^user-guide/user-guide.pdf$
+^user-guide/user-guide.tex$
 ^user-guide/user-guide.html$
+^user-guide/missfont.log$

@@ -111,17 +111,24 @@ simulated annealing and the Match program.
 ## Menu items
 
 File > Configuration > Save configuration to file…
-:    TODO
+:    Save the current configuration to a file, allowing it to be 
+	restored later.
 File > Configuration > Read configuration from file…
-:    TODO
+:    Read the configuration from a previously saved file.
+File > Configuration > Revert configuration…
+:    Revert the current configuration. This will return all the 
+	 configuration settings to the values they had when the
+	 program was started.
 File > Configuration > Reset configuration…
-:    TODO
+:    Reset configuration to initial values. This will return all
+	 the configuration settings to the values they had when
+	 the program was first installed.
 File > Quit
-:    TODO
+:    Quit the program.
 Help > User guide…
-:    TODO
+:    Show this user guide as a web page.
 Help > About
-:    TODO
+:    Show some brief information about the Scoter program.
 
 # Advanced operation: using Scoter without the graphical interface
 
