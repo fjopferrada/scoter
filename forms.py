@@ -629,13 +629,16 @@ class MainFrame ( wx.Frame ):
 		self.menubar = wx.MenuBar( 0 )
 		self.menu_file = wx.Menu()
 		self.submenu_config = wx.Menu()
-		self.menuitem_save_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"Save configuration to file…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menuitem_save_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"&Save configuration to file…", u"Save the current configuration settings to a file.", wx.ITEM_NORMAL )
 		self.submenu_config.AppendItem( self.menuitem_save_config )
 		
-		self.menuitem_read_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"Read configuration from file…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menuitem_read_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"&Read configuration from file…", u"Read a configuration from a previously saved Scoter file.", wx.ITEM_NORMAL )
 		self.submenu_config.AppendItem( self.menuitem_read_config )
 		
-		self.menuitem_reset_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"Reset configuration…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menuitem_revert_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"Re&vert configuration…", u"Revert any changes made during this session, returning to the configuration Scoter had when it was started.", wx.ITEM_NORMAL )
+		self.submenu_config.AppendItem( self.menuitem_revert_config )
+		
+		self.menuitem_reset_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"R&eset configuration…", u"Reset all confuration settings to their default values.", wx.ITEM_NORMAL )
 		self.submenu_config.AppendItem( self.menuitem_reset_config )
 		
 		self.menu_file.AppendSubMenu( self.submenu_config, u"Configuration" )
@@ -643,16 +646,16 @@ class MainFrame ( wx.Frame ):
 		self.menuitem_quit = wx.MenuItem( self.menu_file, wx.ID_EXIT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_file.AppendItem( self.menuitem_quit )
 		
-		self.menubar.Append( self.menu_file, u"File" ) 
+		self.menubar.Append( self.menu_file, u"&File" ) 
 		
 		self.menu_help = wx.Menu()
-		self.menuitem_userguide = wx.MenuItem( self.menu_help, wx.ID_ANY, u"User guide…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menuitem_userguide = wx.MenuItem( self.menu_help, wx.ID_ANY, u"&User guide…", u"Open the Scoter user guide in a web browser.", wx.ITEM_NORMAL )
 		self.menu_help.AppendItem( self.menuitem_userguide )
 		
 		self.menuitem_about = wx.MenuItem( self.menu_help, wx.ID_ABOUT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_help.AppendItem( self.menuitem_about )
 		
-		self.menubar.Append( self.menu_help, u"Help" ) 
+		self.menubar.Append( self.menu_help, u"&Help" ) 
 		
 		self.SetMenuBar( self.menubar )
 		

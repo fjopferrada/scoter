@@ -254,7 +254,8 @@
    At present, both SA and Match are used every time.
 ** DONE 044 Show filenames of loaded data files
    CLOSED: [2014-03-28 Fri 21:05]
-** TODO 045 Add "revert to initial configuration" to GUI
+** DONE 045 Add "revert to initial configuration" to GUI
+   CLOSED: [2014-04-01 Tue 18:47]
    "Initial" meaning the one stored via the wx config API which was loaded
    when ScoterGui was started. Should be easy to do since it can just be
    re-read.
@@ -265,3 +266,10 @@
    role. For example, if the user reads a $\delta^{18}\mathrm{O}$ record
    while there is still an RPI record loaded, the limits are still relevant
    and should be retained.
+** TODO 047 Break URLs in user manual bibliography
+   Due to some pandoc quirk, URLs are set differently in the
+   main text (using the \url{...} command) and in the bibliography
+   (using the \href{...}{...} command). Unfortunately it seems that
+   the second of those can't handle line breaking. It's possible
+   that this is fixed in more recent versions of Pandoc, so I'm
+   leaving it for the time being.

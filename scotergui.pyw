@@ -101,6 +101,7 @@ class ScoterApp(wx.App):
         bind(wx.EVT_MENU, self.save_config_to_file, mf.menuitem_save_config)
         bind(wx.EVT_MENU, self.open_read_config_dialog, mf.menuitem_read_config)
         bind(wx.EVT_MENU, self.reset_config, mf.menuitem_reset_config)
+        bind(wx.EVT_MENU, self.revert_config, mf.menuitem_revert_config)
         bind(wx.EVT_BUTTON, self.abort_simann, mf.button_abort)
         
         mf.Bind(wx.EVT_CLOSE, self.quit)
@@ -505,11 +506,23 @@ class ScoterApp(wx.App):
                              style = wx.CONFIG_USE_LOCAL_FILE)
         self.update_gui_from_wxconfig(conf)        
     
+    def revert_config(self, event):
+        """Revert configuration to its state when Scoter was started.
+        
+        This is done by simply re-reading from the wx configuration API.
+        """
+        choice = wx.MessageBox("Are you sure you want to revert all settings to "
+                               "their previous values? Any changes made during "
+                               "this session will be lost.", "Revert configuration", 
+                               wx.YES_NO | wx.ICON_WARNING | wx.NO_DEFAULT)
+        if choice == wx.YES:
+            self.update_gui_from_wxconfig()
+
     def reset_config(self, event):
         """Reset configuration to default values.
         """
-        choice = wx.MessageBox("Are you sure you want to reset all settings to "+
-                               "their default values?", "Reset configuration", 
+        choice = wx.MessageBox("Are you sure you want to reset all settings to "
+                               "their default values?", "Reset configuration",
                                wx.YES_NO | wx.ICON_WARNING | wx.NO_DEFAULT)
         if choice == wx.YES:
             wxc = wx.Config("scoter")
@@ -520,7 +533,9 @@ class ScoterApp(wx.App):
         """Update the GUI from a supplied wx.Config object.
         
         Args:
-            config: configuration to use; if None, use default values from Scoter.
+            config: configuration to use; if None, use the Config object associated
+            with the name "scoter". For any values missing from the wx configuration,
+            default values from the ScoterConfig class are used.
         """
         logger.debug("Updating GUI from config: %s", str(config))
         mf = self.main_frame
