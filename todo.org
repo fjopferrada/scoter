@@ -250,7 +250,8 @@
    alongside the associated graphs (and, of course, to have them actually
    working).
 
-** TODO 043 Allow correlation using only one method
+** DONE 043 Allow correlation using only one method
+   CLOSED: [2014-04-03 Thu 16:45]
    At present, both SA and Match are used every time.
 ** DONE 044 Show filenames of loaded data files
    CLOSED: [2014-03-28 Fri 21:05]

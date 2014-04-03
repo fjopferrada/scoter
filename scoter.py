@@ -79,9 +79,11 @@ interp_active interp_type  interp_npoints detrend
 normalize     weight_d18o  weight_rpi     max_rate
 make_pdf      live_display precalc
 
+sa_active
 sa_intervals  temp_init    temp_final  cooling
 max_changes   max_steps    rc_penalty  random_seed
 
+match_active
 match_intervals  match_nomatch       match_speed_p
 match_tie_p      match_target_speed  match_speedchange_p
 match_gap_p      match_rates         match_path
@@ -110,6 +112,7 @@ class ScoterConfig(ScoterConfigBase):
                   make_pdf = False,
                   live_display = False,
                   precalc = False,
+                  sa_active = True,
                   sa_intervals = 64,
                   temp_init = 1.0e3,
                   temp_final = 1.0,
@@ -118,6 +121,7 @@ class ScoterConfig(ScoterConfigBase):
                   max_steps = 200,
                   rc_penalty = 0.,
                   random_seed = 42,
+                  match_active = True,
                   match_intervals = 64,
                   match_nomatch = 1e12,
                   match_speed_p = 0.0,
@@ -142,9 +146,9 @@ class ScoterConfig(ScoterConfigBase):
         return super(ScoterConfig, cls).__new__\
             (cls, interp_active, interp_type, interp_npoints, detrend,
              normalize, weight_d18o, weight_rpi, max_rate, make_pdf, live_display, precalc,
-             sa_intervals, temp_init, temp_final, cooling, max_changes, max_steps,
+             sa_active, sa_intervals, temp_init, temp_final, cooling, max_changes, max_steps,
              rc_penalty, random_seed,
-             match_intervals, match_nomatch, match_speed_p,
+             match_active, match_intervals, match_nomatch, match_speed_p,
              match_tie_p, match_target_speed, match_speedchange_p,
              match_gap_p, match_rates, match_path,
              target_d18o_file, record_d18o_file,
@@ -189,6 +193,7 @@ class ScoterConfig(ScoterConfigBase):
             make_pdf = cp.getboolean(s, "make_pdf"),
             live_display = cp.getboolean(s, "live_display"),
             precalc = cp.getboolean(s, "precalc"),
+            sa_active = cp.getboolean(s, "sa_active"),
             sa_intervals = cp.getint(s, "sa_intervals"),
             temp_init = cp.getfloat(s, "temp_init"),
             temp_final = cp.getfloat(s, "temp_final"),
@@ -197,6 +202,7 @@ class ScoterConfig(ScoterConfigBase):
             max_steps = cp.getint(s, "max_steps"),
             rc_penalty = cp.getfloat(s, "rc_penalty"),
             random_seed = cp.getint(s, "random_seed"),
+            match_active = cp.getboolean(s, "match_active"),
             match_intervals = cp.getint(s, "match_intervals"),
             match_nomatch = cp.getfloat(s, "match_nomatch"),
             match_speed_p = cp.getfloat(s, "match_speed_p"),
@@ -566,11 +572,16 @@ class Scoter:
         logger.debug("Reading data.")
         self.read_data_using_config(config)
         self.preprocess(config)
-        self.correlate_sa(None, config, None)
-        logger.debug("Starting Match correlation.")
-        self.match_dir = self.correlate_match(config)
-        self.save_results()
-        logger.debug("Finished correlation.")
+        if config.sa_active:
+            logger.debug("Starting SA correlation.")
+            self.correlate_sa(None, config, None)
+            logger.debug("Finished SA correlation.")
+        if config.match_active:
+            logger.debug("Starting Match correlation.")
+            self.match_dir = self.correlate_match(config)
+            self.save_results()
+            logger.debug("Finished Match correlation.")
+        logger.debug("Correlation(s) complete.")
         self.finalize()
 
 def main():

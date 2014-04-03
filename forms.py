@@ -119,7 +119,7 @@ class MainFrame ( wx.Frame ):
 		self.DataPanel0.SetSizer( bSizer2 )
 		self.DataPanel0.Layout()
 		bSizer2.Fit( self.DataPanel0 )
-		self.Notebook.AddPage( self.DataPanel0, u"δ18O data", True )
+		self.Notebook.AddPage( self.DataPanel0, u"δ18O data", False )
 		self.DataPanel1 = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer21 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -352,6 +352,9 @@ class MainFrame ( wx.Frame ):
 		self.m_panel17 = wx.Panel( self.panel_correlate, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel17, wx.ID_ANY, u"Simulated Annealing" ), wx.VERTICAL )
 		
+		self.corr_sa_active = wx.CheckBox( self.m_panel17, wx.ID_ANY, u"Use simulated annealing", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer2.Add( self.corr_sa_active, 0, wx.ALL, 5 )
+		
 		fgSizer2 = wx.FlexGridSizer( 0, 6, 0, 10 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
@@ -430,6 +433,9 @@ class MainFrame ( wx.Frame ):
 		
 		self.panel_match = wx.Panel( self.panel_correlate, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		sbSizer21 = wx.StaticBoxSizer( wx.StaticBox( self.panel_match, wx.ID_ANY, u"Match" ), wx.VERTICAL )
+		
+		self.corr_match_active = wx.CheckBox( self.panel_match, wx.ID_ANY, u"Use Match", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer21.Add( self.corr_match_active, 0, wx.ALL, 5 )
 		
 		gbSizer1 = wx.GridBagSizer( 0, 0 )
 		gbSizer1.SetFlexibleDirection( wx.BOTH )
@@ -527,7 +533,7 @@ class MainFrame ( wx.Frame ):
 		self.panel_correlate.SetSizer( bSizer14 )
 		self.panel_correlate.Layout()
 		bSizer14.Fit( self.panel_correlate )
-		self.Notebook.AddPage( self.panel_correlate, u"Correlation", False )
+		self.Notebook.AddPage( self.panel_correlate, u"Correlation", True )
 		self.panel_progress = wx.Panel( self.Notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		

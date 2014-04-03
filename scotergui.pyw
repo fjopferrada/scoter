@@ -82,7 +82,6 @@ class ScoterApp(wx.App):
         
         bind = mf.Bind
         
-        
         for parameter in "d18o", "rpi":
             for role in "record", "target":
                 for limit in "start", "end":
@@ -98,8 +97,8 @@ class ScoterApp(wx.App):
         bind(wx.EVT_MENU, self.quit, mf.menuitem_quit)
         bind(wx.EVT_MENU, self.about, mf.menuitem_about)
         bind(wx.EVT_MENU, self.open_user_guide, mf.menuitem_userguide)
-        bind(wx.EVT_MENU, self.save_config_to_file, mf.menuitem_save_config)
-        bind(wx.EVT_MENU, self.open_read_config_dialog, mf.menuitem_read_config)
+        bind(wx.EVT_MENU, self.show_save_wxconfig_dialog, mf.menuitem_save_config)
+        bind(wx.EVT_MENU, self.show_read_config_dialog, mf.menuitem_read_config)
         bind(wx.EVT_MENU, self.reset_config, mf.menuitem_reset_config)
         bind(wx.EVT_MENU, self.revert_config, mf.menuitem_revert_config)
         bind(wx.EVT_BUTTON, self.abort_simann, mf.button_abort)
@@ -350,13 +349,26 @@ class ScoterApp(wx.App):
         self.main_frame.Notebook.SetSelection(4)
     
     def correlate(self, event):
-        """Correlate the data using both simulated annealing and the match program."""
+        """Correlate the data using both simulated annealing and the match program.
+        
+        If neither correlation type is currently selected, an error dialog will be
+        displayed to the user."""
+        
+        if (not self.main_frame.corr_sa_active.GetValue() and
+            not self.main_frame.corr_match_active.GetValue()):
+            wx.MessageBox("At least one of the two correlation methods must be selected.",
+                          "No method selected", 
+                          wx.OK | wx.ICON_ERROR)
+            return
+        
         self.read_params_from_gui()
         self.scoter.preprocess(self.params)
-        self.correlate_sa()
-        thread = threading.Thread(target = self.correlate_match,
-                                  args = (self.params,))
-        thread.start()
+        if self.params.sa_active:
+            self.correlate_sa()
+        if self.params.match_active:
+            thread = threading.Thread(target = self.correlate_match,
+                                      args = (self.params,))
+            thread.start()
     
     def abort_simann(self, event):
         """Handle a click on the simulated annealing abort button."""
@@ -421,9 +433,9 @@ class ScoterApp(wx.App):
     def correlate_match(self, params):
         """Perform a correlation using the external match program."""
         match_result = self.scoter.correlate_match(self.params)
-        wx.CallAfter(self.match_finished_callback, match_result)
+        wx.CallAfter(self.match_callback_finished, match_result)
     
-    def match_finished_callback(self, result):
+    def match_callback_finished(self, result):
         """A callback to be called after a match correlation has been completed.
         
         Checks for errors during Match run and plots the match results."""
@@ -433,6 +445,8 @@ class ScoterApp(wx.App):
             dialog.ShowModal()
         else:
             self.plot_results_match()
+            if not self.params.sa_active:
+                self.main_frame.Notebook.SetSelection(6)
         
     def quit(self, event):
         """Quit the program."""
@@ -460,7 +474,7 @@ class ScoterApp(wx.App):
             cmd = ["xdg-open", path]
             subprocess.Popen(cmd)
     
-    def save_config_to_file(self, event):
+    def show_save_wxconfig_dialog(self, event):
         """Save ScoterGui configuration to a user-specified wx.FileConfig file.
         
         Note that this method saves the current state of the GUI, using a
@@ -482,7 +496,7 @@ class ScoterApp(wx.App):
             self.write_gui_to_wxconfig(conf)
         dialog.Destroy()
         
-    def open_read_config_dialog(self, event):
+    def show_read_config_dialog(self, event):
         """Read ScoterGui configuration from a user-specified wx.FileConfig file.
         
         Note that a ScoterGui configuration is different from a Scoter configuration.
@@ -495,12 +509,12 @@ class ScoterApp(wx.App):
             leafname = dialog.GetFilename()
             dirname = dialog.GetDirectory()
             filename = os.path.join(dirname, leafname)
-            self.read_config_from_file(filename)
+            self.read_wxconfig_from_file(filename)
             self.lastdir_config = dirname
 
         dialog.Destroy()
     
-    def read_config_from_file(self, filename):
+    def read_wxconfig_from_file(self, filename):
         conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
                              localFilename = filename,
                              style = wx.CONFIG_USE_LOCAL_FILE)
@@ -557,6 +571,7 @@ class ScoterApp(wx.App):
         if interp_npoints != -1:
             mf.preproc_interp_npoints.SetValue(interp_npoints)
         mf.preproc_interp_type.SetStringSelection(wxc.Read("interp_type", d.interp_type))
+        mf.corr_sa_active.SetValue(wxc.ReadBool("sa_active", d.sa_active))
         mf.corr_sa_intervals.SetValue(str(wxc.ReadInt("sa_intervals", d.sa_intervals)))
         mf.corr_sa_max_rate.SetValue(str(wxc.ReadInt("max_rate", d.max_rate)))
         mf.corr_sa_max_changes.SetValue(str(wxc.ReadInt("max_changes", d.max_changes)))
@@ -566,6 +581,7 @@ class ScoterApp(wx.App):
         mf.corr_sa_temp_init.SetValue(str(wxc.ReadFloat("temp_init", d.temp_init)))
         mf.corr_sa_rc_penalty.SetValue(str(wxc.ReadFloat("rc_penalty", d.rc_penalty)))
         mf.corr_sa_seed.SetValue(str(wxc.ReadInt("random_seed", d.random_seed)))
+        mf.corr_match_active.SetValue(wxc.ReadBool("match_active", d.match_active))
         mf.corr_match_nomatch.SetValue(str(wxc.ReadFloat("match_nomatch", d.match_nomatch)))
         mf.corr_match_speed.SetValue(str(wxc.ReadFloat("match_speed_p", d.match_speed_p)))
         mf.corr_match_tie.SetValue(str(wxc.ReadFloat("match_tie_p", d.match_tie_p)))
@@ -622,6 +638,7 @@ class ScoterApp(wx.App):
         wxc.Write("interp_npoints_type", interp_npoints_type)
         wxc.WriteInt("interp_npoints", mf.preproc_interp_npoints.GetValue())
         wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
+        wxc.WriteBool("sa_active", mf.corr_sa_active.GetValue())
         wxc.WriteInt("sa_intervals", int(mf.corr_sa_intervals.GetValue()))
         wxc.WriteFloat("temp_init", float(mf.corr_sa_temp_init.GetValue()))
         wxc.WriteFloat("temp_final", float(mf.corr_sa_temp_final.GetValue()))
@@ -630,6 +647,7 @@ class ScoterApp(wx.App):
         wxc.WriteInt("max_steps", int(mf.corr_sa_max_steps.GetValue()))
         wxc.WriteFloat("rc_penalty", float(mf.corr_sa_rc_penalty.GetValue()))
         wxc.WriteInt("random_seed", int(mf.corr_sa_seed.GetValue()))
+        wxc.WriteBool("match_active", mf.corr_match_active.GetValue())
         wxc.WriteInt("match_intervals", int(mf.corr_match_intervals.GetValue()))
         wxc.WriteFloat("match_nomatch", float(mf.corr_match_nomatch.GetValue()))
         wxc.WriteFloat("match_speed_p", float(mf.corr_match_speed.GetValue()))
@@ -687,12 +705,14 @@ class ScoterApp(wx.App):
                                    interp_npoints = interp_npoints,
                                    max_changes = float(mf.corr_sa_max_changes.GetValue()),
                                    max_steps = float(mf.corr_sa_max_steps.GetValue()),
+                                   sa_active = mf.corr_sa_active.GetValue(),
                                    sa_intervals = int(mf.corr_sa_intervals.GetValue()),
                                    temp_init = float(mf.corr_sa_temp_init.GetValue()),
                                    temp_final = float(mf.corr_sa_temp_final.GetValue()),
                                    cooling = float(mf.corr_sa_rate.GetValue()),
                                    rc_penalty = float(mf.corr_sa_rc_penalty.GetValue()),
                                    random_seed = int(mf.corr_sa_seed.GetValue()),
+                                   match_active = mf.corr_match_active.GetValue(),
                                    match_intervals = int(mf.corr_match_intervals.GetValue()),
                                    match_nomatch = float(mf.corr_match_nomatch.GetValue()),
                                    match_speed_p = float(mf.corr_match_speed.GetValue()),
@@ -731,7 +751,7 @@ class ConfigFileDropTarget(wx.FileDropTarget):
         wx.FileDropTarget.__init__(self)
 
     def OnDropFiles(self, x, y, filenames):
-        self.scotergui.read_config_from_file(filenames[0])
+        self.scotergui.read_wxconfig_from_file(filenames[0])
 
 class AboutScoter(wx.AboutDialogInfo):
     """An "About" dialog for ScoterGui."""
