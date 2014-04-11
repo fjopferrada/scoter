@@ -274,3 +274,13 @@
    the second of those can't handle line breaking. It's possible
    that this is fixed in more recent versions of Pandoc, so I'm
    leaving it for the time being.
+** DONE 048 Better handling of numeric config fields in GUI
+   CLOSED: [2014-04-11 Fri 16:27]
+   Currently, numeric configuration parameters are held in GUI text fields as
+   strings, but stored in the wx configuration as ints or floats. It makes
+   more sense to store them as strings, since parsing only happens when the
+   ScoterConfig is constructed anyway. A string -> float -> string round-trip
+   just introduced unnecessary problems (rounding errors, decimal places,
+   etc.) We also need to catch conversion errors that happen on ScoterConfig
+   construction -- at present, they just fall straight through to the command
+   line where ordinary users won't see them.

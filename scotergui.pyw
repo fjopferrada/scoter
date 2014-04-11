@@ -35,6 +35,29 @@ _roledict = {"record" : 0, "target" : 1}
 _paramdict = {"d18o" : 0, "rpi" : 1}
 _limitdict = {"start" : 0, "end" : 1}
 
+_gui_text_fields = (
+# name of widget           ScoterConfig field     type   description
+("preproc_weight_d18o",    "weight_d18o",         float, "δ18O weight"),
+("preproc_weight_rpi",     "weight_rpi",          float, "RPI weight"),
+("corr_sa_intervals",      "sa_intervals",        int,   "SA intervals"),
+("corr_sa_temp_init",      "temp_init",           float, "Initial temperature"),
+("corr_sa_temp_final",     "temp_final",          float, "Final temperature"),
+("corr_sa_cooling",        "cooling",             float, "Cooling rate"),
+("corr_sa_max_changes",    "max_changes",         int,   "Changes threshold"),
+("corr_sa_max_steps",      "max_steps",           int,   "Steps threshold"),
+("corr_sa_seed",           "random_seed",         int,   "Random seed"),
+("corr_sa_rc_penalty",     "rc_penalty",          float, "SA rate change penalty"),
+("corr_sa_max_rate",       "max_rate",            float, "SA maximum rate"),
+("corr_match_nomatch",     "match_nomatch",       float, "No match penalty"),
+("corr_match_speed_p",     "match_speed_p",       float, "Speed penalty"),
+("corr_match_tie_p",       "match_tie_p",         float, "Tie penalty"),
+("corr_match_target",      "match_target_speed",  str,   "Target speed"),
+("corr_match_speedchange", "match_speedchange_p", float, "Speed change penalty"),
+("corr_match_gap",         "match_gap_p",         float, "Gap penalty"),
+("corr_match_intervals",   "match_intervals",     int,   "Match intervals"),
+("corr_match_rates",       "match_rates",         str,   "Match rates")
+)
+
 class ScoterApp(wx.App):
     """An interactive GUI for Scoter.
     
@@ -147,9 +170,9 @@ class ScoterApp(wx.App):
     def make_results_figures(self, panel):
         """Create the figures for the correlation results"""
         figure = Figure()
-        figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
+        figure.set_size_inches(1, 1) # FigureCanvas uses this as minimum size
         axes = (figure.add_subplot(211), figure.add_subplot(212))
-        axes[0].invert_yaxis() # δ18O is conventionally plotted increasing downward.
+        axes[0].invert_yaxis() # δ18O usually plotted increasing downward.
         canvas = FigureCanvas(panel, -1, figure)
         panel.GetSizer().Add(canvas, 1, wx.EXPAND | wx.ALL)
         return axes, canvas
@@ -163,7 +186,7 @@ class ScoterApp(wx.App):
         """
         panel_obj = getattr(self.main_frame, "DataPanel%d%d" % (page, panel))
         figure = Figure()
-        figure.set_size_inches(1, 1) # the FigureCanvas uses this as a minimum size
+        figure.set_size_inches(1, 1) # FigureCanvas uses this as a minimum size
         axes = figure.add_axes([0.05, 0.2, 0.93, 0.7])
         axes.set_xlabel("Depth" if panel==0 else "Time")
         axes.set_ylabel("$\delta^{18}\mathrm{O}$" if page==0 else "RPI")
@@ -361,7 +384,8 @@ class ScoterApp(wx.App):
                           wx.OK | wx.ICON_ERROR)
             return
         
-        self.read_params_from_gui()
+        success = self.read_params_from_gui()
+        if not success: return
         self.scoter.preprocess(self.params)
         if self.params.sa_active:
             self.correlate_sa()
@@ -560,8 +584,9 @@ class ScoterApp(wx.App):
         detrend_map = {"none":0, "submean":1, "linear":2}
         mf.preproc_detrend.SetSelection(detrend_map.get(wxc.Read("detrend", d.detrend), "none"))
         mf.preproc_normalize.SetValue(wxc.ReadBool("normalize", d.normalize))
-        mf.preproc_d18o_weight.SetValue("%f" % wxc.ReadFloat("weight_d18o", d.weight_d18o))
-        mf.preproc_rpi_weight.SetValue("%f" % wxc.ReadFloat("weight_rpi", d.weight_rpi))
+        for wxfield, scoterfield, _, _ in _gui_text_fields:
+            widget = getattr(mf, wxfield)
+            widget.SetValue(wxc.Read(scoterfield, str(getattr(d, scoterfield))))
         mf.preproc_interp_active.SetValue(wxc.ReadBool("interp_active", d.interp_active))
         interp_npoints_type = wxc.Read("interp_npoints_type", "min")
         mf.preproc_interp_min.SetValue(interp_npoints_type == "min")
@@ -572,24 +597,7 @@ class ScoterApp(wx.App):
             mf.preproc_interp_npoints.SetValue(interp_npoints)
         mf.preproc_interp_type.SetStringSelection(wxc.Read("interp_type", d.interp_type))
         mf.corr_sa_active.SetValue(wxc.ReadBool("sa_active", d.sa_active))
-        mf.corr_sa_intervals.SetValue(str(wxc.ReadInt("sa_intervals", d.sa_intervals)))
-        mf.corr_sa_max_rate.SetValue(str(wxc.ReadInt("max_rate", d.max_rate)))
-        mf.corr_sa_max_changes.SetValue(str(wxc.ReadInt("max_changes", d.max_changes)))
-        mf.corr_sa_max_steps.SetValue(str(wxc.ReadInt("max_steps", d.max_steps)))
-        mf.corr_sa_rate.SetValue(str(wxc.ReadFloat("cooling", d.cooling)))
-        mf.corr_sa_temp_final.SetValue(str(wxc.ReadFloat("temp_final", d.temp_final)))
-        mf.corr_sa_temp_init.SetValue(str(wxc.ReadFloat("temp_init", d.temp_init)))
-        mf.corr_sa_rc_penalty.SetValue(str(wxc.ReadFloat("rc_penalty", d.rc_penalty)))
-        mf.corr_sa_seed.SetValue(str(wxc.ReadInt("random_seed", d.random_seed)))
         mf.corr_match_active.SetValue(wxc.ReadBool("match_active", d.match_active))
-        mf.corr_match_nomatch.SetValue(str(wxc.ReadFloat("match_nomatch", d.match_nomatch)))
-        mf.corr_match_speed.SetValue(str(wxc.ReadFloat("match_speed_p", d.match_speed_p)))
-        mf.corr_match_tie.SetValue(str(wxc.ReadFloat("match_tie_p", d.match_tie_p)))
-        mf.corr_match_target.SetValue(str(wxc.Read("match_target_speed", d.match_target_speed)))
-        mf.corr_match_speedchange.SetValue(str(wxc.ReadFloat("match_speedchange_p", d.match_speedchange_p)))
-        mf.corr_match_gap.SetValue(str(wxc.ReadFloat("match_gap_p", d.match_gap_p)))
-        mf.corr_match_rates.SetValue(str(wxc.Read("match_rates", d.match_rates)))
-        mf.corr_match_intervals.SetValue(str(wxc.ReadInt("match_intervals", d.match_intervals)))
         mf.corr_match_guessed_path.SetValue(str(self.scoter.default_match_path))
         mf.corr_match_guess_button.SetValue(not wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specify_button.SetValue(wxc.ReadBool("match_use_specified_path", False))
@@ -629,33 +637,17 @@ class ScoterApp(wx.App):
             interp_npoints_type = "explicit"
         mf = self.main_frame
         if wxc == None: wxc = wx.Config("scoter")
+        for wxfield, scoterfield, _, _ in _gui_text_fields:
+            widget = getattr(mf, wxfield)
+            wxc.Write(scoterfield, widget.GetValue())
         wxc.Write("detrend", detrend_opts[mf.preproc_detrend.GetSelection()])
         wxc.WriteBool("normalize", mf.preproc_normalize.GetValue())
-        wxc.Write("weight_d18o", mf.preproc_d18o_weight.GetValue())
-        wxc.Write("weight_rpi", mf.preproc_rpi_weight.GetValue())
         wxc.WriteBool("interp_active", mf.preproc_interp_active.GetValue())
         wxc.Write("interp_type", mf.preproc_interp_type.GetStringSelection())
         wxc.Write("interp_npoints_type", interp_npoints_type)
         wxc.WriteInt("interp_npoints", mf.preproc_interp_npoints.GetValue())
-        wxc.WriteInt("max_rate", int(mf.corr_sa_max_rate.GetValue()))
         wxc.WriteBool("sa_active", mf.corr_sa_active.GetValue())
-        wxc.WriteInt("sa_intervals", int(mf.corr_sa_intervals.GetValue()))
-        wxc.WriteFloat("temp_init", float(mf.corr_sa_temp_init.GetValue()))
-        wxc.WriteFloat("temp_final", float(mf.corr_sa_temp_final.GetValue()))
-        wxc.WriteFloat("cooling", float(mf.corr_sa_rate.GetValue()))
-        wxc.WriteInt("max_changes", int(mf.corr_sa_max_changes.GetValue()))
-        wxc.WriteInt("max_steps", int(mf.corr_sa_max_steps.GetValue()))
-        wxc.WriteFloat("rc_penalty", float(mf.corr_sa_rc_penalty.GetValue()))
-        wxc.WriteInt("random_seed", int(mf.corr_sa_seed.GetValue()))
         wxc.WriteBool("match_active", mf.corr_match_active.GetValue())
-        wxc.WriteInt("match_intervals", int(mf.corr_match_intervals.GetValue()))
-        wxc.WriteFloat("match_nomatch", float(mf.corr_match_nomatch.GetValue()))
-        wxc.WriteFloat("match_speed_p", float(mf.corr_match_speed.GetValue()))
-        wxc.WriteFloat("match_tie_p", float(mf.corr_match_tie.GetValue()))
-        wxc.Write("match_target_speed", mf.corr_match_target.GetValue())
-        wxc.WriteFloat("match_speedchange_p", float(mf.corr_match_speedchange.GetValue()))
-        wxc.WriteFloat("match_gap_p", float(mf.corr_match_gap.GetValue()))
-        wxc.Write("match_rates", mf.corr_match_rates.GetValue())
         wxc.Write("match_specified_path", mf.corr_match_specified_path.GetValue())
         wxc.WriteBool("match_use_specified_path", mf.corr_match_specify_button.GetValue())
         wxc.Write("target_d18o_file", self.scoter.filenames[1][0])
@@ -680,6 +672,10 @@ class ScoterApp(wx.App):
         """Create a ScoterConfig object from the current state of the GUI.
         
         The object is not returned, but is stored as self.params.
+        
+        Returns:
+            True if the parameters were successfully read; False if there
+            was a problem.
         """
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
@@ -695,43 +691,47 @@ class ScoterApp(wx.App):
             match_path = ""
         else:
             match_path = mf.corr_match_specified_path.GetValue()
-        trunc = self.series_truncations
-        self.params = ScoterConfig(detrend = detrend_opts[mf.preproc_detrend.GetSelection()],
-                                   normalize = mf.preproc_normalize.GetValue(),
-                                   weight_d18o = float(mf.preproc_d18o_weight.GetValue()),
-                                   weight_rpi = float(mf.preproc_rpi_weight.GetValue()),
-                                   max_rate = int(mf.corr_sa_max_rate.GetValue()),
-                                   interp_type = interp_type,
-                                   interp_npoints = interp_npoints,
-                                   max_changes = float(mf.corr_sa_max_changes.GetValue()),
-                                   max_steps = float(mf.corr_sa_max_steps.GetValue()),
-                                   sa_active = mf.corr_sa_active.GetValue(),
-                                   sa_intervals = int(mf.corr_sa_intervals.GetValue()),
-                                   temp_init = float(mf.corr_sa_temp_init.GetValue()),
-                                   temp_final = float(mf.corr_sa_temp_final.GetValue()),
-                                   cooling = float(mf.corr_sa_rate.GetValue()),
-                                   rc_penalty = float(mf.corr_sa_rc_penalty.GetValue()),
-                                   random_seed = int(mf.corr_sa_seed.GetValue()),
-                                   match_active = mf.corr_match_active.GetValue(),
-                                   match_intervals = int(mf.corr_match_intervals.GetValue()),
-                                   match_nomatch = float(mf.corr_match_nomatch.GetValue()),
-                                   match_speed_p = float(mf.corr_match_speed.GetValue()),
-                                   match_tie_p = float(mf.corr_match_tie.GetValue()),
-                                   match_target_speed = mf.corr_match_target.GetValue(),
-                                   match_speedchange_p = float(mf.corr_match_speedchange.GetValue()),
-                                   match_gap_p = float(mf.corr_match_gap.GetValue()),
-                                   match_rates = mf.corr_match_rates.GetValue(),
-                                   match_path = match_path,
-                                   target_d18o_file = "",
-                                   record_d18o_file = "",
-                                   target_rpi_file = "",
-                                   record_rpi_file = "",
-                                   target_start = trunc[1][0],
-                                   target_end = trunc[1][1],
-                                   record_start = trunc[0][0],
-                                   record_end = trunc[0][1],
-                                   debug = self.debug
-                                   )
+
+        # Create a parameter dictionary containing the "special" parameters
+        # which don't fit the _gui_text_fields paradigm.
+        pdict = dict(detrend = detrend_opts[mf.preproc_detrend.GetSelection()],
+                     normalize = mf.preproc_normalize.GetValue(),
+                     interp_type = interp_type,
+                     interp_npoints = interp_npoints,
+                     sa_active = mf.corr_sa_active.GetValue(),
+                     match_active = mf.corr_match_active.GetValue(),
+                     match_path = match_path,
+                     debug = self.debug)
+        
+        # Add the "pass-through" parameters, which go directly from a
+        # wx text field to a Scoter parameter, possibly via a float or int parse.
+        for widget_name, field, type_, desc in _gui_text_fields:
+            value_string = getattr(mf, widget_name).GetValue()
+            try:
+                value = type_(value_string)
+                pdict[field] = value
+            except ValueError:
+                dialog = wx.MessageDialog(self.main_frame,
+                                          "‘%s’ is not a valid setting for ‘%s’" %
+                                          (value_string, desc),
+                                          "Configuration error", 
+                                          wx.OK | wx.ICON_ERROR)
+                dialog.ShowModal()
+                return False
+        
+        # Empty strings for data series filenames, since they've already been set.
+        for role in _roledict:
+            for param in _paramdict:
+                pdict["%s_%s_file" % (role, param)] = ""
+        
+        # Set the limit parameters from the values in the series_truncations array.
+        for role, rolenum in _roledict.items():
+            for limit, limitnum in _limitdict.items():
+                pdict["%s_%s" % (role, limit)] = \
+                    self.series_truncations[rolenum][limitnum]
+        
+        self.params = ScoterConfig(**pdict)
+        return True
 
 class DataSeriesFileDropTarget(wx.FileDropTarget):
 

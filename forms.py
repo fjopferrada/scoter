@@ -247,15 +247,15 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText29.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText29, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
-		self.preproc_d18o_weight = wx.TextCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.preproc_d18o_weight, 0, wx.ALL, 5 )
+		self.preproc_weight_d18o = wx.TextCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.preproc_weight_d18o, 0, wx.ALL, 5 )
 		
 		self.m_staticText291 = wx.StaticText( self.m_panel26, wx.ID_ANY, u"RPI weighting", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText291.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText291, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
 		
-		self.preproc_rpi_weight = wx.TextCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.preproc_rpi_weight, 0, wx.ALL, 5 )
+		self.preproc_weight_rpi = wx.TextCtrl( self.m_panel26, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.preproc_weight_rpi, 0, wx.ALL, 5 )
 		
 		
 		self.m_panel26.SetSizer( fgSizer1 )
@@ -384,8 +384,8 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText14.Wrap( -1 )
 		fgSizer2.Add( self.m_staticText14, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
 		
-		self.corr_sa_rate = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer2.Add( self.corr_sa_rate, 0, wx.BOTTOM|wx.RIGHT|wx.TOP, 5 )
+		self.corr_sa_cooling = wx.TextCtrl( self.m_panel17, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.corr_sa_cooling, 0, wx.BOTTOM|wx.RIGHT|wx.TOP, 5 )
 		
 		self.m_staticText15 = wx.StaticText( self.m_panel17, wx.ID_ANY, u"Changes threshold", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText15.Wrap( -1 )
@@ -447,13 +447,13 @@ class MainFrame ( wx.Frame ):
 		self.corr_match_specify_button = wx.RadioButton( self.panel_match, wx.ID_ANY, u"Specify location:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		gbSizer1.Add( self.corr_match_specify_button, wx.GBPosition( 1, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
 		
-		self.corr_match_specified_path = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.corr_match_specified_path, wx.GBPosition( 1, 1 ), wx.GBSpan( 1, 7 ), wx.ALL|wx.EXPAND, 5 )
-		
 		self.corr_match_guessed_path = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		self.corr_match_guessed_path.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 		
 		gbSizer1.Add( self.corr_match_guessed_path, wx.GBPosition( 0, 1 ), wx.GBSpan( 1, 7 ), wx.ALL|wx.EXPAND, 5 )
+		
+		self.corr_match_specified_path = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		gbSizer1.Add( self.corr_match_specified_path, wx.GBPosition( 1, 1 ), wx.GBSpan( 1, 7 ), wx.ALL|wx.EXPAND, 5 )
 		
 		self.m_staticText20 = wx.StaticText( self.panel_match, wx.ID_ANY, u"No match penalty", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText20.Wrap( -1 )
@@ -465,6 +465,16 @@ class MainFrame ( wx.Frame ):
 		self.m_staticText21 = wx.StaticText( self.panel_match, wx.ID_ANY, u"Speed penalty", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText21.Wrap( -1 )
 		gbSizer1.Add( self.m_staticText21, wx.GBPosition( 2, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		self.corr_match_speed_p = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		gbSizer1.Add( self.corr_match_speed_p, wx.GBPosition( 2, 3 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
+		
+		self.m_staticText24 = wx.StaticText( self.panel_match, wx.ID_ANY, u"Tie penalty", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText24.Wrap( -1 )
+		gbSizer1.Add( self.m_staticText24, wx.GBPosition( 2, 4 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		self.corr_match_tie_p = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		gbSizer1.Add( self.corr_match_tie_p, wx.GBPosition( 2, 5 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
 		
 		self.m_staticText22 = wx.StaticText( self.panel_match, wx.ID_ANY, u"Target speed", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText22.Wrap( -1 )
@@ -480,23 +490,16 @@ class MainFrame ( wx.Frame ):
 		self.corr_match_speedchange = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		gbSizer1.Add( self.corr_match_speedchange, wx.GBPosition( 3, 3 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
 		
-		self.m_staticText24 = wx.StaticText( self.panel_match, wx.ID_ANY, u"Tie penalty", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText24.Wrap( -1 )
-		gbSizer1.Add( self.m_staticText24, wx.GBPosition( 2, 4 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
-		
-		self.corr_match_tie = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.corr_match_tie, wx.GBPosition( 2, 5 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
-		
 		self.m_staticText25 = wx.StaticText( self.panel_match, wx.ID_ANY, u"Gap penalty", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText25.Wrap( -1 )
 		gbSizer1.Add( self.m_staticText25, wx.GBPosition( 3, 4 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
 		
+		self.corr_match_gap = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		gbSizer1.Add( self.corr_match_gap, wx.GBPosition( 3, 5 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
+		
 		self.m_staticText252 = wx.StaticText( self.panel_match, wx.ID_ANY, u"Intervals", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText252.Wrap( -1 )
 		gbSizer1.Add( self.m_staticText252, wx.GBPosition( 3, 6 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.LEFT, 5 )
-		
-		self.corr_match_gap = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.corr_match_gap, wx.GBPosition( 3, 5 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
 		
 		self.corr_match_intervals = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		gbSizer1.Add( self.corr_match_intervals, wx.GBPosition( 3, 7 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
@@ -507,9 +510,6 @@ class MainFrame ( wx.Frame ):
 		
 		self.corr_match_rates = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		gbSizer1.Add( self.corr_match_rates, wx.GBPosition( 4, 1 ), wx.GBSpan( 1, 7 ), wx.ALL|wx.EXPAND, 5 )
-		
-		self.corr_match_speed = wx.TextCtrl( self.panel_match, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.corr_match_speed, wx.GBPosition( 2, 3 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
 		
 		
 		gbSizer1.AddGrowableCol( 1 )
