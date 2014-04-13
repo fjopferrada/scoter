@@ -375,6 +375,14 @@ class Scoter:
 
         self.series_preprocessed = [map(preproc, series_truncated[0]),
                                     map(preproc, series_truncated[1])]
+        
+        # Rename series to reflect their role in the correlation. Apart from anything
+        # else, this ensures that there won't be any name clashes if they are written
+        # to files for the use of the Match program.
+        for series in self.series_preprocessed[0]:
+            series.name = series.parameter + "-record"
+        for series in self.series_preprocessed[1]:
+            series.name = series.parameter + "-target"
 
     def correlate_sa(self, known_line, config, callback_obj):
         """Perform a correlation using simulated annealing.

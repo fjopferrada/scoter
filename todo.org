@@ -196,17 +196,23 @@
    CLOSED: [2014-03-01 Sat 19:13]
    For both configuration and data files.
 
-** TODO 035 Problems matching a series with itself
-   Obviously not something you'd actually want to do in practice, but useful
-   for testing and possibly indicative of other problems. If you match a
-   series with itself with different clipping windows for record and target,
-   Match fails with a message like "Configuration end value 1198 follows the
-   last point in the series: 998". I suspect that it's a problem with two
-   identically named series, one of which is overwriting the other. I think
-   this problem would also occur with two series with the same filename
-   residing in different directories. Easiest solution is probably to add
-   some short unique tag (e.g. "-dt" for d18O target, and so forth) when
-   creating a series identifier from a filename.
+** DONE 035 Can't match series with identical filenames
+   CLOSED: [2014-04-13 Sun 15:02]
+   I initially noticed this as an error on attempting to match a series with
+   itself during testing. But the problem also arises for two different files
+   from different directories but with the same leafname. This is a fairly
+   plausible scenario. Imagine having e.g. someproject/rpi/target/data.txt
+   etc. -- you could easily have all four files with the same leafname.
+
+   Problem occurs because series are written to files in same directory for
+   Match, and the identical names clash.
+
+   The best solution might just be to rename the series completely:
+   "d18o-record", "rpi-target", etc. This might also be more comprehensible
+   for users than the lengthy suffix chains like "data-lr04.txt-cl-dt-rs-sc"
+   which are generated under the current scheme.
+
+   I have now implemented this solution.
 ** TODO 036 Add exporting for Scoter config and bundle
    Add a feature allowing the GUI to export a configparser Scoter
    configuration (for offline operation) and a self-contained
@@ -284,3 +290,4 @@
    etc.) We also need to catch conversion errors that happen on ScoterConfig
    construction -- at present, they just fall straight through to the command
    line where ordinary users won't see them.
+** TODO 049 Implement "save correlation" functionality.
