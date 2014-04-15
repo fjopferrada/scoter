@@ -647,7 +647,7 @@ class MainFrame ( wx.Frame ):
 		self.menuitem_reset_config = wx.MenuItem( self.submenu_config, wx.ID_ANY, u"R&eset configuration…", u"Reset all confuration settings to their default values.", wx.ITEM_NORMAL )
 		self.submenu_config.AppendItem( self.menuitem_reset_config )
 		
-		self.menu_file.AppendSubMenu( self.submenu_config, u"Configuration" )
+		self.menu_file.AppendSubMenu( self.submenu_config, u"&Configuration" )
 		
 		self.submenu_export = wx.Menu()
 		self.menuitem_export_scoter = wx.MenuItem( self.submenu_export, wx.ID_ANY, u"&Plain Scoter configuration…", u"Create a configuration file for the non-interactive version of Scoter.", wx.ITEM_NORMAL )
@@ -656,7 +656,7 @@ class MainFrame ( wx.Frame ):
 		self.menuitem_export_bundle = wx.MenuItem( self.submenu_export, wx.ID_ANY, u"Self-contained &bundle…", u"Create a bundle containing the configuration and all the data.", wx.ITEM_NORMAL )
 		self.submenu_export.AppendItem( self.menuitem_export_bundle )
 		
-		self.menu_file.AppendSubMenu( self.submenu_export, u"Export" )
+		self.menu_file.AppendSubMenu( self.submenu_export, u"&Export" )
 		
 		self.menuitem_quit = wx.MenuItem( self.menu_file, wx.ID_EXIT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_file.AppendItem( self.menuitem_quit )

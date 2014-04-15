@@ -31,8 +31,15 @@ import logging
 import sys
 import subprocess
 
+# Attribute names for last used directories for file dialogs.
+# These also serve as keys in the wxConfig file.
+_last_dirs = tuple(map(lambda x: "lastdir_"+x,
+                       ("record", "config", "export_scoter")))
+# mapps role to its index
 _roledict = {"record" : 0, "target" : 1}
+# maps parameter to its index
 _paramdict = {"d18o" : 0, "rpi" : 1}
+# map limit to its index
 _limitdict = {"start" : 0, "end" : 1}
 
 _gui_text_fields = (
@@ -72,8 +79,6 @@ class ScoterApp(wx.App):
         self.default_scoter_config = ScoterConfig()
         self.SetVendorName("talvi.net") # may as well adopt the Java convention
         self.SetAppName("Scoter")
-        self.lastdir_record = ""
-        self.lastdir_config = ""
         self.series_truncations = [[-1, -1], [-1, -1]] # [[targ st, targ end], [rec st, rec end]]
 
         mf = self.main_frame = forms.MainFrame(None)
@@ -131,6 +136,8 @@ class ScoterApp(wx.App):
         bind(wx.EVT_MENU, self.reset_config, mf.menuitem_reset_config)
         bind(wx.EVT_MENU, self.revert_config, mf.menuitem_revert_config)
         bind(wx.EVT_MENU, self.show_licence, mf.menuitem_show_licence)
+        bind(wx.EVT_MENU, self.show_export_scoter_dialog, mf.menuitem_export_scoter)
+        bind(wx.EVT_MENU, self.show_export_bundle_dialog, mf.menuitem_export_bundle)
         bind(wx.EVT_BUTTON, self.abort_simann, mf.button_abort)
         self.licence_dialog.Bind(wx.EVT_BUTTON,
              lambda e: self.licence_dialog.Show(False),
@@ -364,15 +371,15 @@ class ScoterApp(wx.App):
         self.progress_percentage = 0
         self.progress_lines = []
         for _ in 0, 1:
-            xs = range(self.params.sa_intervals)
-            ys = range(self.params.sa_intervals)
+            xs = range(self.scoterconfig.sa_intervals)
+            ys = range(self.scoterconfig.sa_intervals)
             self.progress_lines.append(self.progress_axes.plot(xs, ys)[0])
 
         self.simann_abort_flag = False
         # avoid multiple simultaneous live plot updates
         self.simann_redraw_queued = False
         thread = threading.Thread(target = self.scoter.correlate_sa,
-                                  args = (None, self.params, self))
+                                  args = (None, self.scoterconfig, self))
         thread.start()
 
         self.soln_current = None
@@ -393,14 +400,14 @@ class ScoterApp(wx.App):
                           wx.OK | wx.ICON_ERROR)
             return
         
-        success = self.read_params_from_gui()
+        success = self.make_scoterconfig_from_gui()
         if not success: return
-        self.scoter.preprocess(self.params)
-        if self.params.sa_active:
+        self.scoter.preprocess(self.scoterconfig)
+        if self.scoterconfig.sa_active:
             self.correlate_sa()
-        if self.params.match_active:
+        if self.scoterconfig.match_active:
             thread = threading.Thread(target = self.correlate_match,
-                                      args = (self.params,))
+                                      args = (self.scoterconfig,))
             thread.start()
     
     def abort_simann(self, event):
@@ -465,7 +472,7 @@ class ScoterApp(wx.App):
         
     def correlate_match(self, params):
         """Perform a correlation using the external match program."""
-        match_result = self.scoter.correlate_match(self.params)
+        match_result = self.scoter.correlate_match(self.scoterconfig)
         wx.CallAfter(self.match_callback_finished, match_result)
     
     def match_callback_finished(self, result):
@@ -478,14 +485,16 @@ class ScoterApp(wx.App):
             dialog.ShowModal()
         else:
             self.plot_results_match()
-            if not self.params.sa_active:
+            if not self.scoterconfig.sa_active:
                 self.main_frame.Notebook.SetSelection(6)
         
     def quit(self, event):
         """Quit the program."""
-        self.write_gui_to_wxconfig()
-        self.Destroy()
-        wx.Exit()
+        try:
+            self.write_gui_to_wxconfig()
+            self.Destroy()
+        finally:
+            wx.Exit()
     
     def about(self, event):
         """Show the "About" dialog."""
@@ -510,6 +519,27 @@ class ScoterApp(wx.App):
     def show_licence(self, event):
         self.licence_dialog.Centre()
         self.licence_dialog.Show()
+    
+    def show_export_scoter_dialog(self, event):
+        success = self.make_scoterconfig_from_gui()
+        if not success: return
+        dialog = wx.FileDialog(self.main_frame, "Export plain Scoter configuration",
+                               self.lastdir_export_scoter, "plain.cfg",
+                               "Configuration files (*.cfg)|*.cfg|All files|*",
+                               wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        if dialog.ShowModal() == wx.ID_OK:
+            leafname = dialog.GetFilename()
+            dirname = dialog.GetDirectory()
+            filename = os.path.join(dirname, leafname)
+            self.lastdir_export_scoter = dirname
+            self.make_scoterconfig_from_gui()
+            self.scoterconfig.write_to_file(filename)
+        dialog.Destroy()
+
+    def show_export_bundle_dialog(self, event):
+        wx.MessageBox("Not implemented yet.",
+                      "Export bundle", 
+                      wx.OK | wx.ICON_ERROR)
     
     def show_save_wxconfig_dialog(self, event):
         """Save ScoterGui configuration to a user-specified wx.FileConfig file.
@@ -626,10 +656,8 @@ class ScoterApp(wx.App):
         self.series_truncations[0][0] = wxc.ReadFloat("record_start", d.record_start)
         self.series_truncations[0][1] = wxc.ReadFloat("record_end", d.record_end)
         
-        if wxc.HasEntry("lastdir_record"):
-            self.lastdir_record = wxc.Read("lastdir_record", "")
-        if wxc.HasEntry("lastdir_config"):
-            self.lastdir_config = wxc.Read("lastdir_config", "")
+        for lastdir in _last_dirs:
+            setattr(self, lastdir, wxc.Read(lastdir, ""))
         
         self.plot_series()
 
@@ -673,22 +701,21 @@ class ScoterApp(wx.App):
         wxc.WriteFloat("record_end", self.series_truncations[0][1])
         wxc.Write("debug", self.debug)
         
-        if self.lastdir_record != None:
-            wxc.Write("lastdir_record", self.lastdir_record)
-        if self.lastdir_config != None:
-            wxc.Write("lastdir_config", self.lastdir_config)
+        for lastdir in _last_dirs:
+            wxc.Write(lastdir, getattr(self, lastdir))
+
         wxc.Flush()
 
         logger.debug("Wrote configuration; %d items", wxc.GetNumberOfEntries())
         
-    def read_params_from_gui(self):
+    def make_scoterconfig_from_gui(self):
         """Create a ScoterConfig object from the current state of the GUI.
         
-        The object is not returned, but is stored as self.params.
+        The object is not returned, but is stored as self.scoterconfig.
         
         Returns:
-            True if the parameters were successfully read; False if there
-            was a problem.
+            True if the parameters were successfully read from the GUI;
+            False if there was a problem.
         """
         mf = self.main_frame
         detrend_opts = ("none", "submean", "linear")
@@ -743,7 +770,7 @@ class ScoterApp(wx.App):
                 pdict["%s_%s" % (role, limit)] = \
                     self.series_truncations[rolenum][limitnum]
         
-        self.params = ScoterConfig(**pdict)
+        self.scoterconfig = ScoterConfig(**pdict)
         return True
 
 class DataSeriesFileDropTarget(wx.FileDropTarget):

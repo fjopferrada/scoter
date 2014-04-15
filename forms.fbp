@@ -10768,7 +10768,7 @@
                     <property name="name">menu_file</property>
                     <property name="permission">protected</property>
                     <object class="submenu" expanded="1">
-                        <property name="label">Configuration</property>
+                        <property name="label">&amp;Configuration</property>
                         <property name="name">submenu_config</property>
                         <property name="permission">protected</property>
                         <object class="wxMenuItem" expanded="0">
@@ -10833,7 +10833,7 @@
                         </object>
                     </object>
                     <object class="submenu" expanded="1">
-                        <property name="label">Export</property>
+                        <property name="label">&amp;Export</property>
                         <property name="name">submenu_export</property>
                         <property name="permission">protected</property>
                         <object class="wxMenuItem" expanded="1">
