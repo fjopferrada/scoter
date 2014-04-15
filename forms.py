@@ -649,6 +649,15 @@ class MainFrame ( wx.Frame ):
 		
 		self.menu_file.AppendSubMenu( self.submenu_config, u"Configuration" )
 		
+		self.submenu_export = wx.Menu()
+		self.menuitem_export_scoter = wx.MenuItem( self.submenu_export, wx.ID_ANY, u"&Plain Scoter configuration…", u"Create a configuration file for the non-interactive version of Scoter.", wx.ITEM_NORMAL )
+		self.submenu_export.AppendItem( self.menuitem_export_scoter )
+		
+		self.menuitem_export_bundle = wx.MenuItem( self.submenu_export, wx.ID_ANY, u"Self-contained &bundle…", u"Create a bundle containing the configuration and all the data.", wx.ITEM_NORMAL )
+		self.submenu_export.AppendItem( self.menuitem_export_bundle )
+		
+		self.menu_file.AppendSubMenu( self.submenu_export, u"Export" )
+		
 		self.menuitem_quit = wx.MenuItem( self.menu_file, wx.ID_EXIT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_file.AppendItem( self.menuitem_quit )
 		
@@ -658,6 +667,9 @@ class MainFrame ( wx.Frame ):
 		self.menuitem_userguide = wx.MenuItem( self.menu_help, wx.ID_ANY, u"&User guide…", u"Open the Scoter user guide in a web browser.", wx.ITEM_NORMAL )
 		self.menu_help.AppendItem( self.menuitem_userguide )
 		
+		self.menuitem_show_licence = wx.MenuItem( self.menu_help, wx.ID_ANY, u"Show licence…", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_help.AppendItem( self.menuitem_show_licence )
+		
 		self.menuitem_about = wx.MenuItem( self.menu_help, wx.ID_ABOUT, wx.EmptyString, wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_help.AppendItem( self.menuitem_about )
 		
@@ -665,6 +677,37 @@ class MainFrame ( wx.Frame ):
 		
 		self.SetMenuBar( self.menubar )
 		
+	
+	def __del__( self ):
+		pass
+	
+
+###########################################################################
+## Class LicenceDialog
+###########################################################################
+
+class LicenceDialog ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Scoter Licence", pos = wx.DefaultPosition, size = wx.Size( 600,400 ), style = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER )
+		
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer23 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.text_licence = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( -1,-1 ), wx.TE_MULTILINE )
+		self.text_licence.SetMinSize( wx.Size( 200,200 ) )
+		
+		bSizer23.Add( self.text_licence, 1, wx.ALL|wx.EXPAND, 5 )
+		
+		self.button_close = wx.Button( self, wx.ID_ANY, u"Close", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer23.Add( self.button_close, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+		
+		
+		self.SetSizer( bSizer23 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
 	
 	def __del__( self ):
 		pass

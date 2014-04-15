@@ -78,6 +78,12 @@ class ScoterApp(wx.App):
 
         mf = self.main_frame = forms.MainFrame(None)
 
+        self.licence_dialog = forms.LicenceDialog(mf)
+        with open(self._rel_path("COPYING")) as fh:
+            lines = fh.readlines()
+            self.licence_dialog.text_licence.SetValue("".join(lines))
+        self.licence_dialog.Centre()
+
         icon_bundle = wx.IconBundle()
         icon_bundle.AddIcon(wx.Icon(self._rel_path("appicon16.png"), wx.BITMAP_TYPE_PNG))
         icon_bundle.AddIcon(wx.Icon(self._rel_path("appicon32.png"), wx.BITMAP_TYPE_PNG))
@@ -124,8 +130,11 @@ class ScoterApp(wx.App):
         bind(wx.EVT_MENU, self.show_read_config_dialog, mf.menuitem_read_config)
         bind(wx.EVT_MENU, self.reset_config, mf.menuitem_reset_config)
         bind(wx.EVT_MENU, self.revert_config, mf.menuitem_revert_config)
+        bind(wx.EVT_MENU, self.show_licence, mf.menuitem_show_licence)
         bind(wx.EVT_BUTTON, self.abort_simann, mf.button_abort)
-        
+        self.licence_dialog.Bind(wx.EVT_BUTTON,
+             lambda e: self.licence_dialog.Show(False),
+             self.licence_dialog.button_close)
         mf.Bind(wx.EVT_CLOSE, self.quit)
         
         for i in range(4):
@@ -485,7 +494,7 @@ class ScoterApp(wx.App):
     def open_user_guide(self, event):
         """Open the user guide using an external program."""
         
-        # Bizarrely, no cross-platform way to do this until http://bugs.python.org/issue3177
+        # Oddly, no cross-platform way to do this until http://bugs.python.org/issue3177
         # is resolved. Six years and counting...
         path = self._rel_path("user-guide/user-guide.html")
         path = os.path.normpath(path)
@@ -497,6 +506,10 @@ class ScoterApp(wx.App):
         elif os.name == "posix":
             cmd = ["xdg-open", path]
             subprocess.Popen(cmd)
+    
+    def show_licence(self, event):
+        self.licence_dialog.Centre()
+        self.licence_dialog.Show()
     
     def show_save_wxconfig_dialog(self, event):
         """Save ScoterGui configuration to a user-specified wx.FileConfig file.
