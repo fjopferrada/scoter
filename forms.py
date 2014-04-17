@@ -713,3 +713,80 @@ class LicenceDialog ( wx.Dialog ):
 		pass
 	
 
+###########################################################################
+## Class SaveBundleDialog
+###########################################################################
+
+class SaveBundleDialog ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Create bundle", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer24 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_panel28 = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer4 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer4.SetFlexibleDirection( wx.BOTH )
+		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText35 = wx.StaticText( self.m_panel28, wx.ID_ANY, u"Bundle type", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText35.Wrap( -1 )
+		fgSizer4.Add( self.m_staticText35, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		choice_bundle_typeChoices = [ u"Zip file", u"Folder" ]
+		self.choice_bundle_type = wx.Choice( self.m_panel28, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_bundle_typeChoices, 0 )
+		self.choice_bundle_type.SetSelection( 0 )
+		fgSizer4.Add( self.choice_bundle_type, 0, wx.ALL, 5 )
+		
+		self.m_staticText36 = wx.StaticText( self.m_panel28, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText36.Wrap( -1 )
+		fgSizer4.Add( self.m_staticText36, 0, wx.ALL, 5 )
+		
+		self.check_include_results = wx.CheckBox( self.m_panel28, wx.ID_ANY, u"Include results", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer4.Add( self.check_include_results, 0, wx.ALL, 5 )
+		
+		self.m_staticText37 = wx.StaticText( self.m_panel28, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText37.Wrap( -1 )
+		fgSizer4.Add( self.m_staticText37, 0, wx.ALL, 5 )
+		
+		self.check_include_scoter = wx.CheckBox( self.m_panel28, wx.ID_ANY, u"Include Scoter program", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.check_include_scoter.SetValue(True) 
+		fgSizer4.Add( self.check_include_scoter, 0, wx.ALL, 5 )
+		
+		
+		self.m_panel28.SetSizer( fgSizer4 )
+		self.m_panel28.Layout()
+		fgSizer4.Fit( self.m_panel28 )
+		bSizer24.Add( self.m_panel28, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		self.m_panel29 = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer25 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		
+		bSizer25.AddSpacer( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.button_cancel = wx.Button( self.m_panel29, wx.ID_ANY, u"Cancel", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer25.Add( self.button_cancel, 0, wx.ALL, 5 )
+		
+		self.button_create = wx.Button( self.m_panel29, wx.ID_ANY, u"Create", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer25.Add( self.button_create, 0, wx.ALL, 5 )
+		
+		
+		self.m_panel29.SetSizer( bSizer25 )
+		self.m_panel29.Layout()
+		bSizer25.Fit( self.m_panel29 )
+		bSizer24.Add( self.m_panel29, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		self.SetSizer( bSizer24 )
+		self.Layout()
+		bSizer24.Fit( self )
+		
+		self.Centre( wx.BOTH )
+	
+	def __del__( self ):
+		pass
+	
+

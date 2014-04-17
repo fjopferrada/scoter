@@ -142,7 +142,7 @@ class ScoterConfig(ScoterConfigBase):
                   output_dir = "",
                   debug = ""
                   ):
-        # if interp_npoints == -1: interp_npoints = None
+
         return super(ScoterConfig, cls).__new__\
             (cls, interp_active, interp_type, interp_npoints, detrend,
              normalize, weight_d18o, weight_rpi, max_rate, make_pdf, live_display, precalc,
@@ -380,9 +380,9 @@ class Scoter:
         # else, this ensures that there won't be any name clashes if they are written
         # to files for the use of the Match program.
         for series in self.series_preprocessed[0]:
-            series.name = series.parameter + "-record"
+            series.name = "record_" + series.parameter + ".data"
         for series in self.series_preprocessed[1]:
-            series.name = series.parameter + "-target"
+            series.name = "target_" + series.parameter + ".data"
 
     def correlate_sa(self, known_line, config, callback_obj):
         """Perform a correlation using simulated annealing.

@@ -293,6 +293,6 @@
 ** TODO 049 Implement "save correlation" functionality.
 ** DONE 050 Implement "export Scoter configuration".
    CLOSED: [2014-04-15 Tue 14:22]
-** TODO 051 Implement "export bundle".
+** STARTED 051 Implement "export bundle".
 ** TODO 052 Add tooltips for interpolation types
    See http://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
