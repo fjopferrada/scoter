@@ -586,7 +586,7 @@ class Scoter:
             logger.debug("Finished SA correlation.")
         if config.match_active:
             logger.debug("Starting Match correlation.")
-            self.match_dir = self.correlate_match(config)
+            self.correlate_match(config)
             self.save_results()
             logger.debug("Finished Match correlation.")
         logger.debug("Correlation(s) complete.")

@@ -28,8 +28,10 @@ import os
 import forms
 import threading
 import logging
+import shutil
 import sys
 import subprocess
+import tempfile
 import zipfile
 
 # Attribute names for last used directories for file dialogs.
@@ -55,7 +57,7 @@ _gui_text_fields = (
 ("corr_sa_max_steps",      "max_steps",           int,   "Steps threshold"),
 ("corr_sa_seed",           "random_seed",         int,   "Random seed"),
 ("corr_sa_rc_penalty",     "rc_penalty",          float, "SA rate change penalty"),
-("corr_sa_max_rate",       "max_rate",            float, "SA maximum rate"),
+("corr_sa_max_rate",       "max_rate",            int,   "SA maximum rate"),
 ("corr_match_nomatch",     "match_nomatch",       float, "No match penalty"),
 ("corr_match_speed_p",     "match_speed_p",       float, "Speed penalty"),
 ("corr_match_tie_p",       "match_tie_p",         float, "Tie penalty"),
@@ -549,10 +551,11 @@ class ScoterApp(wx.App):
         for root, dirs, files in os.walk(path):
             for file_ in files:
                 zipf.write(os.path.join(root, file_),
-                           os.path.join(path, '..'))
+                           os.path.join("scoter-bundle", 
+                           os.path.relpath(os.path.join(root, file_), path)))
         zipf.close()
 
-    def make_bundle(self, path, include_scoter = False):
+    def make_bundle(self, path, include_scoter = False, include_results = False):
         """Write a stand-alone bundle to a directory.
         
         The bundle contains a Scoter configuration, the input data, and
@@ -560,7 +563,7 @@ class ScoterApp(wx.App):
         
 
         # create directories
-        os.mkdir(path)
+        if not os.path.exists(path): os.mkdir(path)
         os.mkdir(os.path.join(path, "data"))
         os.mkdir(os.path.join(path, "results"))
         if include_scoter:
@@ -585,21 +588,30 @@ class ScoterApp(wx.App):
         config.write_to_file(os.path.join(path, "scoter.cfg"))
         # write shell script
         with open(os.path.join(path, "run-scoter.sh"), "w") as fh:
+            # TODO
             fh.write("#!/usr/bin/env sh\n"
                      "echo 'Not implemented yet.'\n")
         with open(os.path.join(path, "run-scoter.cmd"), "w") as fh:
+            # TODO
             fh.write("ECHO Not implemented yet\r\n")
         # write description files
         with open(os.path.join(path, "README"), "w") as fh:
+            # TODO
             fh.write("This folder is a Scoter bundle.\n")
-   
         with open(os.path.join(path, "results", "README"), "w") as fh:
             fh.write("When Scoter is run, result files will be placed in this folder.\n")
         # copy program if requested
         if include_scoter:
-            assert(False)
+            # TODO
+            wx.MessageBox("‘Include Scoter’ is not implemented yet.",
+                              "Export error",
+                              wx.OK | wx.ICON_ERROR)
             # not implemented yet
-        
+        # generate results if requested
+        if include_results:
+            wx.MessageBox("‘Include Scoter’ is not implemented yet.",
+                          "Export error",
+                          wx.OK | wx.ICON_ERROR)
 
     def show_export_bundle_dialog(self, event):
         success = self.make_scoterconfig_from_gui()
@@ -609,17 +621,37 @@ class ScoterApp(wx.App):
             return
         bundle_type = self.bundle_dialog.choice_bundle_type.GetSelection()
         include_scoter = self.bundle_dialog.check_include_scoter.GetValue()
-        dialog = wx.FileDialog(self.main_frame, "Export bundle",
-                               self.lastdir_export_scoter, "bundle.zip",
-                               "Zip files (*.zip)|*.zip|All files|*",
-                               wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
-        response = dialog.ShowModal()
-        dialog.Destroy()
-        if response == wx.ID_OK:
-            self.make_bundle(dialog.GetPath(), include_scoter)
-            wx.MessageBox("Not implemented yet.",
-                          "Export bundle", 
-                          wx.OK | wx.ICON_ERROR)
+        include_results = self.bundle_dialog.check_include_results.GetValue()
+        if bundle_type == 0: # zip file
+            dialog = wx.FileDialog(self.main_frame, "Create bundle as zip file",
+                                   "", # default path
+                                   "bundle.zip",
+                                   "Zip files (*.zip)|*.zip|All files|*",
+                                   wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+            response = dialog.ShowModal()
+            bundle_path = tempfile.mkdtemp("", "scoter", None)
+            zip_path = dialog.GetPath()
+            dialog.Destroy()
+        else:
+            dialog = wx.DirDialog(self.main_frame, "Select or create a bundle folder",
+                                  "", # default path
+                                  wx.DD_DEFAULT_STYLE,
+                                  wx.DefaultPosition,
+                                  wx.DefaultSize,
+                                  "name" # not used according to wx docs
+                                  )
+            response = dialog.ShowModal()
+            bundle_path = dialog.GetPath()
+            dialog.Destroy()
+            # TODO: should probably forbid using non-empty directories
+        
+        if response != wx.ID_OK: return
+        self.make_bundle(bundle_path, include_scoter, include_results)
+        if bundle_type == 0:
+            # zip the temporary directory
+            self.zipdir(bundle_path, zip_path)
+            # remove the temporary directory
+            shutil.rmtree(bundle_path, ignore_errors = True)
     
     def show_save_wxconfig_dialog(self, event):
         """Save ScoterGui configuration to a user-specified wx.FileConfig file.
