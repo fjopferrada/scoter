@@ -585,7 +585,8 @@ class ScoterApp(wx.App):
                     
         # write configuration
         config = self.scoterconfig._replace(**filename_dict)
-        config.write_to_file(os.path.join(path, "scoter.cfg"))
+        config_path = os.path.join(path, "scoter.cfg")
+        config.write_to_file(config_path)
         # write shell script
         with open(os.path.join(path, "run-scoter.sh"), "w") as fh:
             # TODO
@@ -609,9 +610,15 @@ class ScoterApp(wx.App):
             # not implemented yet
         # generate results if requested
         if include_results:
-            wx.MessageBox("‘Include Scoter’ is not implemented yet.",
-                          "Export error",
-                          wx.OK | wx.ICON_ERROR)
+            # TODO show progress dialog here
+            
+            logger.info("Generating results for bundle.")
+            scoter = Scoter()
+            scoter.perform_complete_correlation(config_path)
+            
+            #wx.MessageBox("‘Include results’ is not implemented yet.",
+            #              "Export error",
+            #              wx.OK | wx.ICON_ERROR)
 
     def show_export_bundle_dialog(self, event):
         success = self.make_scoterconfig_from_gui()
@@ -629,25 +636,34 @@ class ScoterApp(wx.App):
                                    "Zip files (*.zip)|*.zip|All files|*",
                                    wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
             response = dialog.ShowModal()
-            bundle_path = tempfile.mkdtemp("", "scoter", None)
-            zip_path = dialog.GetPath()
-            dialog.Destroy()
+            if response == wx.ID_OK:
+                bundle_path = tempfile.mkdtemp("", "scoter", None)
+                zip_path = dialog.GetPath()
+                dialog.Destroy()
         else:
-            dialog = wx.DirDialog(self.main_frame, "Select or create a bundle folder",
+            while True:
+                dialog = wx.DirDialog(self.main_frame, "Select or create a bundle folder",
                                   "", # default path
                                   wx.DD_DEFAULT_STYLE,
                                   wx.DefaultPosition,
                                   wx.DefaultSize,
                                   "name" # not used according to wx docs
                                   )
-            response = dialog.ShowModal()
-            bundle_path = dialog.GetPath()
-            dialog.Destroy()
-            # TODO: should probably forbid using non-empty directories
-        
+                response = dialog.ShowModal()
+                if response != wx.ID_OK: break
+                bundle_path = dialog.GetPath()
+                dialog.Destroy()
+                if os.listdir(bundle_path) == []: # empty dir, OK to procees
+                    break
+                else: # non-empty directory
+                    wx.MessageBox("You cannot put a bundle in a non-empty folder. "
+                                  "Please select an empty folder or create a new one.",
+                                  "Bundle creation error",
+                                  wx.OK | wx.ICON_ERROR)
+
         if response != wx.ID_OK: return
         self.make_bundle(bundle_path, include_scoter, include_results)
-        if bundle_type == 0:
+        if bundle_type == 0: # 0 is zip, 1 is folder
             # zip the temporary directory
             self.zipdir(bundle_path, zip_path)
             # remove the temporary directory

@@ -251,7 +251,7 @@ class Scoter:
         self.series = [[None, None],[None, None]]
         self.filenames = [["", ""],["", ""]]
     
-    def read_data(self, role, parameter, filename):
+    def read_data(self, role, parameter, filename, base_dir = None):
         """Read a data series.
         
         Read a data series (record or target curve) into Scoter.
@@ -259,17 +259,23 @@ class Scoter:
         Args:
             role: 0 for record, 1 for target
             parameter: 0 for d18O, 1 for RPI
-            filename: full path to data file
+            filename: path to data file
                 If a filename of "" is supplied, read_data will ignore
                 it and return with no error.
+            base_dir: base directory used to resolve filename if it
+                is a relative path
         """
         assert(0 <= role <= 1)
         assert(0 <= parameter <= 1)
         param_name = ("d18o", "rpi")[parameter]
-        if filename != "" and os.path.isfile(filename):
-            logger.debug("Reading file: %d %d %s" % (role, parameter, filename))
-            self.filenames[role][parameter] = filename
-            self.series[role][parameter] = Series.read(filename, parameter=param_name)
+        if os.path.isabs(filename):
+            full_path = filename
+        else:
+            full_path = os.path.join(base_dir, filename)
+        if full_path != "" and os.path.isfile(full_path):
+            logger.debug("Reading file: %d %d %s" % (role, parameter, full_path))
+            self.filenames[role][parameter] = full_path
+            self.series[role][parameter] = Series.read(full_path, parameter=param_name)
     
     def has_series(self, role, parameter):
         return (self.series[role][parameter] != None)
@@ -288,16 +294,21 @@ class Scoter:
         self.series[role][parameter] = None
         self.filenames[role][parameter] = ""
 
-    def read_data_using_config(self, config):
+    def read_data_using_config(self, config, base_dir = None):
         """Read data files specified in the supplied configuration.
+        
+        Data file paths in the configuration can be relative or absolute.
+        If they are relative, they will be resolved relative to the 
+        supplied base directory.
         
         Args:
             config: a ScoterConfig object
+            base_dir: base directory for non-absolute filenames in configuration
         """
-        self.read_data(0, 0, config.record_d18o_file)
-        self.read_data(0, 1, config.record_rpi_file)
-        self.read_data(1, 0, config.target_d18o_file)
-        self.read_data(1, 1, config.target_rpi_file)
+        self.read_data(0, 0, config.record_d18o_file, base_dir)
+        self.read_data(0, 1, config.record_rpi_file, base_dir)
+        self.read_data(1, 0, config.target_d18o_file, base_dir)
+        self.read_data(1, 1, config.target_rpi_file, base_dir)
         
     def preprocess(self, config):
         """Preprocess data sets in preparation for correlation.
@@ -499,7 +510,7 @@ class Scoter:
                                                 intervals = config.match_intervals),
                                 match_params)
         match_path = self.default_match_path if config.match_path == "" else config.match_path
-        logging.debug("Match path: %s", match_path)
+        logger.debug("Match path: %s", match_path)
         match_result = match_conf.run_match(match_path, dir_path, False)
         if not match_result.error:
             self.aligned_match = match_result.series1
@@ -543,7 +554,8 @@ class Scoter:
         if self.match_dir:
             shutil.rmtree(self.match_dir)
         
-        self.file_logger.close()
+        self.file_log_handler.close()
+        # TODO remove file log handler from logger?
     
     def perform_complete_correlation(self, config_file):
         """Reads, correlates, and saves data.
@@ -557,7 +569,7 @@ class Scoter:
         # We need to locate (and possibly create) the output directory before doing
         # anything else, because we need somewhere for the log file to go.
         output_dir = config.output_dir
-        logging.debug("Output dir: ‘%s’" % output_dir)
+        logger.debug("Output dir: ‘%s’" % output_dir)
         if output_dir == "":
             # If no output directory is explicitly set, use the parent directory
             # of the configuration file.
@@ -571,14 +583,15 @@ class Scoter:
             os.makedirs(output_dir)
         self.output_dir = output_dir
         
-        self.file_logger = logging.FileHandler(os.path.join(self.output_dir, "scoter.log"))
-        self.file_logger.setLevel(logging.DEBUG)
+        self.file_log_handler = logging.FileHandler(os.path.join(self.output_dir, "scoter.log"))
+        self.file_log_handler.setLevel(logging.DEBUG)
         formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
-        self.file_logger.setFormatter(formatter)
-        logging.getLogger(__name__).addHandler(self.file_logger)
+        self.file_log_handler.setFormatter(formatter)
+        logger.addHandler(self.file_log_handler)
+        logger.setLevel(logging.DEBUG)
         
         logger.debug("Reading data.")
-        self.read_data_using_config(config)
+        self.read_data_using_config(config, os.path.dirname(config_file))
         self.preprocess(config)
         if config.sa_active:
             logger.debug("Starting SA correlation.")
@@ -587,8 +600,8 @@ class Scoter:
         if config.match_active:
             logger.debug("Starting Match correlation.")
             self.correlate_match(config)
-            self.save_results()
             logger.debug("Finished Match correlation.")
+        self.save_results()
         logger.debug("Correlation(s) complete.")
         self.finalize()
 
@@ -605,8 +618,15 @@ def main():
                    help="logging level (non-negative integer or CRITICAL/ERROR/WARNING/INFO/DEBUG/NOTSET)",
                    default="INFO")
     args = parser.parse_args()
-    logging.basicConfig(level=args.log_level, format="%(levelname)-8s: %(message)s")
     
+    stderr_handler = logging.StreamHandler()
+    stderr_handler.setFormatter(logging.Formatter("%(levelname)-8s: %(message)s",
+                                                  None))
+    stderr_handler.setLevel(args.log_level)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(stderr_handler)
+    
+    logger.info("Scoter starting.")
     if args.write_config:
         ok_to_write = False
         if os.path.isfile(args.write_config):
@@ -631,6 +651,8 @@ def main():
             scoter.perform_complete_correlation(args.configuration)
         else:
             logger.warning("No configuration file specified.")
+    
+    logger.info("Scoter run finished.")
 
 logger = logging.getLogger(__name__)
 if __name__ == "__main__":
