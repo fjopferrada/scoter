@@ -84,6 +84,23 @@ and time units must be used for both parameters.
 This tab controls the preprocessing steps that are applied to the 
 data before the actual correlation takes place.
 
+### Interpolation
+
+Type:
+
+linear
+:   linear interpolation
+nearest
+:   nearest-neighbour
+zero
+:   zero-order hold (`previous-neighbour' interpolation)
+slinear
+:   first-order spline (equivalent to `linear')
+quadratic
+:   second-order spline
+cubic
+:   third order spline
+
 ## The correlation tab
 
 This tab controls the settings for the actual correlation procedures,

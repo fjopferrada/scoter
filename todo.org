@@ -1,4 +1,4 @@
-#+TODO: TODO(t) STARTED(s) | DONE(d)
+#+TODO: TODO(t) STARTED(s) | DONE(d) WONTFIX(w)
 
 * Tasks
 ** DONE 001 Look at namedtuple for configuration parameters
@@ -295,8 +295,13 @@
 ** DONE 050 Implement "export Scoter configuration".
    CLOSED: [2014-04-15 Tue 14:22]
 ** STARTED 051 Implement "export bundle".
-** TODO 052 Add tooltips for interpolation types
+** WONTFIX 052 Add tooltips for interpolation types
+   CLOSED: [2014-05-14 Wed 17:01]
    See http://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+   Update: it seems that wxChoice doesn't allow per-item tooltips,
+   so this can't be done.
+   As long as the interpolation types are properly documented in the
+   manual, this shouldn't cause any major problems.
 ** TODO 053 Add "wipe results" option to CLI
    When scoter.py is run from the command line, it crashes
    if there is an existing match directory in the results.
@@ -309,3 +314,4 @@
    Log-level option doesn't work, and logging system is a bit
    confused overall.
 
+** TODO 055 Include Scoter GUI configuration in bundle

@@ -371,7 +371,7 @@ class Series:
         Returns:
             A new series containing the interpolated data.
         """
-        f = interp1d(self.data[0], self.data[1])
+        f = interp1d(self.data[0], self.data[1], kind=kind)
         if not npoints: npoints = self.npoints()
         new_xs = np.linspace(self.start(), self.end(), npoints)
         new_ys = f(new_xs)
