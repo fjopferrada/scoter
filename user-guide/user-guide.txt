@@ -140,12 +140,38 @@ File > Configuration > Reset configuration…
 :    Reset configuration to initial values. This will return all
 	 the configuration settings to the values they had when
 	 the program was first installed.
+File > Export > Plain Scoter configuration…
+:    Export a configuration file suitable for use with the non-graphical version
+	 of Scoter (see
+	 [`Advanced operation'](#advanced-operation-using-scoter-without-the-graphical-interface)).
+File > Export > Self-contained bundle…
+:    Export a bundle containing the input data, current configuration,
+	 and (optionally) the results and the Scoter program itself.
+	 See [`Creating bundles'](#creating-bundles) for more details.
 File > Quit
 :    Quit the program.
 Help > User guide…
 :    Show this user guide as a web page.
 Help > About
 :    Show some brief information about the Scoter program.
+
+## Creating bundles
+
+A *bundle* is a self-contained package allowing a correlation to be easily
+and automatically reproduced, helping to ensure that the analysis are fully
+repeatable, both by the original researchers and by others trying to
+reproduce their results.
+
+A bundle contains, at a minimum, the current Scoter configuration file and
+copies of the current input data files. Optionally, it can also contain
+the results files and a copy of the Scoter program itself. (It is 
+recommended to include these components to assist reproducibility.)
+To run a bundle, the following software may be required:
+
+1. Scoter itself
+2. Python
+3. Match
+
 
 # Advanced operation: using Scoter without the graphical interface
 

@@ -1,0 +1,28 @@
+This folder is a Scoter bundle. It contains data and configuration files 
+for the stratigraphic correlation program Scoter. If Scoter is installed
+on your system, you can perform the correlation by running the file
+run-scoter.cmd (on Windows) or run-scoter.sh (on Linux or Mac).
+
+List of contents:
+
+README
+  : This file
+run-scoter.cmd
+  : A command file for Windows. Running this file under Windows will
+    process the data using Scoter, if it is installed.
+run-scoter.sh
+  : A shell script for Unix-like systems. Running this file under 
+    Linux or Mac OS X will process the data using Scoter, if it is
+    installed.
+scoter.cfg
+  : Configuration file for Scoter
+data
+  : Folder containing input data files for Scoter
+results
+  : Folder into which results are written when Scoter is run with 
+    the configuration in this bundle. Depending on the options chosen
+    when the bundle was created, it may already contain pre-calculated
+    results from a Scoter run.
+scoter
+  : If present, this folder contains the Scoter program itself.
+

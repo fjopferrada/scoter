@@ -294,7 +294,8 @@
 ** TODO 049 Implement "save correlation" functionality.
 ** DONE 050 Implement "export Scoter configuration".
    CLOSED: [2014-04-15 Tue 14:22]
-** STARTED 051 Implement "export bundle".
+** DONE 051 Implement "export bundle".
+   CLOSED: [2014-05-20 Tue 19:06]
 ** WONTFIX 052 Add tooltips for interpolation types
    CLOSED: [2014-05-14 Wed 17:01]
    See http://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
@@ -315,3 +316,11 @@
    confused overall.
 
 ** TODO 055 Include Scoter GUI configuration in bundle
+** TODO 056 scotergui should handle "plain scoter" configurations
+   If a non-interactive Scoter config is opened in the GUI, the
+   user should be presented with the option to run offline Scoter
+   using this configuration.
+** TODO 057 Change all old-style classes to new-style
+   Lots of the Python classes in the code are old-style.
+   These should be changed to inherit explicitly from object.
+   See e.g. http://stackoverflow.com/q/54867
