@@ -28,7 +28,7 @@ from matplotlib.backends.backend_pdf import FigureCanvasPdf, PdfPages
 font_props = FontProperties()
 font_props.set_size('x-small')
 
-class WarpLine:
+class WarpLine(object):
     def __init__(self, bwarp, scale = None,
                  subseries = 0, invert = False, **args):
         self.bwarp = bwarp
@@ -50,7 +50,7 @@ class WarpLine:
     def add_args(self, new_args):
         self.args.update(new_args)
 
-class Line:
+class Line(object):
     def __init__(self, series, **args):
         self.series = series
         self.args = args
@@ -63,7 +63,7 @@ class Line:
     def add_args(self, new_args):
         self.args.update(new_args)
 
-class Axes:
+class Axes(object):
     def __init__(self, lines, invert = False, spread = 0, xspread = 0,
                  xlim = (None, None), ylim = (None, None),
                  xlabel = None, ylabel = None):
@@ -98,7 +98,7 @@ class Axes:
         axes.legend(prop = font_props,
                     loc='upper left', bbox_to_anchor=(0.95, 1))
 
-class Plot:
+class Plot(object):
     def __init__(self, ax_spec1, ax_spec2 = None):
         self.ax_spec1 = ax_spec1
         self.ax_spec2 = ax_spec2
@@ -110,7 +110,7 @@ class Plot:
             ax2 = ax1.twinx()
             self.ax_spec2.plot(ax2)
 
-class Page:
+class Page(object):
     def __init__(self, plotspecs, filename = 'temp', title = None):
         self.plotspecs = plotspecs
         self.filename = filename
@@ -195,7 +195,7 @@ def plot_2(plotdata, filename, title, use_offset = False):
         i = i + 1
     canvas.print_figure(filename)
     
-class WarpPlotter:
+class WarpPlotter(object):
 
     def __init__(self, nblocks, target, interval = 100,
                  live = True, pdf_file = None, scale = 1.):

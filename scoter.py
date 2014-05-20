@@ -224,7 +224,7 @@ class ScoterConfig(ScoterConfigBase):
             debug = cp.get(s, "debug")
             )
 
-class Scoter:
+class Scoter(object):
     """Scoter correlates geological records with reference curves.
     
     This is the central class of the Scoter package, and provides high-level

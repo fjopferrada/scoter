@@ -28,7 +28,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class Series:
+class Series(object):
     """A time series for a single value.
 
     Consists of a series of position-value pairs (position may be time or

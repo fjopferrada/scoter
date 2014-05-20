@@ -26,7 +26,7 @@ from series import Series
 def _fix_spaces(string):
     return string.replace(" ", "_")
 
-class MatchSeriesConf:
+class MatchSeriesConf(object):
     """Configuration for a series in a run of the match program.
     Note that more than one series may be specified (as a tuple)."""
     def __init__(self, series, intervals = 200, gapfile = None,
@@ -55,7 +55,7 @@ class MatchSeriesConf:
         if self.gapfile != None:
             self.writep(fh, num, 'gapfile', self.gapfile)
     
-class MatchConf:
+class MatchConf(object):
     """Configuration for a run of the match program."""
 
     def __init__(self, series1, series2, params = {}, tie_points = None):
@@ -132,7 +132,7 @@ class MatchConf:
         else:
             return MatchResult(self, dir_path)
         
-class MatchResult:
+class MatchResult(object):
     """The results of a run of the Match program"""
 
     def __init__(self, match_conf, dir_path):

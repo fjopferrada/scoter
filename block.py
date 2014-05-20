@@ -32,7 +32,7 @@ import math
 def is_compiled():
     return cython.compiled
 
-class Bseries:
+class Bseries(object):
     """Block-structed series.
 
     This class wraps one or more Series and provides methods which allow them
@@ -124,7 +124,7 @@ class Bseries:
            
         return total
 
-class Bcomparator:
+class Bcomparator(object):
     """A caching comparator for a pair of Bseries"""
 
     def __init__(self, series1, series2):
@@ -168,7 +168,7 @@ class Bcomparator:
                        color = cmapper.to_rgba(fettled_score),
                        zorder = -score)
 
-class Bwarp:
+class Bwarp(object):
     """A block-level mapping between two Bseries."""
 
     def __init__(self, series0, series1,

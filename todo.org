@@ -320,7 +320,8 @@
    If a non-interactive Scoter config is opened in the GUI, the
    user should be presented with the option to run offline Scoter
    using this configuration.
-** TODO 057 Change all old-style classes to new-style
+** DONE 057 Change all old-style classes to new-style
+   CLOSED: [2014-05-20 Tue 22:54]
    Lots of the Python classes in the code are old-style.
    These should be changed to inherit explicitly from object.
    See e.g. http://stackoverflow.com/q/54867

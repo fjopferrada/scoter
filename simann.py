@@ -23,7 +23,7 @@
 import random
 import math
 
-class AdaptiveSchedule:
+class AdaptiveSchedule(object):
     """Lowers the temperature after a set number of accepted changes.
     """
 
@@ -58,7 +58,7 @@ class AdaptiveSchedule:
     def finished(self):
         return self.temp <= self.end_temp
 
-class SimpleSchedule:
+class SimpleSchedule(object):
 
     def __init__(self, start_temp, end_temp, rate):
         self.start_temp = start_temp
@@ -77,7 +77,7 @@ class SimpleSchedule:
     def finished(self):
         return self.temp <= self.end_temp
 
-class Annealer:
+class Annealer(object):
 
     def __init__(self, start, rnd = random.Random()):
         self.start = start # initial solution
