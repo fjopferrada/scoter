@@ -577,6 +577,7 @@ class ScoterApp(wx.App):
         
         # extra/differing configuration options for ScoterConfig
         filename_dict = {"output_dir" : "results"}
+        
         # write data files
         for role in (0,1):
             for parameter in (0,1):
@@ -625,9 +626,15 @@ class ScoterApp(wx.App):
             if os.path.isdir(dest_dir):
                 shutil.copy2(source_path, os.path.join(dest_dir, dest_path[-1]))
 
+        # write GUI configuration
+        wxc = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
+                                 localFilename = os.path.join(path, "scotergui.cfg"),
+                                 style = wx.CONFIG_USE_LOCAL_FILE)
+        self.write_gui_to_wxconfig(wxc)
+
         # generate results if requested
         if include_results:
-            # TODO show progress dialog here
+            # TODO: show progress dialog here
             
             logger.info("Generating results for bundle.")
             scoter = Scoter()
