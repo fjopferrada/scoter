@@ -76,6 +76,8 @@ class ScoterApp(wx.App):
     
     def OnInit(self):
         """Initialize the program and display the main window."""
+        sys.excepthook = self.exception_handler
+        install_thread_excepthook()
         self.debug = ""
         self.parent_dir = os.path.dirname(os.path.realpath(__file__))
         self.scoter = Scoter()
@@ -154,9 +156,6 @@ class ScoterApp(wx.App):
             self.bundle_dialog.button_cancel)
         mf.Bind(wx.EVT_CLOSE, self.quit)
         
-        for i in range(4):
-            self.figure_canvas[i].mpl_connect("button_press_event", self.click_on_series)
-        
         notebook = mf.Notebook
         notebook.SetSelection(0)
         mf.SetDropTarget(ConfigFileDropTarget(self))
@@ -172,6 +171,11 @@ class ScoterApp(wx.App):
         self.update_gui_from_wxconfig()
         self.plot_series()
         return True
+    
+    def exception_handler(self, type, value, traceback):
+        wx.MessageBox(str(value),
+                      "Exception",
+                      wx.OK | wx.ICON_ERROR)
     
     def _rel_path(self, filename):
         """Resolve a filename relative to the parent directory of this script."""
@@ -219,6 +223,7 @@ class ScoterApp(wx.App):
         if page==0: axes.invert_yaxis()
         self.axes.append(axes)
         figure_canvas = FigureCanvas(panel_obj, -1, figure)
+        figure_canvas.mpl_connect("button_press_event", self.click_on_series)
         self.figure_canvas.append(figure_canvas)
         sizer = panel_obj.GetSizer()
         figure_canvas.SetDropTarget(DataSeriesFileDropTarget(self, page, panel))
@@ -409,7 +414,7 @@ class ScoterApp(wx.App):
                           "No method selected", 
                           wx.OK | wx.ICON_ERROR)
             return
-        
+
         success = self.make_scoterconfig_from_gui()
         if not success: return
         self.scoter.preprocess(self.scoterconfig)
@@ -634,7 +639,7 @@ class ScoterApp(wx.App):
 
         # generate results if requested
         if include_results:
-            # TODO: show progress dialog here
+            # TODO show progress dialog here
             
             logger.info("Generating results for bundle.")
             scoter = Scoter()
@@ -962,8 +967,28 @@ class AboutScoter(wx.AboutDialogInfo):
         # see docs for details.
         self.SetDevelopers(("Pontus Lurcock",))
 
+def install_thread_excepthook():
+    """
+    Workaround for sys.excepthook thread bug http://bugs.python.org/issue1230540
+    by Jonathan Ellis.
+    Call once from __main__ before creating any threads.
+    If using psyco, call psycho.cannotcompile(threading.Thread.run)
+    since this replaces a new-style class method.
+    """
+    import sys
+    run_old = threading.Thread.run
+    def run(*args, **kwargs):
+        try:
+            run_old(*args, **kwargs)
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            sys.excepthook(*sys.exc_info())
+    threading.Thread.run = run
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
+    
     app = ScoterApp()
     app.MainLoop()
 

@@ -20,7 +20,6 @@
 # along with Scoter.  If not, see <http://www.gnu.org/licenses/>.
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = <
 
-import cython
 import numpy as np
 from series import Series
 import random
@@ -28,9 +27,6 @@ import fractions
 import pylab
 import matplotlib
 import math
-
-def is_compiled():
-    return cython.compiled
 
 class Bseries(object):
     """Block-structed series.

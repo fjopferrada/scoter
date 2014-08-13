@@ -274,13 +274,15 @@
    role. For example, if the user reads a $\delta^{18}\mathrm{O}$ record
    while there is still an RPI record loaded, the limits are still relevant
    and should be retained.
-** TODO 047 Break URLs in user manual bibliography
+** DONE 047 Break URLs in user manual bibliography
+   CLOSED: [2014-08-13 Wed 15:44]
    Due to some pandoc quirk, URLs are set differently in the
    main text (using the \url{...} command) and in the bibliography
    (using the \href{...}{...} command). Unfortunately it seems that
    the second of those can't handle line breaking. It's possible
    that this is fixed in more recent versions of Pandoc, so I'm
-   leaving it for the time being.
+   leaving it for the time being. // Update: was indeed fixed in
+   newer Pandoc version.
 ** DONE 048 Better handling of numeric config fields in GUI
    CLOSED: [2014-04-11 Fri 16:27]
    Currently, numeric configuration parameters are held in GUI text fields as
@@ -327,5 +329,9 @@
    These should be changed to inherit explicitly from object.
    See e.g. http://stackoverflow.com/q/54867
 
-** TODO 058 Catch exceptions and relay to GUI
+** DONE 058 Catch exceptions and relay to GUI
+   CLOSED: [2014-08-13 Wed 15:49]
    sys.excepthook seems to be the right way to do this.
+** TODO 059 Show progress dialog for bundle export
+   This is at least necessary if results are generated for
+   the bundle.
