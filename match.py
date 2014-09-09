@@ -130,7 +130,9 @@ class MatchConf(object):
             result.error = (p.returncode != 0)
             return result
         else:
-            return MatchResult(self, dir_path)
+            result = MatchResult(self, dir_path)
+            result.error = False
+            return result
         
 class MatchResult(object):
     """The results of a run of the Match program"""
