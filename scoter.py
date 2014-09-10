@@ -457,8 +457,7 @@ class Scoter(object):
             bwarp_annealed = starting_warp
         else:
             annealer = Annealer(starting_warp, random_generator)
-            finished_ok = annealer.run(schedule, logging = False, restarts = 0,
-                    callback = callback)
+            finished_ok = annealer.run(schedule, restarts = 0, callback = callback)
             if not finished_ok:
                 callback_obj.simann_callback_finished("aborted")
                 return "aborted"
@@ -537,7 +536,12 @@ class Scoter(object):
         
         # Copy match directory
         if self.match_dir:
-            shutil.copytree(self.match_dir, os.path.join(path, "match"))
+            match_dest_path = os.path.join(path, "match")
+            # Remove any existing match directory to save new results
+            if os.path.exists(match_dest_path):
+                logger.info("Deleting old match results folder.")
+                shutil.rmtree(match_dest_path)
+            shutil.copytree(self.match_dir, match_dest_path)
         
         # Save dewarped data
         if self.aligned_sa:

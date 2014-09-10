@@ -601,12 +601,14 @@ class ScoterApp(wx.App):
         config.write_to_file(config_path)
         
         # write shell script
-        with open(os.path.join(path, "run-scoter.sh"), "w") as fh:
+        shell_script_path = os.path.join(path, "run-scoter.sh")
+        with open(shell_script_path, "w") as fh:
             fh.write("#!/usr/bin/env sh\n\n")
             if include_scoter:
                 fh.write("python2 scoter/scoter.py scoter.cfg")
             else:
                 fh.write("scoter scoter.cfg")
+        
         
         # write Windows batch script
         with open(os.path.join(path, "run-scoter.cmd"), "w") as fh:

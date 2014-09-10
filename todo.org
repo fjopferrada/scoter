@@ -214,7 +214,8 @@
    which are generated under the current scheme.
 
    I have now implemented this solution.
-** TODO 036 Add exporting for Scoter config and bundle
+** DONE 036 Add exporting for Scoter config and bundle
+   CLOSED: [2014-09-10 Wed 15:56]
    Add a feature allowing the GUI to export a configparser Scoter
    configuration (for offline operation) and a self-contained
    "data and analysis" bundle: a folder with copies of the input
@@ -305,13 +306,21 @@
    so this can't be done.
    As long as the interpolation types are properly documented in the
    manual, this shouldn't cause any major problems.
-** TODO 053 Add "wipe results" option to CLI
+** DONE 053 Add "wipe results" option to CLI
+   CLOSED: [2014-09-10 Wed 15:52]
    When scoter.py is run from the command line, it crashes
    if there is an existing match directory in the results.
    It should be better behaved: exit gracefully if the results
    folder is not empty, and provide an option to overwrite
    previous results (probably best done by explicitly wiping
    the directory first).
+
+   Fixed, sort of: I took the simple approach of deleting the
+   match directory if it exists. (Other files will be overwritten
+   automatically, except the log file which will be appended.)
+   Results should not be regarded as irreplaceable data since they
+   can be regenerated deterministically, and CLI users can be
+   expected to be more careful than GUI users.
 ** DONE 054 Tidy up logging in scoter.py
    CLOSED: [2014-05-14 Wed 07:53]
    Log-level option doesn't work, and logging system is a bit

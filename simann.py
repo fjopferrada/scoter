@@ -22,6 +22,9 @@
 
 import random
 import math
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AdaptiveSchedule(object):
     """Lowers the temperature after a set number of accepted changes.
@@ -85,7 +88,7 @@ class Annealer(object):
         self.rnd = rnd
 
     def run(self, schedule,
-            logging = False, restarts = 0, callback = None):
+            restarts = 0, callback = None):
         soln_restart = self.start
         for restart_n in xrange(restarts + 1):
             schedule.reset()
@@ -100,9 +103,9 @@ class Annealer(object):
                             math.exp( -diff / schedule.temp ) >
                             self.rnd.random())
                 if accepted: soln_current = soln_new
-                if logging:
-                    print 'Restart %3d Step %9d Temp %12d' % (restart_n, step, schedule.temp)
-                    soln_current.printself()
+                logger.info("Restart %3d Step %9d Temp %12d" %
+                            (restart_n, step, schedule.temp))
+                # soln_current.printself()
                 if callback:
                     abort = callback(soln_current, soln_new, schedule)
                     if abort: return False # terminated prematurely
