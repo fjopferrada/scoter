@@ -328,7 +328,8 @@
 
 ** DONE 055 Include Scoter GUI configuration in bundle
    CLOSED: [2014-05-21 Wed 11:52]
-** TODO 056 scotergui should handle "plain scoter" configurations
+** DONE 056 scotergui should handle "plain scoter" configurations
+   CLOSED: [2014-09-11 Thu 21:42]
    If a non-interactive Scoter config is opened in the GUI, the
    user should be presented with the option to run offline Scoter
    using this configuration.

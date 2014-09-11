@@ -33,6 +33,7 @@ import sys
 import subprocess
 import tempfile
 import zipfile
+import traceback
 
 # Attribute names for last used directories for file dialogs.
 # These also serve as keys in the wxConfig file.
@@ -172,7 +173,8 @@ class ScoterApp(wx.App):
         self.plot_series()
         return True
     
-    def exception_handler(self, type, value, traceback):
+    def exception_handler(self, etype, value, trace):
+        traceback.print_tb(trace, limit = None, file = None)
         wx.MessageBox(str(value),
                       "Exception",
                       wx.OK | wx.ICON_ERROR)
@@ -608,7 +610,7 @@ class ScoterApp(wx.App):
                 fh.write("python2 scoter/scoter.py scoter.cfg")
             else:
                 fh.write("scoter scoter.cfg")
-        
+        os.chmod(shell_script_path, 0o774)
         
         # write Windows batch script
         with open(os.path.join(path, "run-scoter.cmd"), "w") as fh:
@@ -746,7 +748,40 @@ class ScoterApp(wx.App):
         conf = wx.FileConfig(appName = "scoter", vendorName = "talvi.net",
                              localFilename = filename,
                              style = wx.CONFIG_USE_LOCAL_FILE)
-        self.update_gui_from_wxconfig(conf)        
+        if conf.Read("config_type", "UNKNOWN") == "scoter_gui":
+            logger.info("Scoter GUI configuration file detected.")
+            self.update_gui_from_wxconfig(conf)        
+        elif conf.Read("DEFAULT/config_type", "UNKNOWN") == "plain_scoter":
+            logger.info("Plain Scoter configuration file detected.")
+            msg = ("This file is a configuration for plain Scoter. "
+                   "It cannot be shown in the Scoter GUI, but you "
+                   "can run it non-interactively to generate results. "
+                   "Would you like to run plain Scoter now using this "
+                   "configuration file?")
+            dialog = wx.MessageDialog(self.main_frame, msg,
+                                      "Plain Scoter configuration detected", 
+                                      wx.YES_NO | wx.ICON_QUESTION)
+            choice = dialog.ShowModal()
+            if choice == wx.ID_YES:
+                logger.info("Starting non-interactive Scoter.")
+                scoter_nonint = Scoter()
+                scoter_nonint.perform_complete_correlation(filename)
+                dialog = wx.MessageDialog(self.main_frame,
+                                      "Results saved in folder " +
+                                      scoter_nonint.output_dir,
+                                      "Unrecognized configuration file", 
+                                      wx.OK | wx.ICON_INFORMATION)
+                dialog.ShowModal()
+            else:
+                logger.info("Plain Scoter configuration not used.")
+        else:
+            logger.error("Unknown configuration file type.")
+            dialog = wx.MessageDialog(self.main_frame,
+                                      "This file does not appear to be a "
+                                      "Scoter configuration file.",
+                                      "Unrecognized configuration file", 
+                                      wx.OK | wx.ICON_ERROR)
+            dialog.ShowModal()
     
     def revert_config(self, event):
         """Revert configuration to its state when Scoter was started.
@@ -839,6 +874,8 @@ class ScoterApp(wx.App):
             interp_npoints_type = "explicit"
         mf = self.main_frame
         if wxc == None: wxc = wx.Config("scoter")
+        wxc.Write("config_type", "scoter_gui")
+        wxc.Write("scoter_version", "FIXME") # TODO
         for wxfield, scoterfield, _, _ in _gui_text_fields:
             widget = getattr(mf, wxfield)
             wxc.Write(scoterfield, widget.GetValue())
@@ -977,7 +1014,6 @@ def install_thread_excepthook():
     If using psyco, call psycho.cannotcompile(threading.Thread.run)
     since this replaces a new-style class method.
     """
-    import sys
     run_old = threading.Thread.run
     def run(*args, **kwargs):
         try:
@@ -989,7 +1025,7 @@ def install_thread_excepthook():
     threading.Thread.run = run
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     
     app = ScoterApp()
     app.MainLoop()

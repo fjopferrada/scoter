@@ -45,6 +45,7 @@ def _find_executable_noext(leafname):
         if is_exe(leafname):
             return leafname
     else:
+        logger.info("Looking for %s on %s" % (leafname, os.environ["PATH"]))
         for path in os.environ["PATH"].split(os.pathsep):
             path = path.strip('"')
             exe_file = os.path.join(path, leafname)
@@ -71,26 +72,29 @@ def find_executable(leafname):
         path = _find_executable_noext(leafname+".exe")
     if (path == None):
         path = _find_executable_noext(os.path.splitext(leafname)[0])
+    logger.info("Resolved executable: %s -> %s" % (leafname, path))
     return path
 
 
 ScoterConfigBase = namedtuple("ScoterConfigBase", """
-interp_active interp_type  interp_npoints detrend
-normalize     weight_d18o  weight_rpi     max_rate
-make_pdf      live_display precalc
+config_type      scoter_version
+
+interp_active    interp_type         interp_npoints       detrend
+normalize        weight_d18o         weight_rpi           max_rate
+make_pdf         live_display        precalc
 
 sa_active
-sa_intervals  temp_init    temp_final  cooling
-max_changes   max_steps    rc_penalty  random_seed
+sa_intervals     temp_init           temp_final           cooling
+max_changes      max_steps           rc_penalty           random_seed
 
 match_active
-match_intervals  match_nomatch       match_speed_p
-match_tie_p      match_target_speed  match_speedchange_p
+match_intervals  match_nomatch       match_speed_p        match_tie_p
+match_target_speed                   match_speedchange_p
 match_gap_p      match_rates         match_path
 
-target_d18o_file  record_d18o_file  target_rpi_file  record_rpi_file
-target_start      target_end        record_start     record_end
-output_dir        debug
+target_d18o_file record_d18o_file    target_rpi_file      record_rpi_file
+target_start     target_end          record_start         record_end
+output_dir       debug
 """)
 
 class ScoterConfig(ScoterConfigBase):
@@ -101,6 +105,8 @@ class ScoterConfig(ScoterConfigBase):
     """
     
     def __new__(cls,
+                  config_type = "plain_scoter",
+                  scoter_version = "FIXME",
                   interp_active = True,
                   interp_type = "linear",
                   interp_npoints = -2, # -2 min, -1 max, 0 undef, >0 actual #points
@@ -144,9 +150,12 @@ class ScoterConfig(ScoterConfigBase):
                   ):
 
         return super(ScoterConfig, cls).__new__\
-            (cls, interp_active, interp_type, interp_npoints, detrend,
-             normalize, weight_d18o, weight_rpi, max_rate, make_pdf, live_display, precalc,
-             sa_active, sa_intervals, temp_init, temp_final, cooling, max_changes, max_steps,
+            (cls, config_type, scoter_version,
+             interp_active, interp_type, interp_npoints, detrend,
+             normalize, weight_d18o, weight_rpi, max_rate,
+             make_pdf, live_display, precalc,
+             sa_active, sa_intervals, temp_init, temp_final,
+             cooling, max_changes, max_steps,
              rc_penalty, random_seed,
              match_active, match_intervals, match_nomatch, match_speed_p,
              match_tie_p, match_target_speed, match_speedchange_p,
@@ -510,6 +519,9 @@ class Scoter(object):
                                 match_params)
         match_path = self.default_match_path if config.match_path == "" else config.match_path
         logger.debug("Match path: %s", match_path)
+        if match_path == None or match_path == "":
+            logger.error("No match path set!")
+            return None
         match_result = match_conf.run_match(match_path, dir_path, False)
         if not match_result.error:
             self.aligned_match = match_result.series1
