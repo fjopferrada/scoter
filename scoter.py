@@ -21,6 +21,7 @@
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = <
 
 import os.path
+import sys
 from series import Series
 from simann import Annealer, AdaptiveSchedule
 from block import Bwarp, Bseries
@@ -34,6 +35,8 @@ import tempfile
 from collections import namedtuple
 import ConfigParser
 import argparse
+
+SCOTER_VERSION = "0.00"
 
 def _find_executable_noext(leafname):
     """Helper function for find_executable."""
@@ -106,7 +109,7 @@ class ScoterConfig(ScoterConfigBase):
     
     def __new__(cls,
                   config_type = "plain_scoter",
-                  scoter_version = "FIXME",
+                  scoter_version = SCOTER_VERSION,
                   interp_active = True,
                   interp_type = "linear",
                   interp_npoints = -2, # -2 min, -1 max, 0 undef, >0 actual #points
@@ -192,6 +195,8 @@ class ScoterConfig(ScoterConfigBase):
         cp.read(filename)
         s = "DEFAULT"
         return ScoterConfig(
+            config_type = cp.get(s, "config_type"),
+            scoter_version = cp.get(s, "scoter_version"),
             interp_type = cp.get(s, "interp_type"),
             interp_npoints = cp.getint(s, "interp_npoints"),
             detrend = cp.get(s, "detrend"),
@@ -605,6 +610,11 @@ class Scoter(object):
         self.file_log_handler.setFormatter(formatter)
         logger.addHandler(self.file_log_handler)
         logger.setLevel(logging.DEBUG)
+        logger.debug("Scoter version %s starting." % SCOTER_VERSION)
+        
+        if config.scoter_version != SCOTER_VERSION:
+            logger.warn("Configuration has version %s, but Scoter has version %s" %
+                        (config.scoter_version, SCOTER_VERSION))
         
         logger.debug("Reading data.")
         self.read_data_using_config(config, os.path.dirname(config_file))
@@ -626,6 +636,8 @@ def main():
     parser = argparse.ArgumentParser(description="Correlate geological records.")
     parser.add_argument("configuration", metavar="filename", type=str, nargs="?",
                    help="a Scoter configuration file")
+    parser.add_argument("--version", action="store_true",
+                   help="display Scoter's version number")    
     parser.add_argument("--write-config", metavar="filename", type=str,
                    help="write a configuration template to the supplied filename")
     parser.add_argument("--overwrite", action="store_true",
@@ -634,6 +646,10 @@ def main():
                    help="logging level (non-negative integer or CRITICAL/ERROR/WARNING/INFO/DEBUG/NOTSET)",
                    default="INFO")
     args = parser.parse_args()
+        
+    if args.version:
+        print(SCOTER_VERSION)
+        sys.exit(0)
     
     stderr_handler = logging.StreamHandler()
     stderr_handler.setFormatter(logging.Formatter("%(levelname)-8s: %(message)s",
@@ -643,6 +659,7 @@ def main():
     logger.addHandler(stderr_handler)
     
     logger.info("Scoter starting.")
+        
     if args.write_config:
         ok_to_write = False
         if os.path.isfile(args.write_config):

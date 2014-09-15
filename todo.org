@@ -231,8 +231,11 @@
    case, the formula needs to be officially fixed to ensure reproducibility of
    analysis, or made configurable by the user.
    
-** TODO 038 Include Scoter version number in saved configurations
+** DONE 038 Include Scoter version number in saved configurations
+   CLOSED: [2014-09-15 Mon 16:48]
    Obviously important for reproducibility!
+   [Fixed; Scoter now also gives a warning when reading a configuration
+   file with a different version number.]
 ** DONE 039 License icon correctly
    CLOSED: [2014-03-11 Tue 14:47]
    The Scoter icon is derived from a CC-licensed photograph. Scoter docs need
@@ -345,3 +348,10 @@
 ** TODO 059 Show progress dialog for bundle export
    This is at least necessary if results are generated for
    the bundle.
+** TODO 060 Correlation fails after bundle+results export
+   To reproduce: Export zip bundle with results, then attempt a 
+   correlation from the GUI. Result: "No such file or directory:
+   '/tmp/scoterdimsfM/results/scoter.log" at scoter.py:371.
+   Seems to be caused by a call to logger.debug -- evidently some
+   snarl-up with logging output, perhaps caused by a reassignment
+   of scoter.logger during bundle results generation.

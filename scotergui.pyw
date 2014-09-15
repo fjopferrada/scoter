@@ -23,7 +23,7 @@
 import wx
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
-from scoter import Scoter, ScoterConfig
+from scoter import Scoter, ScoterConfig, SCOTER_VERSION
 import os
 import forms
 import threading
@@ -819,6 +819,15 @@ class ScoterApp(wx.App):
         wxc = config
         if wxc==None: wxc = wx.Config("scoter")
         logger.debug("Reading configuration; %d items", wxc.GetNumberOfEntries())
+        config_version = wxc.Read("scoter_version")
+        if config_version != SCOTER_VERSION:
+            dialog = wx.MessageDialog(self.main_frame,
+                                      "This file was created with Scoter version "
+                                      "%s, but this Scoter is version %s." %
+                                      (config_version, SCOTER_VERSION),
+                                      "Different Scoter versions",
+                                      wx.OK | wx.ICON_WARNING)
+            dialog.ShowModal()
         d = self.default_scoter_config
         detrend_map = {"none":0, "submean":1, "linear":2}
         mf.preproc_detrend.SetSelection(detrend_map.get(wxc.Read("detrend", d.detrend), "none"))
@@ -875,7 +884,7 @@ class ScoterApp(wx.App):
         mf = self.main_frame
         if wxc == None: wxc = wx.Config("scoter")
         wxc.Write("config_type", "scoter_gui")
-        wxc.Write("scoter_version", "FIXME") # TODO
+        wxc.Write("scoter_version", SCOTER_VERSION)
         for wxfield, scoterfield, _, _ in _gui_text_fields:
             widget = getattr(mf, wxfield)
             wxc.Write(scoterfield, widget.GetValue())
@@ -998,7 +1007,7 @@ class AboutScoter(wx.AboutDialogInfo):
         super(AboutScoter, self).__init__()
         self.SetName("Scoter")
         self.SetIcon(wx.Icon(scotergui._rel_path("appicon64.png"), wx.BITMAP_TYPE_PNG))
-        self.SetVersion("0.00")
+        self.SetVersion(SCOTER_VERSION)
         self.SetWebSite("https://bitbucket.org/pont/scoter")
         self.SetDescription("A program for the correlation of geological records.")
         self.SetCopyright("(C) Pontus Lurcock 2013")
