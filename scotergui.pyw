@@ -804,6 +804,7 @@ class ScoterApp(wx.App):
         if choice == wx.YES:
             wxc = wx.Config("scoter")
             wxc.DeleteAll()
+            self.scoter._init_data_structures()
             self.update_gui_from_wxconfig()
     
     def update_gui_from_wxconfig(self, config = None):
@@ -819,7 +820,7 @@ class ScoterApp(wx.App):
         wxc = config
         if wxc==None: wxc = wx.Config("scoter")
         logger.debug("Reading configuration; %d items", wxc.GetNumberOfEntries())
-        config_version = wxc.Read("scoter_version")
+        config_version = wxc.Read("scoter_version", SCOTER_VERSION)
         if config_version != SCOTER_VERSION:
             dialog = wx.MessageDialog(self.main_frame,
                                       "This file was created with Scoter version "
@@ -850,12 +851,12 @@ class ScoterApp(wx.App):
         mf.corr_match_guess_button.SetValue(not wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specify_button.SetValue(wxc.ReadBool("match_use_specified_path", False))
         mf.corr_match_specified_path.SetValue(wxc.Read("match_specified_path"))
-        self.debug = wxc.Read("Debug", "")
+        self.debug = wxc.Read("debug", "")
 
-        self.scoter.read_data(1, 0, wxc.Read("target_d18o_file"))
-        self.scoter.read_data(0, 0, wxc.Read("record_d18o_file"))
-        self.scoter.read_data(1, 1, wxc.Read("target_rpi_file"))
-        self.scoter.read_data(0, 1, wxc.Read("record_rpi_file"))
+        self.scoter.read_data(1, 0, wxc.Read("target_d18o_file", ""))
+        self.scoter.read_data(0, 0, wxc.Read("record_d18o_file", ""))
+        self.scoter.read_data(1, 1, wxc.Read("target_rpi_file", ""))
+        self.scoter.read_data(0, 1, wxc.Read("record_rpi_file", ""))
         self.series_truncations[1][0] = wxc.ReadFloat("target_start", d.target_start)
         self.series_truncations[1][1] = wxc.ReadFloat("target_end", d.target_end)
         self.series_truncations[0][0] = wxc.ReadFloat("record_start", d.record_start)

@@ -285,6 +285,7 @@ class Scoter(object):
         if os.path.isabs(filename):
             full_path = filename
         else:
+            if base_dir == None: return
             full_path = os.path.join(base_dir, filename)
         if full_path != "" and os.path.isfile(full_path):
             logger.debug("Reading file: %d %d %s" % (role, parameter, full_path))
