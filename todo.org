@@ -355,3 +355,8 @@
    Seems to be caused by a call to logger.debug -- evidently some
    snarl-up with logging output, perhaps caused by a reassignment
    of scoter.logger during bundle results generation.
+** TODO 061 Interactive limit selection is a bit wonky
+** DONE 062 Exported plain scoter config broken
+   CLOSED: [2014-09-16 Tue 17:30]
+   It lacks filenames for the input data and the path for the 
+   results directory.

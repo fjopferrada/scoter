@@ -39,7 +39,11 @@ import traceback
 # These also serve as keys in the wxConfig file.
 _last_dirs = tuple(map(lambda x: "lastdir_"+x,
                        ("record", "config", "export_scoter")))
-# mapps role to its index
+
+_paramtuple = ("d18o","rpi")
+
+_roletuple = ("record","target")
+# maps role to its index
 _roledict = {"record" : 0, "target" : 1}
 # maps parameter to its index
 _paramdict = {"d18o" : 0, "rpi" : 1}
@@ -417,7 +421,7 @@ class ScoterApp(wx.App):
                           wx.OK | wx.ICON_ERROR)
             return
 
-        success = self.make_scoterconfig_from_gui()
+        success = self.make_partial_scoterconfig_from_gui()
         if not success: return
         self.scoter.preprocess(self.scoterconfig)
         if self.scoterconfig.sa_active:
@@ -538,7 +542,7 @@ class ScoterApp(wx.App):
         self.licence_dialog.Show()
     
     def show_export_scoter_dialog(self, event):
-        success = self.make_scoterconfig_from_gui()
+        success = self.make_partial_scoterconfig_from_gui()
         if not success: return
         dialog = wx.FileDialog(self.main_frame, "Export plain Scoter configuration",
                                self.lastdir_export_scoter, "plain.cfg",
@@ -549,8 +553,20 @@ class ScoterApp(wx.App):
             dirname = dialog.GetDirectory()
             filename = os.path.join(dirname, leafname)
             self.lastdir_export_scoter = dirname
-            self.make_scoterconfig_from_gui()
-            self.scoterconfig.write_to_file(filename)
+            self.make_partial_scoterconfig_from_gui()
+            
+            filename_dict = {"output_dir" : "scoter-results"}
+        
+            # write data files and add input file names to dictionary
+            for role, rolename in enumerate(_roletuple):
+                for parameter, paraname in enumerate(_paramtuple):
+                    series = self.scoter.series[role][parameter]
+                    if series is not None:
+                        filename_dict["%s_%s_file" % (rolename, paraname)] = series.filename
+    
+            # write configuration
+            config = self.scoterconfig._replace(**filename_dict)
+            config.write_to_file(filename)
         dialog.Destroy()
 
     def zipdir(self, path, filename):
@@ -585,7 +601,7 @@ class ScoterApp(wx.App):
         # extra/differing configuration options for ScoterConfig
         filename_dict = {"output_dir" : "results"}
         
-        # write data files
+        # write data files and add input file names to dictionary
         for role in (0,1):
             for parameter in (0,1):
                 paraname = ("d18o","rpi")[parameter]
@@ -596,7 +612,7 @@ class ScoterApp(wx.App):
                                             "%s_%s.data" % (rolename, paraname))
                     series.write(os.path.join(path, filename))
                     filename_dict["%s_%s_file" % (rolename, paraname)] = filename
-                    
+
         # write configuration
         config = self.scoterconfig._replace(**filename_dict)
         config_path = os.path.join(path, "scoter.cfg")
@@ -650,7 +666,7 @@ class ScoterApp(wx.App):
             scoter.perform_complete_correlation(config_path)
 
     def show_export_bundle_dialog(self, event):
-        success = self.make_scoterconfig_from_gui()
+        success = self.make_partial_scoterconfig_from_gui()
         if not success: return
         self.bundle_dialog.Centre()
         if self.bundle_dialog.ShowModal() == wx.ID_CANCEL:
@@ -823,8 +839,8 @@ class ScoterApp(wx.App):
         config_version = wxc.Read("scoter_version", SCOTER_VERSION)
         if config_version != SCOTER_VERSION:
             dialog = wx.MessageDialog(self.main_frame,
-                                      "This file was created with Scoter version "
-                                      "%s, but this Scoter is version %s." %
+                                      "This configuration file was created with Scoter "
+                                      "version %s, but this Scoter is version %s." %
                                       (config_version, SCOTER_VERSION),
                                       "Different Scoter versions",
                                       wx.OK | wx.ICON_WARNING)
@@ -916,10 +932,12 @@ class ScoterApp(wx.App):
 
         logger.debug("Wrote configuration; %d items", wxc.GetNumberOfEntries())
         
-    def make_scoterconfig_from_gui(self):
+    def make_partial_scoterconfig_from_gui(self):
         """Create a ScoterConfig object from the current state of the GUI.
         
         The object is not returned, but is stored as self.scoterconfig.
+        The configuration does not contain entries for input filenames or
+        output directory (and is therefore suitable for interactive use).
         
         Returns:
             True if the parameters were successfully read from the GUI;
