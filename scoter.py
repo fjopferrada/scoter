@@ -576,8 +576,21 @@ class Scoter(object):
         if self.match_dir:
             shutil.rmtree(self.match_dir)
         
+        # It's important to remove the handler, in case perform_complete_correlation
+        # is being run from the GUI: in this case, the GUI will keep using the 
+        # logger afterwards, but there's no guarantee that the file will remain
+        # accessible.
         self.file_log_handler.close()
-        # TODO remove file log handler from logger?
+        logger.removeHandler(self.file_log_handler)
+    
+    def add_file_log_handler(self):
+        self.file_log_handler = logging.FileHandler(os.path.join(self.output_dir,
+                                                                 "scoter.log"))
+        self.file_log_handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s "
+                                      "%(message)s")
+        self.file_log_handler.setFormatter(formatter)
+        logger.addHandler(self.file_log_handler)
     
     def perform_complete_correlation(self, config_file):
         """Reads, correlates, and saves data.
@@ -605,11 +618,7 @@ class Scoter(object):
             os.makedirs(output_dir)
         self.output_dir = output_dir
         
-        self.file_log_handler = logging.FileHandler(os.path.join(self.output_dir, "scoter.log"))
-        self.file_log_handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
-        self.file_log_handler.setFormatter(formatter)
-        logger.addHandler(self.file_log_handler)
+        self.add_file_log_handler()
         logger.setLevel(logging.DEBUG)
         logger.debug("Scoter version %s starting." % SCOTER_VERSION)
         
