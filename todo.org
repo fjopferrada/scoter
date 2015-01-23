@@ -368,6 +368,10 @@
     In fact, there was even a "TODO remove file log handler from
     logger?" comment in the code! Fixed and tested.
 ** TODO 061 Interactive limit selection is a bit wonky
+*** Details
+    The present system is "left button selects left limit, right
+    button selects right limit". This isn't very intuitive.
+    "Clicking always moves the nearest limit" would be better.
 ** DONE 062 Exported plain scoter config broken
    CLOSED: [2014-09-16 Tue 17:30]
    It lacks filenames for the input data and the path for the 
