@@ -120,6 +120,9 @@
 ** TODO 022 Assessment of goodness of correlation
    Even if just a simple correlation coefficient between tuned
    record and target.
+
+   Pearson might be sufficient but see Ólafsdóttir & Mudelsee
+   2014 for an improved method.
 ** DONE 023 Unequal weighting of two records in tandem
    CLOSED: [2014-03-18 Tue 16:58]
    Perhaps even dynamic? As a function of data resolution?
@@ -376,3 +379,4 @@
    CLOSED: [2014-09-16 Tue 17:30]
    It lacks filenames for the input data and the path for the 
    results directory.
+** TODO 063 Pluggable optimization modules?
