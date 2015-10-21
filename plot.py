@@ -66,7 +66,8 @@ class Line(object):
 class Axes(object):
     def __init__(self, lines, invert = False, spread = 0, xspread = 0,
                  xlim = (None, None), ylim = (None, None),
-                 xlabel = None, ylabel = None):
+                 xlabel = None, ylabel = None, legend_loc = "upper left",
+                 bbox_to_anchor = (0.95, 1)):
         if isinstance(lines, (list, tuple)):
             self.lines = lines
         else:
@@ -78,6 +79,8 @@ class Axes(object):
         self.ylim = ylim
         self.xlabel = xlabel
         self.ylabel = ylabel
+        self.legend_loc = legend_loc
+        self.bbox_to_anchor = bbox_to_anchor
 
     def plot(self, axes):
         i = 0;
@@ -85,18 +88,18 @@ class Axes(object):
             line.plot(axes,
                       xoffset = self.xspread * i,
                       yoffset = self.spread * i)
-            if self.xlim[0] != None: axes.set_xlim(left = self.xlim[0])
-            if self.xlim[1] != None: axes.set_xlim(right = self.xlim[1])
-            if self.ylim[0] != None: axes.set_ylim(bottom = self.ylim[0])
-            if self.ylim[1] != None: axes.set_ylim(top = self.ylim[1])
-            if self.xlabel != None: axes.set_xlabel(self.xlabel)
-            if self.ylabel != None: axes.set_ylabel(self.ylabel)
             i += 1
         if self.invert: axes.invert_yaxis()
         box = axes.get_position()
         axes.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+        if self.xlabel != None: axes.set_xlabel(self.xlabel)
+        if self.ylabel != None: axes.set_ylabel(self.ylabel)
+        if self.xlim[0] != None: axes.set_xlim(left = self.xlim[0])
+        if self.xlim[1] != None: axes.set_xlim(right = self.xlim[1])
+        if self.ylim[0] != None: axes.set_ylim(bottom = self.ylim[0])
+        if self.ylim[1] != None: axes.set_ylim(top = self.ylim[1])
         axes.legend(prop = font_props,
-                    loc='upper left', bbox_to_anchor=(0.95, 1))
+                    loc=self.legend_loc, bbox_to_anchor=self.bbox_to_anchor)
 
 class Plot(object):
     def __init__(self, ax_spec1, ax_spec2 = None):
@@ -123,16 +126,17 @@ class Page(object):
                 for l in a.lines:
                     l.add_args(new_args)
 
-    def plot(self):
+    def plot(self, print_params = {},
+             gridspec = dict(left=0.05, right=0.94, wspace=0.05)):
         nplots = len(self.plotspecs)
         fig = mpl.figure.Figure(figsize=(11, 8.5))
         canvas = FigureCanvasPdf(fig)
         if self.title: fig.suptitle(self.title)
         gs = GridSpec(nplots, 1)
-        gs.update(left=0.05, right=0.94, wspace=0.05)
+        gs.update(**gridspec)
         for i in xrange(0, nplots):
             self.plotspecs[i].plot(fig, gs, i)
-        canvas.print_figure(self.filename)
+        canvas.print_figure(self.filename, **print_params)
 
 def make_plot(seriess, filename, title = None, invert = False):
     f = mpl.figure.Figure(figsize=(11, 8.5))
