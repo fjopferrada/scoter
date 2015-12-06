@@ -67,7 +67,7 @@ class Axes(object):
     def __init__(self, lines, invert = False, spread = 0, xspread = 0,
                  xlim = (None, None), ylim = (None, None),
                  xlabel = None, ylabel = None, legend_loc = "upper left",
-                 bbox_to_anchor = (0.95, 1)):
+                 bbox_to_anchor = (0.95, 1), vlines = []):
         if isinstance(lines, (list, tuple)):
             self.lines = lines
         else:
@@ -81,9 +81,12 @@ class Axes(object):
         self.ylabel = ylabel
         self.legend_loc = legend_loc
         self.bbox_to_anchor = bbox_to_anchor
+        self.vlines = vlines
 
     def plot(self, axes):
         i = 0;
+        for vline in self.vlines:
+            axes.axvline(vline, color="brown")
         for line in self.lines:
             line.plot(axes,
                       xoffset = self.xspread * i,
