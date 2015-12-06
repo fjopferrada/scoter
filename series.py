@@ -74,18 +74,26 @@ class Series(object):
         rows = []
         # 'U' for universal newlines
         with open(filename, 'U') as fh:
+            linenumber = -1
             for line in fh.readlines():
+                linenumber += 1
                 parts = line.split()
+                if col1 >= len(parts) or col2 >= len(parts):
+                    logger.warning("Not enough data fields on line %d of %s." % (linenumber+1, filename))
+                    continue
+                if parts[col1] == "" or parts[col2] == "":
+                    logger.warning("Blank data field on line %d of %s" % (linenumber+1, filename))
+                    continue
                 try:
                     position = float(parts[col1])
-                    if len(parts) > col2:
-                        value = float(parts[col2])
-                    else:
-                        logger.warning("missing data at %f." % position)
-                        value = 0
+                    value = float(parts[col2])
                     rows.append([position, value])
                 except ValueError:
-                    pass # ignore non-numeric lines
+                    if (linenumber > 0):
+                        # We don't warn if the first line is non-numeric,
+                        # because it's probably a header.
+                        logger.warning("Non-numeric data on line %d of %s" % (linenumber+1, filename))
+                    pass
         data = np.array(rows).transpose()
         return Series(data, name=name, filename=filename, parameter=parameter)
 
