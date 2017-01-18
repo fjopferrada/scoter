@@ -130,9 +130,10 @@ class Page(object):
                     l.add_args(new_args)
 
     def plot(self, print_params = {},
-             gridspec = dict(left=0.05, right=0.94, wspace=0.05)):
+             gridspec = dict(left=0.05, right=0.94, wspace=0.05),
+             figsize = (11, 8.5)):
         nplots = len(self.plotspecs)
-        fig = mpl.figure.Figure(figsize=(11, 8.5))
+        fig = mpl.figure.Figure(figsize=figsize)
         canvas = FigureCanvasPdf(fig)
         if self.title: fig.suptitle(self.title)
         gs = GridSpec(nplots, 1)

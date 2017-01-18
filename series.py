@@ -175,9 +175,9 @@ class Series(object):
         return self.copy(data = newdata, suffix = '-tr')
 
     def clip(self, limits):
-        """Clip the series to the given x-value limits.
+        """Clip the series to the given x-value (position) limits.
 
-        Assumes that x-values are monotonically increasing.
+        Assumes that positions are monotonically increasing.
         The value None may be used to disable clipping at
         one end of the range."""
         xmin, xmax = limits
@@ -191,6 +191,10 @@ class Series(object):
                 end -= 1
         new_data = self.data.copy()[:, start:end+1]
         return self.copy(data = new_data, suffix = '-cl')
+
+    def clip_values(self, limits):
+        assert(False)
+        pass
 
     def npoints(self):
         """Return the number of points in this series."""
@@ -231,12 +235,16 @@ class Series(object):
         else: return x >= self.start() and x <= self.end()
 
     def mean(self):
-        """Return the mean of the values in this series."""
-        return np.mean(self.data[1])
+        """Return the mean of the values in this series.
+
+        Any NaN values will be ignored."""
+        return np.nanmean(self.data[1])
 
     def std(self):
-        """Return the standard deviation of the values in this series."""
-        return np.std(self.data[1])
+        """Return the standard deviation of the values in this series.
+
+        Any NaN values will be ignored."""
+        return np.nanstd(self.data[1])
 
     def positions(self):
         """Return the values in this series."""
@@ -316,18 +324,44 @@ class Series(object):
         new_data[1] = values_offs_scale
         return self.copy(data = new_data, suffix = '-sc')
 
+    def scale_positions_by(self, factor):
+        """Return this series, with the positions linearly scaled by the supplied factor.
+        """
+        
+        new_data = self.data.copy()
+        new_data[0] = self.data[0] * factor
+        return self.copy(data = new_data, suffix = "-psc")
+        
     def scale_values_by(self, factor):
-        """Return this series, linearly scaled by the supplied factor.
+        """Return this series, with the values linearly scaled by the supplied factor.
 
         The scaling is relative to the mean, so the scaled values will have
         the same mean value as the original values."""
-        mean = np.mean(self.values())
+        mean = np.nanmean(self.values())
         values_offset = self.values() - mean
         values_offset_scaled = values_offset * factor
         new_data = self.data.copy()
         new_data[1] = values_offset_scaled + mean
         return self.copy(data = new_data, suffix = '-sc')
 
+    def scale_to_other_series(self, target_series, reference_range):
+        """Return this series, scaled to match another series.
+        
+        This method is intended to aid in splicing together two overlapping
+        subseries derived from an original series, possibly with different
+        scalings and offsets applied.        
+        """
+        
+        target_chunk = target_series.clip(reference_range)
+        this_chunk = self.clip(reference_range)
+        means = [series.mean() for series in (target_chunk, this_chunk)]
+        stds = [series.std() for series in (target_chunk, this_chunk)]
+        scale = stds[0] / stds[1]
+        new_values = (self.values() - means[1]) * scale + means[0]
+        new_data = self.data.copy()
+        new_data[1] = new_values
+        return self.copy(data = new_data, suffix = '-sc')
+        
     def scale_std_to(self, new_std):
         """Return this series, linearly scaled.
 

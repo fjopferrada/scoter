@@ -380,3 +380,7 @@
    It lacks filenames for the input data and the path for the 
    results directory.
 ** TODO 063 Pluggable optimization modules?
+** TODO 064 Look at similarity measures
+   See refs at http://tocsy.pik-potsdam.de/nest.php .
+** TODO 065 Look at adaboost
+   Promising optimization meta-algorithm.
