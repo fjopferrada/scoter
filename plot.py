@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.font_manager import FontProperties
 from matplotlib.backends.backend_pdf import FigureCanvasPdf, PdfPages
+from matplotlib.backends.backend_svg import FigureCanvasSVG
 
 font_props = FontProperties()
 font_props.set_size('x-small')
@@ -131,10 +132,15 @@ class Page(object):
 
     def plot(self, print_params = {},
              gridspec = dict(left=0.05, right=0.94, wspace=0.05),
-             figsize = (11, 8.5)):
+             figsize = (11, 8.5), filetype="pdf"):
         nplots = len(self.plotspecs)
         fig = mpl.figure.Figure(figsize=figsize)
-        canvas = FigureCanvasPdf(fig)
+        if filetype.lower() == "pdf":
+            canvas = FigureCanvasPdf(fig)
+        elif filetype.lower() == "svg":
+            canvas = FigureCanvasSVG(fig)
+        else:
+            raise ValueError("Unknown filetype: %s" % filetype)
         if self.title: fig.suptitle(self.title)
         gs = GridSpec(nplots, 1)
         gs.update(**gridspec)
