@@ -123,6 +123,8 @@
 
    Pearson might be sufficient but see Ólafsdóttir & Mudelsee
    2014 for an improved method.
+
+   See also details on p. 299 of zeeden2014miocene.
 ** DONE 023 Unequal weighting of two records in tandem
    CLOSED: [2014-03-18 Tue 16:58]
    Perhaps even dynamic? As a function of data resolution?
@@ -384,3 +386,13 @@
    See refs at http://tocsy.pik-potsdam.de/nest.php .
 ** TODO 065 Look at adaboost
    Promising optimization meta-algorithm.
+** TODO 066 Rewrite GUI in PyQt and switch to Python 3
+   wxpython is the blocker for moving to Python 3. It looks as though
+   the wxpython for Python 3 won't be ready in the foreseeable future,
+   and probably won't retain compatibility with old code anyway.
+   May as well move to PyQt.
+
+   Surprisingly, it seems that PySide is once again a candidate (See
+   https://codereview.qt-project.org/gitweb?p=pyside/pyside.git;a=summary
+   and https://wiki.qt.io/PySide2 ) and under very active development as
+   of 2017-02-09, but PyQt still seems like a safer bet.

@@ -151,9 +151,12 @@ class Series(object):
 
         Return a copy of this series, optionally modified using one or more
         of the optional parameters."""
-        if data == None: data = self.data.copy()
-        if name == None: name = self.name
-        if filename == None: filename = self.filename
+
+        # Using "is" not "==" to avoid triggering an attempted
+        # elementwise object comparison in future scipy versions.
+        if data is None: data = self.data.copy()
+        if name is None: name = self.name
+        if filename is None: filename = self.filename
         if suffix: name = name + suffix
         return Series(data, name, filename, self.parameter)
 
