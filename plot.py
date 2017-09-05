@@ -66,7 +66,8 @@ class Line(object):
             self.args.update(new_args)
         else:
             combined_args = new_args.copy()
-            self.args = combined_args.update(self.args)
+            combined_args.update(self.args)
+            self.args = combined_args
 
 class Axes(object):
     def __init__(self, lines, invert = False, spread = 0, xspread = 0,
