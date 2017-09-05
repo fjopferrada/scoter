@@ -396,3 +396,9 @@
    https://codereview.qt-project.org/gitweb?p=pyside/pyside.git;a=summary
    and https://wiki.qt.io/PySide2 ) and under very active development as
    of 2017-02-09, but PyQt still seems like a safer bet.
+
+   Update: looks as though PySide is actively supported by the Qt
+   Company since 2016 (
+   https://groups.google.com/forum/#!topic/pyside-dev/pqwzngAGLWE ) so
+   perhaps it is the best choice after all. "The goal is to make Pyside
+   an integral part of new Qt releases." !!!
