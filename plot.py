@@ -61,8 +61,12 @@ class Line(object):
         axes.plot(s.data[0] + xoffset, s.data[1] + yoffset,
                   label = s.name, **self.args)
 
-    def add_args(self, new_args):
-        self.args.update(new_args)
+    def add_args(self, new_args, overwrite = True):
+        if overwrite:
+            self.args.update(new_args)
+        else:
+            combined_args = new_args.copy()
+            self.args = combined_args.update(self.args)
 
 class Axes(object):
     def __init__(self, lines, invert = False, spread = 0, xspread = 0,
@@ -123,12 +127,12 @@ class Page(object):
         self.filename = filename
         self.title = title
 
-    def add_line_args(self, new_args):
+    def add_line_args(self, new_args, overwrite = True):
         for p in self.plotspecs:
             for a in (p.ax_spec1, p.ax_spec2):
                 if not a: continue
                 for l in a.lines:
-                    l.add_args(new_args)
+                    l.add_args(new_args, overwrite)
 
     def plot(self, print_params = {},
              gridspec = dict(left=0.05, right=0.94, wspace=0.05),
