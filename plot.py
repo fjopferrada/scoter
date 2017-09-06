@@ -92,7 +92,8 @@ class Axes(object):
     def plot(self, axes):
         i = 0;
         for vline in self.vlines:
-            axes.axvline(vline, color="brown")
+            axes.axvline(vline, color="brown", ymin=0, ymax=0.3)
+            axes.axvline(vline, color="brown", ymin=0.7, ymax=1.0)
         for line in self.lines:
             line.plot(axes,
                       xoffset = self.xspread * i,

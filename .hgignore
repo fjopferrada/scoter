@@ -5,3 +5,4 @@ syntax: regexp
 ^user-guide/user-guide.tex$
 ^user-guide/user-guide.html$
 ^user-guide/missfont.log$
+^\.idea/
