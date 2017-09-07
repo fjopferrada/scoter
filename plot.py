@@ -27,11 +27,13 @@ from matplotlib.backends.backend_pdf import FigureCanvasPdf, PdfPages
 from matplotlib.backends.backend_svg import FigureCanvasSVG
 
 font_props = FontProperties()
-font_props.set_size('x-small')
+font_props.set_size("x-small")
+font_props.set_family("Arial")
+
 
 class WarpLine(object):
-    def __init__(self, bwarp, scale = None,
-                 subseries = 0, invert = False, **args):
+    def __init__(self, bwarp, scale=None,
+                 subseries=0, invert=False, **args):
         self.bwarp = bwarp
         self.args = args
         if scale == None:
@@ -43,7 +45,7 @@ class WarpLine(object):
         self.subseries = subseries
         self.invert = invert
 
-    def plot(self, axes, xoffset = 0, yoffset = 0):
+    def plot(self, axes, xoffset=0, yoffset=0):
         xs, ys = self.bwarp.get_rates(scale = self.scale,
                                       invert = self.invert)
         axes.plot(xs, ys, label = self.bwarp.name, **self.args)
@@ -51,17 +53,18 @@ class WarpLine(object):
     def add_args(self, new_args):
         self.args.update(new_args)
 
+
 class Line(object):
     def __init__(self, series, **args):
         self.series = series
         self.args = args
 
-    def plot(self, axes, yoffset = 0, xoffset = 0):
+    def plot(self, axes, yoffset=0, xoffset=0):
         s = self.series
         axes.plot(s.data[0] + xoffset, s.data[1] + yoffset,
                   label = s.name, **self.args)
 
-    def add_args(self, new_args, overwrite = True):
+    def add_args(self, new_args, overwrite=True):
         if overwrite:
             self.args.update(new_args)
         else:
@@ -69,11 +72,12 @@ class Line(object):
             combined_args.update(self.args)
             self.args = combined_args
 
+
 class Axes(object):
-    def __init__(self, lines, invert = False, spread = 0, xspread = 0,
-                 xlim = (None, None), ylim = (None, None),
-                 xlabel = None, ylabel = None, legend_loc = "upper left",
-                 bbox_to_anchor = (0.95, 1), vlines = []):
+    def __init__(self, lines, invert=False, spread=0, xspread=0,
+                 xlim=(None, None), ylim=(None, None),
+                 xlabel=None, ylabel=None, legend_loc="upper left",
+                 bbox_to_anchor=(0.95, 1), vlines=[]):
         if isinstance(lines, (list, tuple)):
             self.lines = lines
         else:
@@ -90,14 +94,14 @@ class Axes(object):
         self.vlines = vlines
 
     def plot(self, axes):
-        i = 0;
+        i = 0
         for vline in self.vlines:
             axes.axvline(vline, color="brown", ymin=0, ymax=0.3)
             axes.axvline(vline, color="brown", ymin=0.7, ymax=1.0)
         for line in self.lines:
             line.plot(axes,
-                      xoffset = self.xspread * i,
-                      yoffset = self.spread * i)
+                      xoffset=self.xspread * i,
+                      yoffset=self.spread * i)
             i += 1
         if self.invert: axes.invert_yaxis()
         box = axes.get_position()
@@ -108,11 +112,12 @@ class Axes(object):
         if self.xlim[1] != None: axes.set_xlim(right = self.xlim[1])
         if self.ylim[0] != None: axes.set_ylim(bottom = self.ylim[0])
         if self.ylim[1] != None: axes.set_ylim(top = self.ylim[1])
-        axes.legend(prop = font_props,
+        axes.legend(prop=font_props,
                     loc=self.legend_loc, bbox_to_anchor=self.bbox_to_anchor)
 
+
 class Plot(object):
-    def __init__(self, ax_spec1, ax_spec2 = None):
+    def __init__(self, ax_spec1, ax_spec2=None):
         self.ax_spec1 = ax_spec1
         self.ax_spec2 = ax_spec2
 
@@ -123,8 +128,9 @@ class Plot(object):
             ax2 = ax1.twinx()
             self.ax_spec2.plot(ax2)
 
+
 class Page(object):
-    def __init__(self, plotspecs, filename = 'temp', title = None):
+    def __init__(self, plotspecs, filename="temp", title=None):
         self.plotspecs = plotspecs
         self.filename = filename
         self.title = title
@@ -136,9 +142,9 @@ class Page(object):
                 for l in a.lines:
                     l.add_args(new_args, overwrite)
 
-    def plot(self, print_params = {},
-             gridspec = dict(left=0.05, right=0.94, wspace=0.05),
-             figsize = (11, 8.5), filetype="pdf"):
+    def plot(self, print_params={},
+             gridspec=dict(left=0.05, right=0.94, wspace=0.05),
+             figsize=(11, 8.5), filetype="pdf"):
         nplots = len(self.plotspecs)
         fig = mpl.figure.Figure(figsize=figsize)
         if filetype.lower() == "pdf":
@@ -154,14 +160,14 @@ class Page(object):
             self.plotspecs[i].plot(fig, gs, i)
         canvas.print_figure(self.filename, **print_params)
 
-def make_plot(seriess, filename, title = None, invert = False):
+
+def make_plot(seriess, filename, title=None, invert=False):
     f = mpl.figure.Figure(figsize=(11, 8.5))
     canvas = FigureCanvasPdf(f)
     if title: f.suptitle(title)
     
     gs = GridSpec(len(seriess), 1)
     gs.update(left=0.05, right=0.94, wspace=0.05)
-    #axess = []
     for i in range(0, len(seriess)):
         s = seriess[i]
         if isinstance(s, (list, tuple)):
@@ -171,21 +177,21 @@ def make_plot(seriess, filename, title = None, invert = False):
                          color='#aaaaaa', linewidth=5.0)
             ax1.set_ylabel(s[0].get_name())
             ax1.plot(s[0].data[0], s[0].data[1], color='black')
-            ax1.set_zorder(ax2.get_zorder()+1) # put ax in front of ax2
-            ax1.patch.set_visible(False) # hide the 'canvas' 
+            ax1.set_zorder(ax2.get_zorder()+1)  # put ax in front of ax2
+            ax1.patch.set_visible(False)  # hide the 'canvas'
             if invert:
                 ax1.invert_yaxis()
                 ax2.invert_yaxis()
         else:
             ax = f.add_subplot(gs[i, :])
-            #axess.append(ax)
             ax.set_ylabel(s.get_name())
             ax.plot(s.data[0], s.data[1], color='black')
             if invert: ax.invert_yaxis()
     
     canvas.print_figure(filename)
 
-def plot_2(plotdata, filename, title, use_offset = False):
+
+def plot_2(plotdata, filename, title, use_offset=False):
     f = mpl.figure.Figure(figsize=(11, 8.5))
     canvas = FigureCanvasPdf(f)
     f.suptitle(title)
@@ -205,7 +211,7 @@ def plot_2(plotdata, filename, title, use_offset = False):
         data = newdata.series1[series_no].data
         if use_offset:
             offset = -newdata.series1[series_no].std()*2
-            if (invert): offset = -offset
+            if invert: offset = -offset
         ax1.plot(refdata.data[0], refdata.data[1]+offset, linewidth=2.0,
                  color='#9090ff')
         ax1.plot(data[0], data[1], color='black', linewidth=0.75)
@@ -214,11 +220,12 @@ def plot_2(plotdata, filename, title, use_offset = False):
         if invert: ax1.invert_yaxis()
         i = i + 1
     canvas.print_figure(filename)
-    
+
+
 class WarpPlotter(object):
 
-    def __init__(self, nblocks, target, interval = 100,
-                 live = True, pdf_file = None, scale = 1.):
+    def __init__(self, nblocks, target, interval=100,
+                 live=True, pdf_file=None, scale=1.):
         self.interval = interval
         self.lines = []
         self.live = live
@@ -231,24 +238,23 @@ class WarpPlotter(object):
         self.fig = plt.figure()
         self.fg_colour = '#ffccaa'
         self.bg_colour = '#241C1C' # '#483737'
-        mpl.rc('axes', edgecolor= self.fg_colour, labelcolor = self.fg_colour,
-              facecolor = self.bg_colour)
+        mpl.rc('axes', edgecolor=self.fg_colour, labelcolor=self.fg_colour,
+               facecolor=self.bg_colour)
         mpl.rc("font", family="VenturisSans ADF", size='14')
-        mpl.rc('axes', edgecolor= self.fg_colour,
-                      labelcolor = self.fg_colour,
-                      facecolor = self.bg_colour)
-        mpl.rc('xtick', color= self.fg_colour)
-        mpl.rc('ytick', color= self.fg_colour)
+        mpl.rc('axes', edgecolor=self.fg_colour,
+               labelcolor=self.fg_colour,
+               facecolor=self.bg_colour)
+        mpl.rc('xtick', color=self.fg_colour)
+        mpl.rc('ytick', color=self.fg_colour)
 
         self.ax = self.fig.add_subplot(111)
         if target:
-            self.ax.plot(target[0], target[1], color = 'blue',
-                         lw = 12., ls = '--')
+            self.ax.plot(target[0], target[1], color='blue',
+                         lw=12., ls='--')
         for line in 0, 1:
             xs = range(nblocks)
             ys = range(nblocks)
-            linetuple = self.ax.plot(xs, ys, color = colours[line],
-                                     lw = 3.)
+            linetuple = self.ax.plot(xs, ys, color=colours[line], lw=3.)
             self.lines.append(linetuple[0])
 
     def finish(self):
@@ -256,7 +262,7 @@ class WarpPlotter(object):
         self.fig.canvas.draw()
         if hasattr(self, 'pdf_pages'):
             plt.savefig(self.pdf_pages,
-                        facecolor = self.bg_colour, format = 'pdf')
+                        facecolor=self.bg_colour, format='pdf')
             self.pdf_pages.close()
 
     def replot(self, soln_current, soln_new, step):
@@ -268,4 +274,4 @@ class WarpPlotter(object):
         self.fig.canvas.draw()
         if hasattr(self, 'pdf_pages'):
             plt.savefig(self.pdf_pages,
-                        facecolor = self.bg_colour, format = 'pdf')
+                        facecolor=self.bg_colour, format='pdf')
