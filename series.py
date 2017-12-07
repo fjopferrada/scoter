@@ -19,14 +19,16 @@
 # along with Scoter.  If not, see <http://www.gnu.org/licenses/>.
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = <
 
-import numpy as np
-from scipy.interpolate import interp1d
-import scipy.signal, scipy.stats
-import os.path
-from math import ceil, floor, log
 import logging
+import numpy as np
+import os.path
+import scipy.signal
+import scipy.stats
+from math import ceil, floor, log
+from scipy.interpolate import interp1d
 
 logger = logging.getLogger(__name__)
+
 
 class Series(object):
     """A time series for a single value.
@@ -35,7 +37,8 @@ class Series(object):
     depth). The data is intended to be immutable (though this is not
     enforced): the various transformation methods return updated copies
     and do not alter the original series."""
-    def __init__(self, data, name = 'unknown', filename = None, parameter = None):
+
+    def __init__(self, data, name="unknown", filename=None, parameter=None):
         if len(data.shape) != 2:
             raise ValueError("Data must be a rank-2 array.")
         elif data.shape[0] != 2:
@@ -43,16 +46,16 @@ class Series(object):
         self.data = data
         self.filename = filename
         self.parameter = parameter
-        if name != None:
+        if name is not None:
             self.name = name
         else:
-            if filename != None:
+            if filename is not None:
                 self.name = os.path.basename(filename)
             else:
                 self.name = None
 
     @classmethod
-    def read(cls, filename, col1 = 0, col2 = 1, name = None, parameter = None):
+    def read(cls, filename, col1=0, col2=1, name=None, parameter=None):
         """Read a series from a text file.
 
         Read a series from a columnar whitespace-delimited text file. One column
@@ -70,46 +73,50 @@ class Series(object):
             A Series representing the data read from the file.
         
         """
-        
+
         rows = []
         # 'U' for universal newlines
-        with open(filename, 'U') as fh:
-            linenumber = -1
+        with open(filename, "U") as fh:
+            line_number = -1
             for line in fh.readlines():
-                linenumber += 1
+                line_number += 1
                 parts = line.split()
                 if col1 >= len(parts) or col2 >= len(parts):
-                    logger.warning("Not enough data fields on line %d of %s." % (linenumber+1, filename))
+                    logger.warning(
+                        "Not enough data fields on line %d of %s." % (
+                            line_number + 1, filename))
                     continue
                 if parts[col1] == "" or parts[col2] == "":
-                    logger.warning("Blank data field on line %d of %s" % (linenumber+1, filename))
+                    logger.warning("Blank data field on line %d of %s" % (
+                        line_number + 1, filename))
                     continue
                 try:
                     position = float(parts[col1])
                     value = float(parts[col2])
                     rows.append([position, value])
                 except ValueError:
-                    if (linenumber > 0):
+                    if line_number > 0:
                         # We don't warn if the first line is non-numeric,
                         # because it's probably a header.
-                        logger.warning("Non-numeric data on line %d of %s" % (linenumber+1, filename))
+                        logger.warning("Non-numeric data on line %d of %s" % (
+                            line_number + 1, filename))
                     pass
         data = np.array(rows).transpose()
         return Series(data, name=name, filename=filename, parameter=parameter)
 
     @classmethod
     def pink1d(cls, n, rvs=scipy.stats.norm.rvs):
-        k = min(int(floor(log(n)/log(2))), 6)
+        k = min(int(floor(log(n) / log(2))), 6)
         pink = np.zeros((n,), float)
         m = 1
         for _ in range(k):
             p = int(ceil(float(n) / m))
-            pink += np.repeat(rvs(size=p), m,axis=0)[:n]
+            pink += np.repeat(rvs(size=p), m, axis=0)[:n]
             m <<= 1
-        return pink/k
+        return pink / k
 
     @classmethod
-    def pink1d_interp(cls, real_points = 1500, interp_points = 18000):
+    def pink1d_interp(cls, real_points=1500, interp_points=18000):
         n = interp_points
         m = real_points
         depths = np.linspace(0, 130, n)
@@ -120,62 +127,66 @@ class Series(object):
         return depths, values
 
     @classmethod
-    def make_pink(cls, real_points = 1500, interp_points = 18000):
+    def make_pink(cls, real_points=1500, interp_points=18000):
         depths, values = Series.pink1d_interp(real_points, interp_points)
-        return Series(np.array([depths, values]), name = 'pink')
+        return Series(np.array([depths, values]), name="pink")
 
     @classmethod
-    def random_rate(cls, real_points = 50, interp_points = 18000):
+    def random_rate(cls, real_points=50, interp_points=18000):
         s = Series.make_pink(real_points, interp_points)
         s = s.offset_values_by(1.0)
         return s
 
     def write(self, filename):
         """Write this series to the specified filename."""
-        with open(filename, 'w') as fh:
+        with open(filename, "w") as fh:
             for row in self.data.transpose():
-                fh.write('\t'.join(map(str, row))+'\n')
+                fh.write("\t".join(map(str, row)) + '\n')
 
     def write_to_dir(self, dir_path):
         """Write this series into the specified directory.
 
         The name attribute is used as the filename."""
         filename = os.path.join(dir_path, self.name)
-        with open(filename, 'w') as fh:
+        with open(filename, "w") as fh:
             for row in self.data.transpose():
-                fh.write('\t'.join(map(str, row))+'\n')
+                fh.write("\t".join(map(str, row)) + "\n")
 
-    def copy(self, data = None, name = None, filename = None,
-             suffix = None):
+    def copy(self, data=None, name=None, filename=None,
+             suffix=None):
         """Return an identical or modified copy of this series.
 
         Return a copy of this series, optionally modified using one or more
         of the optional parameters."""
 
         # Using "is" not "==" to avoid triggering an attempted
-        # elementwise object comparison in future scipy versions.
-        if data is None: data = self.data.copy()
-        if name is None: name = self.name
-        if filename is None: filename = self.filename
-        if suffix: name = name + suffix
+        # element-wise object comparison in future scipy versions.
+        if data is None:
+            data = self.data.copy()
+        if name is None:
+            name = self.name
+        if filename is None:
+            filename = self.filename
+        if suffix:
+            name = name + suffix
         return Series(data, name, filename, self.parameter)
 
     def accumulate(self):
-        newdata = self.data.copy()
-        newdata[1] = np.cumsum(newdata[1])
-        return self.copy(data = newdata, suffix = '-ac')
+        new_data = self.data.copy()
+        new_data[1] = np.cumsum(new_data[1])
+        return self.copy(data=new_data, suffix="-ac")
 
     def truncate(self, limit):
         """Truncate this series at the given point.
 
         Remove all position-value pairs with a position greater than the
         specified limit."""
-        positions = np.nonzero(self.data[0]>limit)[0]
+        positions = np.nonzero(self.data[0] > limit)[0]
         if positions.size > 0:
-            newdata = self.data[:, :positions[0]].copy()
+            new_data = self.data[:, :positions[0]].copy()
         else:
-            newdata = self.data
-        return self.copy(data = newdata, suffix = '-tr')
+            new_data = self.data
+        return self.copy(data=new_data, suffix='-tr')
 
     def clip(self, limits):
         """Clip the series to the given x-value (position) limits.
@@ -185,25 +196,25 @@ class Series(object):
         one end of the range."""
         xmin, xmax = limits
         start = 0
-        if (xmin != None):
+        if xmin is not None:
             while start < self.npoints() and self.data[0][start] < xmin:
                 start += 1
-        end = self.npoints()-1
-        if (xmax != None):
+        end = self.npoints() - 1
+        if xmax is not None:
             while end >= start and self.data[0][end] > xmax:
                 end -= 1
-        new_data = self.data.copy()[:, start:end+1]
-        return self.copy(data = new_data, suffix = '-cl')
+        new_data = self.data.copy()[:, start:end + 1]
+        return self.copy(data=new_data, suffix="-cl")
 
     def clip_values(self, limits):
-        assert(False)
+        assert (False)
         pass
 
     def npoints(self):
         """Return the number of points in this series."""
         return self.data.shape[1]
 
-    def diff_interp(self, other, npoints = 1000, norm = True):
+    def diff_interp(self, other, npoints=1000, norm=True):
         """Calculate a difference score using interpolation.
 
         Sum vertical distances between corresponding points on
@@ -212,7 +223,6 @@ class Series(object):
         """
         ip1 = interp1d(self.data[0], self.data[1])
         ip2 = interp1d(other.data[0], other.data[1])
-        npoints = 1000
         t = 0
         start = max(self.start(), other.start())
         end = min(self.end(), other.end())
@@ -220,7 +230,8 @@ class Series(object):
         for i in xrange(0, npoints):
             x = start + i * step
             t += abs(ip1(x) - ip2(x))
-        if norm: t /= npoints
+        if norm:
+            t /= npoints
         return t
 
     def start(self):
@@ -232,10 +243,12 @@ class Series(object):
     def length(self):
         return self.end() - self.start()
 
-    def contains(self, x, strict = True):
+    def contains(self, x, strict=True):
         """Determine whether a position is contained in this series."""
-        if strict: return x > self.start() and x < self.end()
-        else: return x >= self.start() and x <= self.end()
+        if strict:
+            return self.start() < x < self.end()
+        else:
+            return self.start() <= x <= self.end()
 
     def mean(self):
         """Return the mean of the values in this series.
@@ -264,9 +277,9 @@ class Series(object):
         detrended. NOTE: assumes constant sampling interval."""
         new_data = self.data.copy()
         new_data[1] = scipy.signal.detrend(new_data[1])
-        return self.copy(data = new_data, suffix = '-dt')
+        return self.copy(data=new_data, suffix='-dt')
 
-    def rate(self, use_midpoints = False):
+    def rate(self, use_midpoints=False):
         """Turn a depth/age series into an age/rate series.
 
         Intended for use with the output of the Match program.
@@ -281,23 +294,23 @@ class Series(object):
             new_data = np.array([midpoints, rates])
         else:
             xs, ys = [], []
-            for i in range(len(d)-1):
-                y_diff = self.data[0][i+1] - self.data[0][i]
-                x_diff = self.data[1][i+1] - self.data[1][i]
+            for i in range(len(d) - 1):
+                y_diff = self.data[0][i + 1] - self.data[0][i]
+                x_diff = self.data[1][i + 1] - self.data[1][i]
                 rate = y_diff / x_diff
                 xs.append(self.data[1][i])
-                xs.append(self.data[1][i+1])
+                xs.append(self.data[1][i + 1])
                 ys.append(rate)
                 ys.append(rate)
                 new_data = np.array([xs, ys])
-        return self.copy(new_data, suffix = '-rate')
+        return self.copy(new_data, suffix="-rate")
 
     def mapping(self):
         """Assuming that this series consists of match output data (i.e. a
         mapping from one series to another), this method returns a function
         which converts the position (given in the scale of the first series)
         to the corresponding position in the scale of the second series."""
-        return interp1d(self.data[0], self.data[1])
+        return interp1d(self.data[0], self.data[1], fill_value="extrapolate")
 
     def warp_using(self, match_series):
         """Return a warped version of this series.
@@ -308,7 +321,7 @@ class Series(object):
         mapping = match_series.mapping()
         new_series = self.copy().clip((mapping.x[0], mapping.x[-1]))
         new_series.data[0] = mapping(new_series.data[0])
-        new_series.name = self.name + '-warp'
+        new_series.name = self.name + "-warp"
         return new_series
 
     def scale_to(self, series):
@@ -325,18 +338,20 @@ class Series(object):
             (values_offs - offset_mean) * scale + offset_mean
         new_data = self.data.copy()
         new_data[1] = values_offs_scale
-        return self.copy(data = new_data, suffix = '-sc')
+        return self.copy(data=new_data, suffix="-sc")
 
     def scale_positions_by(self, factor):
-        """Return this series, with the positions linearly scaled by the supplied factor.
+        """Return this series, with the positions linearly scaled by the
+        supplied factor.
         """
-        
+
         new_data = self.data.copy()
         new_data[0] = self.data[0] * factor
-        return self.copy(data = new_data, suffix = "-psc")
-        
+        return self.copy(data=new_data, suffix="-psc")
+
     def scale_values_by(self, factor):
-        """Return this series, with the values linearly scaled by the supplied factor.
+        """Return this series, with the values linearly scaled by the
+        supplied factor.
 
         The scaling is relative to the mean, so the scaled values will have
         the same mean value as the original values."""
@@ -345,7 +360,7 @@ class Series(object):
         values_offset_scaled = values_offset * factor
         new_data = self.data.copy()
         new_data[1] = values_offset_scaled + mean
-        return self.copy(data = new_data, suffix = '-sc')
+        return self.copy(data=new_data, suffix="-sc")
 
     def scale_to_other_series(self, target_series, reference_range):
         """Return this series, scaled to match another series.
@@ -354,7 +369,7 @@ class Series(object):
         subseries derived from an original series, possibly with different
         scalings and offsets applied.        
         """
-        
+
         target_chunk = target_series.clip(reference_range)
         this_chunk = self.clip(reference_range)
         means = [series.mean() for series in (target_chunk, this_chunk)]
@@ -363,8 +378,8 @@ class Series(object):
         new_values = (self.values() - means[1]) * scale + means[0]
         new_data = self.data.copy()
         new_data[1] = new_values
-        return self.copy(data = new_data, suffix = '-sc')
-        
+        return self.copy(data=new_data, suffix='-sc')
+
     def scale_std_to(self, new_std):
         """Return this series, linearly scaled.
 
@@ -381,7 +396,7 @@ class Series(object):
         to each value in this series."""
         new_data = self.data.copy()
         new_data[1] = new_data[1] + offset
-        return self.copy(data = new_data, suffix = '-of')
+        return self.copy(data=new_data, suffix='-of')
 
     def subtract_mean(self):
         """Shift the mean value of this series to zero.
@@ -390,19 +405,19 @@ class Series(object):
         series so that their mean is zero."""
         return self.offset_values_by(-self.mean())
 
-    def smooth(self, window = 5):
+    def smooth(self, window=5):
         """Return this series, smoothed with a running mean."""
         weightings = np.repeat(1.0, window) / window
-        endzone = int(window / 2)
+        end_zone = int(window / 2)
         new_data = self.data.copy()
         d = new_data[1]
         new_data[1] = np.concatenate((
-            d[:endzone],
+            d[:end_zone],
             np.convolve(d, weightings, 'valid'),
-            d[-endzone:]))
-        return self.copy(data = new_data, suffix = '-sm'+str(window))
+            d[-end_zone:]))
+        return self.copy(data=new_data, suffix='-sm' + str(window))
 
-    def interpolate(self, npoints = None, kind = "linear"):
+    def interpolate(self, npoints=None, kind="linear"):
         """Interpolate this series to give regularly spaced x values.
         
         Args:
@@ -417,29 +432,30 @@ class Series(object):
             A new series containing the interpolated data.
         """
         f = interp1d(self.data[0], self.data[1], kind=kind)
-        if not npoints: npoints = self.npoints()
+        if not npoints:
+            npoints = self.npoints()
         new_xs = np.linspace(self.start(), self.end(), npoints)
         new_ys = f(new_xs)
         new_data = np.vstack((new_xs, new_ys))
-        return self.copy(data = new_data, suffix = '-rs')
+        return self.copy(data=new_data, suffix='-rs')
 
     def get_name(self):
         """Return the name of this series."""
-        if self.name != None:
+        if self.name is not None:
             return self.name
         else:
             return os.path.basename(self.filename)
 
     @classmethod
-    def stack(cls, series, weights = None, dyn_weights = None,
-              length = 10000, name = "stack"):
+    def stack(cls, series, weights=None, dyn_weights=None,
+              length=10000, name="stack"):
         """Stack the supplied collection of series."""
-        
+
         starts = [s.start() for s in series]
         ends = [s.end() for s in series]
         start = min(starts)
         end = max(ends)
-        if weights == None:
+        if weights is None:
             weights = np.ones(len(series))
         N = length
         ips = [interp1d(s.data[0], s.data[1])
@@ -455,7 +471,7 @@ class Series(object):
             total = 0
             weight_total = 0
             for i in range(0, len(series)):
-                if x >= starts[i] and x <= ends[i]:
+                if starts[i] <= x <= ends[i]:
                     weighted = ips[i](x) * weights[i]
                     if dyn_ips:
                         weighted *= dyn_ips[i](x)
@@ -465,7 +481,7 @@ class Series(object):
             mean = total / weight_total
             ys.append(mean)
         data = np.array([xs, ys])
-        return Series(data, name = name)
+        return Series(data, name=name)
 
     def resolution(self):
         """Return the mean resolution of this series.
@@ -475,7 +491,7 @@ class Series(object):
         divided by the total number of records."""
         return self.length() / float(self.npoints())
 
-    def is_even(self, tolerance = 0.000001):
+    def is_even(self, tolerance=0.000001):
         """Check whether x-values are evenly spaced."""
         i = 0
         abs_tolerance = self.length() * tolerance
@@ -492,7 +508,7 @@ class Series(object):
         total = np.sum(np.abs(ys[1:] - ys[:-1]))
         return total / self.length()
 
-    def local_wiggle(self, window = 301):
+    def local_wiggle(self, window=301):
         """Return a local-wiggliness series for this series."""
         # First calculate an ‘uncorrected wiggle’: for each point,
         # sum of its y-offsets from the previous and next points.
@@ -508,19 +524,19 @@ class Series(object):
         # Now we have a 1-d array representing how much each
         # y-value differs from its neighbours
         wiggle = np.ones(len(ys))
-        halfw = int(window/2)
-        for i in np.arange(halfw, len(ys)-halfw):
+        halfw = int(window / 2)
+        for i in np.arange(halfw, len(ys) - halfw):
             a = i - halfw
             b = i + halfw
-            total = np.sum(raw_wiggle[a:b+1])
+            total = np.sum(raw_wiggle[a:b + 1])
             distance = self.data[0][b] - self.data[0][a]
             wiggle[i] = total / distance
         # TODO do a better job on edges
         new_data = self.data.copy()
         new_data[1] = wiggle
-        return self.copy(new_data, suffix = '-df') 
+        return self.copy(new_data, suffix="-df")
 
-    def similar_to(self, series, tolerance = 1e-6):
+    def similar_to(self, series, tolerance=1e-6):
         """Report whether supplied series is similar to this one."""
 
         if self.data.shape != series.data.shape:
@@ -535,23 +551,23 @@ class Series(object):
         into the data array. The returned slice will include the datum at
         start, but exclude the datum (if any) at end."""
 
-        if start>=end:
+        if start >= end:
             raise ValueError("start (%d) must be less than end (%d)" %
                              (start, end))
-        if start<0:
+        if start < 0:
             raise ValueError("start (%d) must be >= 0" % start)
         if end > self.npoints():
             raise ValueError("end (%d) must be <= npoints (%d)" %
                              (end, self.npoints()))
-        return self.data[:,start:end]
+        return self.data[:, start:end]
 
     def data_slice_xnorm(self, start, end):
         """Return a dataslice of the data with a normalized x-range.
 
-        Return the dataslice of the data between start and end, which are indices
-        into the data array. The returned dataslice will include the datum at
-        start, but exclude the datum (if any) at end. The x-values of
-        the returned dataslice will be linearly transformed so as to run
+        Return the dataslice of the data between start and end, which are
+        indices into the data array. The returned dataslice will include the
+        datum at start, but exclude the datum (if any) at end. The x-values
+        of the returned dataslice will be linearly transformed so as to run
         from 0 to 1."""
 
         if end - start <= 1:
