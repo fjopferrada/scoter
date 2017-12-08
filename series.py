@@ -578,3 +578,78 @@ class Series(object):
         xlen = xmax - xmin
         dataslice[0] = (dataslice[0] - xmin) / xlen
         return dataslice
+
+    @staticmethod
+    def combine_series(specifiers, resolution):
+        """Create a composite series using sections of existing series.
+
+        Create a composite series from selected sections of other
+        series, according to a supplied tuple of specifiers.
+        The series are resampled to a constant interval specified by
+        the resolution parameter. Each
+        specifier is itself a tuple with the following structure:
+
+        ("single", X_START, SERIES) or
+        ("transition", X_START, SERIES1, SERIES2) or
+        ("end", X_POSITION)
+
+        A typical tuple of specifiers might be
+
+        (
+        ("single", 10, series1),
+        ("transition", 50, series1, series2),
+        ("single", 90, series2),
+        ("end", 200)
+        )
+
+        "single" and "transition" both create a sequence of data points
+        from X_START to the X_START or X_POSITION of the following specifier.
+
+        "single" takes values from a single series.
+
+        "transition" imposes a smooth transition between the two series
+        throughout the specified segment, weighting them linearly according
+        to the x position within the transition segment.
+
+        "end" specifies an end-point for the previous specifier.
+
+        :param resolution:
+        :param specifiers:
+        :return:
+        """
+
+        xs, ys = [], []
+
+        for i in range(len(specifiers)):
+            specifier = specifiers[i]
+            specifier_type = specifier[0]
+            x_start = specifier[1]
+            if specifier_type == "single":
+                x_end = specifiers[i + 1][1]
+                series = specifier[2]
+                mapping = series.mapping()
+                for x in range(x_start, x_end, resolution):
+                    xs.append(x)
+                    ys.append(mapping(x))
+            elif specifier_type == "transition":
+                x_end = specifiers[i + 1][1]
+                series1 = specifier[2]
+                series2 = specifier[3]
+                mapping1 = series1.mapping()
+                mapping2 = series2.mapping()
+                x_total_distance = x_end - x_start
+                for x in range(x_start, x_end, resolution):
+                    xs.append(x)
+                    x_distance = x - x_start
+                    scale = float(x_distance) / float(x_total_distance)
+                    y1 = mapping1(x)
+                    y2 = mapping2(x)
+                    ys.append(y2 * scale + y1 * (1-scale))
+
+            elif specifier_type == "end":
+                pass
+            else:
+                raise ValueError("Unknown specifier type {}".format(
+                                               specifier_type))
+
+        return Series(np.array([xs, ys]))
