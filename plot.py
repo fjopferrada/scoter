@@ -77,7 +77,8 @@ class Axes(object):
     def __init__(self, lines, invert=False, spread=0, xspread=0,
                  xlim=(None, None), ylim=(None, None),
                  xlabel=None, ylabel=None, legend_loc="upper left",
-                 bbox_to_anchor=(0.95, 1), vlines=[]):
+                 bbox_to_anchor=(0.95, 1), vlines=[],
+                 customize=None):
         if isinstance(lines, (list, tuple)):
             self.lines = lines
         else:
@@ -92,6 +93,7 @@ class Axes(object):
         self.legend_loc = legend_loc
         self.bbox_to_anchor = bbox_to_anchor
         self.vlines = vlines
+        self.customize = customize
 
     def plot(self, axes):
         i = 0
@@ -116,6 +118,8 @@ class Axes(object):
         axes.legend(prop=font_props,
                     loc=self.legend_loc, bbox_to_anchor=self.bbox_to_anchor)
 
+        if self.customize is not None:
+            self.customize(axes)
 
 class Plot(object):
     def __init__(self, ax_spec1, ax_spec2=None):
