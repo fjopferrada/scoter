@@ -678,4 +678,24 @@ class Series(object):
 
         xs_new = np.interp(xs_old, transform_xs, transform_ys)
 
-        return Series(np.array([xs_new, self.data[1]]))
+        return self.copy(data=np.array([xs_new, self.data[1]]))
+
+    def wrap_values(self, maximum=180, period=360):
+        """Wrap values into a periodic range.
+
+        This method is intended for declinations and other periodic values.
+        For each value in the series, it will subtract enough multiples of
+        the period to bring the value under the maximum (in effect, a modulo
+        function with an offset). The method returns a new series.
+
+        :param maximum: the maximum value to allow in the new series
+        :param period: the period of the values
+        :return: a new series with the values wrapped into the specified period
+        """
+        def wrapper(value):
+            while value > maximum:
+                value -= period
+            return value
+
+        v_wrapper = np.vectorize(wrapper)
+        return self.copy(data=np.array([self.data[0], v_wrapper(self.data[1])]))
