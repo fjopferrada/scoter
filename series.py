@@ -653,3 +653,29 @@ class Series(object):
                                                specifier_type))
 
         return Series(np.array([xs, ys]))
+
+    def linear_position_transform(self, tie_points):
+        """Linearly transform the positions of this series.
+
+        In practice, this method can be used to transform a depth series
+        to a time series. The position transformation is defined by a
+        supplied list of time points mapping a position in the old system
+        (e.g. depth) to a position in the new system (e.g. time). The values
+        remain the same, but the positions are mapped linearly from the old
+        system to the new system.
+
+        :param tie_points: a list of (p1, p2) pairs, where p1 is a position
+               in this series’ system and p2 is a position in the system
+               of the series to be produced
+        :return: a new series with the same values as this one, but with
+                the positions linearly mapped to the new system
+        """
+
+        xs_old = self.data[0]
+        tie_points_flipped = zip(*tie_points)
+        transform_xs = tie_points_flipped[0]
+        transform_ys = tie_points_flipped[1]
+
+        xs_new = np.interp(xs_old, transform_xs, transform_ys)
+
+        return Series(np.array([xs_new, self.data[1]]))
