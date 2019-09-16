@@ -362,6 +362,14 @@ class Series(object):
         new_data[1] = values_offset_scaled + mean
         return self.copy(data=new_data, suffix="-sc")
 
+    def scale_values_without_offset(self, factor):
+        """Return this series, with the values linearly scaled by the
+        supplied factor."""
+        new_data = self.data.copy()
+        new_data[1] = self.data[1] * factor
+
+        return self.copy(new_data, suffix="-sc")
+
     def scale_to_other_series(self, target_series, reference_range):
         """Return this series, scaled to match another series.
         
