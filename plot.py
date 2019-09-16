@@ -115,8 +115,9 @@ class Axes(object):
         if self.xlim[1] is not None: axes.set_xlim(right=self.xlim[1])
         if self.ylim[0] is not None: axes.set_ylim(bottom=self.ylim[0])
         if self.ylim[1] is not None: axes.set_ylim(top=self.ylim[1])
-        axes.legend(prop=font_props,
-                    loc=self.legend_loc, bbox_to_anchor=self.bbox_to_anchor)
+        if self.legend_loc is not None:
+            axes.legend(prop=font_props,
+                        loc=self.legend_loc, bbox_to_anchor=self.bbox_to_anchor)
 
         if self.customize is not None:
             self.customize(axes)
