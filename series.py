@@ -340,6 +340,28 @@ class Series(object):
         new_data[1] = values_offs_scale
         return self.copy(data=new_data, suffix="-sc")
 
+    def scale_extrema_to(self, series):
+        """Scale values in this series to match the extrema of another series.
+
+        Scale the values of this series linearly in such a way that the
+        minimum and maximum values are the same as the minimum and maximum
+        values of another series.
+
+        :param series: the series from which to take the minimum and maximum
+        :return: a copy of this series, with the values scaled to the
+           minimum and maximum of ``series``.
+        """
+        min_this = min(self.values())
+        max_this = max(self.values())
+        min_other = min(series.values())
+        max_other = max(series.values())
+        scale = (max_other - min_other) / (max_this - min_this)
+        offset = min_other - scale * min_this
+        new_values = scale * self.values() + offset
+        new_data = self.data.copy()
+        new_data[1] = new_values
+        return self.copy(data=new_data, suffix="-sc")
+
     def scale_positions_by(self, factor):
         """Return this series, with the positions linearly scaled by the
         supplied factor.
