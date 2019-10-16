@@ -27,7 +27,11 @@ from matplotlib.backends.backend_pdf import FigureCanvasPdf, PdfPages
 from matplotlib.backends.backend_svg import FigureCanvasSVG
 
 
+font_props = None
+
+
 def set_font_properties():
+    global font_props
     font_props = FontProperties()
     font_props.set_size("x-small")
     font_props.set_family("Arial")
