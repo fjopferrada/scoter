@@ -26,9 +26,11 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.backends.backend_pdf import FigureCanvasPdf, PdfPages
 from matplotlib.backends.backend_svg import FigureCanvasSVG
 
-font_props = FontProperties()
-font_props.set_size("x-small")
-font_props.set_family("Arial")
+
+def set_font_properties():
+    font_props = FontProperties()
+    font_props.set_size("x-small")
+    font_props.set_family("Arial")
 
 
 class WarpLine(object):
