@@ -128,6 +128,7 @@ class Axes(object):
         if self.customize is not None:
             self.customize(axes)
 
+
 class Plot(object):
     def __init__(self, ax_spec1, ax_spec2=None):
         self.ax_spec1 = ax_spec1
@@ -162,6 +163,7 @@ class Page(object):
         fig = mpl.figure.Figure(figsize=figsize)
         # We have to create a canvas in order to be able to save the figure,
         # even if we don't assign the object to anything.
+        # FigureCanvasBase.__init__ calls figure.set_canvas for us.
         if filetype.lower() == "pdf":
             FigureCanvasPdf(fig)
         elif filetype.lower() == "svg":
