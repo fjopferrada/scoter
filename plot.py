@@ -155,15 +155,17 @@ class Page(object):
                 for l in a.lines:
                     l.add_args(new_args, overwrite)
 
-    def plot(self, print_params={},
-             gridspec=dict(left=0.05, right=0.94, wspace=0.05),
-             figsize=(11, 8.5), filetype="pdf"):
+    def plot(self, gridspec=None, figsize=(11, 8.5), filetype="pdf"):
+        if gridspec is None:
+            gridspec = dict(left=0.05, right=0.94, wspace=0.05)
         nplots = len(self.plotspecs)
         fig = mpl.figure.Figure(figsize=figsize)
+        # We have to create a canvas in order to be able to save the figure,
+        # even if we don't assign the object to anything.
         if filetype.lower() == "pdf":
-            canvas = FigureCanvasPdf(fig)
+            FigureCanvasPdf(fig)
         elif filetype.lower() == "svg":
-            canvas = FigureCanvasSVG(fig)
+            FigureCanvasSVG(fig)
         else:
             raise ValueError("Unknown filetype: %s" % filetype)
         if self.title:
@@ -172,7 +174,9 @@ class Page(object):
         gs.update(**gridspec)
         for i in xrange(0, nplots):
             self.plotspecs[i].plot(fig, gs, i)
-        canvas.print_figure(self.filename, **print_params)
+        fig.set_size_inches(figsize)
+        fig.savefig(self.filename + "." + filetype,
+                    format=filetype.lower(), facecolor="none")
 
 
 def make_plot(seriess, filename, title=None, invert=False):
